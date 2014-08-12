@@ -1,18 +1,46 @@
+typer = require 'media-typer'
 
 
-formats =
+defaultFormats =
   'application/json': require './formats/json.coffee'
+
+
+selectFormat = (contentType, formats) ->
+  if contentType in Object.keys formats
+    return formats[contentType]  # shortcut for simple cases
+
+  contentTypeParts = typer.parse contentType
+  candidates = []
+
+  for own formatContentType, lib of formats
+    formatContentTypeParts = typer.parse formatContentType
+
+    if contentTypeParts.suffix is formatContentTypeParts.subtype
+      # this means `image/svg+xml` will eventually match with `application/xml`
+      candidates.push lib
+
+    if contentTypeParts.type isnt formatContentTypeParts.type
+      continue
+    if contentTypeParts.subtype isnt formatContentTypeParts.subtype
+      continue
+    if contentTypeParts.suffix isnt formatContentTypeParts.suffix
+      continue
+    # ignoring `.parameters` for now
+
+    return lib
+
+  return candidates?[0]  # or undefined in case there's absolutely no match
 
 
 # TODO:
 # * this could yield representation in events together with errors
 # * ...or it could implement the 'stream' thingy...?
 # * representer should validate the AST
-class Representer
+class Boutique
 
   constructor: (@format, options) ->
-    @skipOptional = options?.skipOptional or true
-    @skipTemplated = options?.skipTemplated or true
+    @skipOptional = options?.skipOptional ? true
+    @skipTemplated = options?.skipTemplated ? true
 
   # Traverses the AST tree and returns its complete representation.
   represent: (ast) ->
@@ -63,14 +91,18 @@ class Representer
     represented
 
 
-# TODO:
-# * better modularity...
-# * smarter selection of media types (application/foobar+json, etc.)
-# * ability to give custom mapping of formats (or to register new ones)
-module.exports.represent = (ast, contentType, cb) ->
-  format = formats[contentType]
+represent = (ast, contentType, cb) ->
+  format = selectFormat contentType, defaultFormats
   if not format
     cb new Error "Unknown format '#{contentType}'."
   else
-    rep = new Representer format
+    rep = new Boutique format
     cb null, rep.represent ast
+
+
+module.exports = {
+  defaultFormats
+  selectFormat
+  Boutique
+  represent
+}
