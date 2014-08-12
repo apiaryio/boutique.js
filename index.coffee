@@ -19,13 +19,14 @@ class Representer
     r = @handleElement ast
 
   handleElement: (element) ->
-    prim = element.primitive
-    if prim
+    if element.primitive?
+      prim = element.primitive
+
       if not prim.type or not prim.value
         # TODO we don't know either type or the value
         # - should we skip the property?
         return null
-
+      # TODO and what about having only one of them?
       if prim.type is 'object'
         @format.representObject @handleProperties prim.value
       else if prim.type is 'array'
@@ -43,7 +44,10 @@ class Representer
         # - should we imply string or to skip the property?
         return null
 
-    # TODO oneOf, ref
+    else if element?.oneOf?.length > 0
+      @handleElement element.oneOf[0]  # choose the first one
+
+    # TODO ref
 
   handleProperty: (property) ->
     @format.representObjectProperty property.name, @handleElement property
