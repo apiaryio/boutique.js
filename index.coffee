@@ -33,8 +33,7 @@ selectFormat = (contentType, formats) ->
 
 
 # TODO:
-# * this could yield representation in events together with errors
-# * ...or it could implement the 'stream' thingy...?
+# * error handling
 # * representer should validate the AST
 class Boutique
 
@@ -42,9 +41,9 @@ class Boutique
     @skipOptional = options?.skipOptional ? true
     @skipTemplated = options?.skipTemplated ? true
 
-  # Traverses the AST tree and returns its complete representation.
-  represent: (ast) ->
-    r = @handleElement ast
+  # Traverses the AST tree and provides its complete representation.
+  represent: (ast, cb) ->
+    cb null, @handleElement ast
 
   handleElement: (element) ->
     if element.primitive?
@@ -75,7 +74,7 @@ class Boutique
     else if element?.oneOf?.length > 0
       @handleElement element.oneOf[0]  # choose the first one
 
-    # TODO ref
+    # TODO implement ref
 
   handleProperty: (property) ->
     @format.representObjectProperty property.name, @handleElement property
@@ -97,7 +96,7 @@ represent = (ast, contentType, cb) ->
     cb new Error "Unknown format '#{contentType}'."
   else
     rep = new Boutique format
-    cb null, rep.represent ast
+    rep.represent ast, cb
 
 
 module.exports = {
