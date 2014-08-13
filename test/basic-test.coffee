@@ -30,6 +30,7 @@ describe 'Boutique', ->
 
     it 'produces no error', ->
       assert.notOk err
+
     it 'produces the right body', ->
       json = JSON.parse body
       assert.deepEqual json,
