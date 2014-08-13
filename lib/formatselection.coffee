@@ -3,8 +3,8 @@ typer = require 'media-typer'
 
 
 selectFormat = (contentType, formats) ->
-  if contentType in Object.keys formats
-    return formats[contentType]  # shortcut for simple cases
+  # shortcut for simple cases
+  return contentType[contentType] if contentType[contentType]
 
   contentTypeParts = typer.parse contentType
   candidates = []
