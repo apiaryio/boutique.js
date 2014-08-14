@@ -69,4 +69,4 @@ format = selectFormat 'application/json', formats
 ```
 
 For examples of format implementation please see [the
-collection of default formats](https://github.com/apiaryio/boutique/tree/master/formats).
+collection of default formats](https://github.com/apiaryio/boutique/tree/master/lib/formats).
