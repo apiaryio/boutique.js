@@ -1,11 +1,9 @@
 
-# TODO:
-# * error handling
-# * representer should validate the AST
+
 class Boutique
 
   constructor: (@format, options) ->
-    @skipOptional = options?.skipOptional ? true
+    @skipOptional = options?.skipOptional ? false
     @skipTemplated = options?.skipTemplated ? true
 
   # Traverses the AST tree and provides its complete representation.
@@ -28,42 +26,40 @@ class Boutique
   handleElement: (element) ->
     @validateElement element
 
-    if element.primitive?
-      prim = element.primitive
-
-      if not prim.type or not prim.value
-        # TODO we don't know either type or the value
-        # - should we skip the property?
-        # TODO and what about having only one of them?
-        return null
-
-      if prim.type is 'object'
-        return @format.representObject @handleProperties prim.value
-
-      else if prim.type is 'array'
-        return @format.representArray (
-          @handleElement elem for elem in prim.value
-        )
-
-      else if prim.type is 'string'
-        return @format.representString prim.value
-
-      else if prim.type is 'number'
-        return @format.representNumber prim.value
-
-      else if prim.type in ['bool', 'boolean']
-        return @format.representBool prim.value
-
-      else
-        # TODO we don't know the type
-        # - should we imply string or to skip the property?
-        return null
-
-    if element?.oneOf?.length > 0
-      return @handleElement element.oneOf[0]  # choose the first one
-
+    if element.oneOf?.length > 0
+      return @handleOneOf element.oneOf
     if element.ref?
-      throw new Error "Property 'ref' is not implemented yet. https://github.com/apiaryio/boutique/issues"
+      return @handleRef element.ref
+
+    if not element.primitive?.value
+      return @format.representNull()
+    @handlePrimitive element.primitive
+
+  handlePrimitive: ({value, type}) ->
+    type = type ? if Array.isArray value then 'object' else 'string'
+
+    if type is 'object'
+      @format.representObject @handleProperties value
+
+    else if type is 'array'
+      @format.representArray (
+        @handleElement elem for elem in value
+      )
+
+    else if type is 'number'
+      @format.representNumber value
+
+    else if type in ['bool', 'boolean']
+      @format.representBool value
+
+    else  # string
+      @format.representString value
+
+  handleOneOf: (oneOf) ->
+    @handleElement element.oneOf[0]  # choose the first one
+
+  handleRef: (ref) ->
+    throw new Error "Property 'ref' is not implemented yet. https://github.com/apiaryio/boutique/issues"
 
   handleProperty: (property) ->
     @format.representObjectProperty property.name, @handleElement property

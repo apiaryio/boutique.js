@@ -20,3 +20,6 @@ module.exports =
 
   representBool: (value) ->
     value.toLowerCase()
+
+  representNull: ->
+    "null"
