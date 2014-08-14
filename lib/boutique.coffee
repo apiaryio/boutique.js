@@ -3,8 +3,8 @@
 class Boutique
 
   constructor: (@format, options) ->
-    @skipOptional = options?.skipOptional ? false
-    @skipTemplated = options?.skipTemplated ? true
+    @skipOptional = options?.skipOptional or false
+    @skipTemplated = options?.skipTemplated or true
 
   # Traverses the AST tree and provides its complete representation.
   represent: (ast, cb) ->
@@ -36,7 +36,7 @@ class Boutique
     @handlePrimitive element.primitive
 
   handlePrimitive: ({value, type}) ->
-    type = type ? if Array.isArray value then 'object' else 'string'
+    type = type or (if Array.isArray value then 'object' else 'string')
 
     if type is 'object'
       @format.representObject @handleProperties value
