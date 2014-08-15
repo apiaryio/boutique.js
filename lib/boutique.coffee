@@ -8,20 +8,11 @@ class Boutique
 
   # Traverses the AST tree and provides its complete representation.
   represent: (ast, cb) ->
+    ast = ast or {}
     try
       cb null, @handleElement ast
     catch err
       cb err, null
-
-  validateElement: (element) ->
-    # mutally exclusive properties
-    present = []
-    for prop in ['primitive', 'oneOf', 'ref']
-      if element[prop]?
-        present.push prop
-    if present.length > 1
-      present = ("'#{prop}'" for prop in present).join ', '
-      throw new Error "Following properties are mutually exclusive: #{present}."
 
   handleElement: (element) ->
     @validateElement element
@@ -35,8 +26,18 @@ class Boutique
       return @format.representNull()
     @handlePrimitive element.primitive
 
+  validateElement: (element) ->
+    # check mutally exclusive properties
+    present = []
+    for prop in ['primitive', 'oneOf', 'ref']
+      if element[prop]?
+        present.push prop
+    if present.length > 1
+      present = ("'#{prop}'" for prop in present).join ', '
+      throw new Error "Following properties are mutually exclusive: #{present}."
+
   handlePrimitive: ({value, type}) ->
-    type = type or (if Array.isArray value then 'object' else 'string')
+    type = type or (if Array.isArray value then 'object')
 
     if type is 'object'
       @format.representObject @handleProperties value
@@ -61,9 +62,6 @@ class Boutique
   handleRef: (ref) ->
     throw new Error "Property 'ref' is not implemented yet. https://github.com/apiaryio/boutique/issues"
 
-  handleProperty: (property) ->
-    @format.representObjectProperty property.name, @handleElement property
-
   handleProperties: (properties) ->
     represented = []
     for prop in properties
@@ -73,6 +71,9 @@ class Boutique
         continue
       represented.push @handleProperty prop
     represented
+
+  handleProperty: (property) ->
+    @format.representObjectProperty property.name, @handleElement property
 
 
 module.exports = {
