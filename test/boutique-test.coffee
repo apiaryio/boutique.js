@@ -77,9 +77,70 @@ describe "Boutique", ->
     repr: 'nil'
     reprDesc: 'empty representation'
 
-  # describe "can generate optional properties if asked", ->
+  describe "generates optional properties by default", test
+    ast:
+      primitive:
+        type: 'object'
+        value: [
+            name: 'id'
+            required: true
+            description: 'The unique identifier of an employee'
+            primitive:
+              type: 'number'
+              value: '1'
+          ,
+            name: 'name'
+            required: false
+            description: 'Name of the employee'
+            primitive:
+              type: 'string'
+              value: 'Věroš'
+        ]
+    repr: 'obj[prop[id,num[1]],prop[name,str[Věroš]]]'
+    reprDesc: 'object with one required property of name ‘id’ and one optional property of name ‘name’'
 
-  # describe "can generate templated property if asked", ->
+  describe "doesn't generate optional properties if ‘skipOptional’ option given as ‘true’", test
+    options:
+      skipOptional: true
+    ast:
+      primitive:
+        type: 'object'
+        value: [
+            name: 'id'
+            required: true
+            description: 'The unique identifier of an employee'
+            primitive:
+              type: 'number'
+              value: '1'
+          ,
+            name: 'name'
+            required: false
+            description: 'Name of the employee'
+            primitive:
+              type: 'string'
+              value: 'Věroš'
+        ]
+    repr: 'obj[prop[id,num[1]]]'
+    reprDesc: 'object with one required property of name ‘id’'
+
+  describe "does not generate templated properties", test
+    ast:
+      primitive:
+        type: 'object'
+        value: [
+            name: 'id'
+            required: true
+            description: 'The unique identifier of an employee'
+            primitive:
+              type: 'number'
+              value: '1'
+          ,
+            name: 'additional properties'
+            templated: true
+            description: 'Any other additional properties.'
+        ]
+    repr: 'obj[prop[id,num[1]]]'
+    reprDesc: 'object with one required property of name ‘id’ and one optional property of name ‘name’'
 
 
 describe "Boutique's element handler", ->

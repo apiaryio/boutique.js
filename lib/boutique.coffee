@@ -4,7 +4,6 @@ class Boutique
 
   constructor: (@format, options) ->
     @skipOptional = options?.skipOptional or false
-    @skipTemplated = options?.skipTemplated or true
 
   # Traverses the AST tree and provides its complete representation.
   represent: (ast, cb) ->
@@ -67,7 +66,7 @@ class Boutique
     for prop in properties
       if not prop.required and @skipOptional
         continue
-      if prop.templated and @skipTemplated
+      if prop.templated
         continue
       represented.push @handleProperty prop
     represented
