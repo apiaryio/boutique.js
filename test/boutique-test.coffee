@@ -60,6 +60,7 @@ describe "Boutique", ->
 
       if errDesc
         it "fails on error, which contains words ‘#{errDesc}’", ->
+          assert.ok e
           assert.include e.message, errDesc
       else
         desc = "produces " + (reprDesc or "the right representation")
@@ -109,6 +110,7 @@ describe "Boutique's element handler", ->
 
       if errDesc
         it "fails on error, which contains words ‘#{errDesc}’", ->
+          assert.ok e
           assert.include e.message, errDesc
       else
         it 'produces no error', ->

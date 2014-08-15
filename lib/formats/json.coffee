@@ -6,20 +6,21 @@ module.exports =
     "{#{joined}}"
 
   representObjectProperty: (name, value) ->
-    "\"#{name}\": #{value}"
+    "\"#{name}\":#{value}"
 
   representArray: (elements) ->
     joined = elements.join ','
     "[#{joined}]"
 
   representString: (value) ->
-    "\"#{value}\""
+    JSON.stringify value
 
   representNumber: (value) ->
     value
 
   representBool: (value) ->
-    value.toLowerCase()
+    value = !!JSON.parse value
+    JSON.stringify value
 
   representNull: ->
     "null"
