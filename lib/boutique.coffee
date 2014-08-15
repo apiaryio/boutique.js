@@ -13,17 +13,27 @@ class Boutique
     catch err
       cb err, null
 
-  handleElement: (element) ->
+  handleElement: (element, isProperty) ->
     @validateElement element
 
     if element.oneOf?.length > 0
-      return @handleOneOf element.oneOf
-    if element.ref?
-      return @handleRef element.ref
+      value = @handleOneOf element.oneOf, isProperty
+      if isProperty then return value  # we already got the whole prop rendered
 
-    if not element.primitive?.value
-      return @format.representNull()
-    @handlePrimitive element.primitive
+    else if element.ref?
+      value = @handleRef element.ref
+
+    else if not element.primitive?.value
+      value = @format.representNull()
+
+    else
+      value = @handlePrimitive element.primitive
+
+    # if the element is also a property, we need to render it as such
+    if isProperty
+      @format.representObjectProperty element.name, value
+    else
+      value
 
   validateElement: (element) ->
     # check mutally exclusive properties
@@ -55,10 +65,24 @@ class Boutique
     else  # string
       @format.representString value
 
-  handleOneOf: (oneOf) ->
-    @handleElement element.oneOf[0]  # choose the first one
+  handleOneOf: (oneOf, isProperty) ->
+    if isProperty
+      if not @format.representOneOfProperties?
+        return @handleProperty oneOf[0]
+
+      @format.representOneOfProperties (
+        @handleProperty prop for prop in oneOf
+      )
+    else
+      if not @format.representOneOfElements?
+        return @handleElement oneOf[0]
+
+      @format.representOneOfElements (
+        @handleElement elem for elem in oneOf
+      )
 
   handleRef: (ref) ->
+    # when implementing this, beware: referencing can be recursive
     throw new Error "Property 'ref' is not implemented yet. https://github.com/apiaryio/boutique/issues"
 
   handleProperties: (properties) ->
@@ -72,7 +96,7 @@ class Boutique
     represented
 
   handleProperty: (property) ->
-    @format.representObjectProperty property.name, @handleElement property
+    @handleElement property, true
 
 
 module.exports = {
