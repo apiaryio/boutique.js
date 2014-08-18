@@ -10,22 +10,24 @@ describe "JSON format", ->
     ->
       boutique = new Boutique format, options
 
-      e = undefined
-      r = undefined
+      err = undefined
+      body = undefined
 
       before (next) ->
         boutique.represent ast, ->
-          [e, r] = arguments
+          [err, body] = arguments
           next()
 
       if errDesc
         it "fails on error, which contains words ‘#{errDesc}’", ->
-          assert.ok e
-          assert.include e.message, errDesc
+          assert.ok err
+          assert.include err.message, errDesc
       else
+        it 'produces no error', ->
+          assert.notOk err
         desc = "produces " + (reprDesc or "the right representation")
         it desc, ->
-          assert.equal r, repr
+          assert.deepEqual JSON.parse(body), repr
 
   describe "handles basic MSON AST", test
     ast:
@@ -39,7 +41,8 @@ describe "JSON format", ->
             type: 'number'
             value: '1'
         ]
-    repr: '{"id":1}'
+    repr:
+      id: 1
     reprDesc: 'object with one property of name ‘id’, having number ‘1’ as a value'
 
   describe "properly handles ‘string’", test
@@ -47,7 +50,7 @@ describe "JSON format", ->
       primitive:
         type: 'string'
         value: 'Dummy value'
-    repr: '"Dummy value"'
+    repr: 'Dummy value'
     reprDesc: 'string with value ‘Dummy value’'
 
   describe "properly handles tricky ‘string’", test
@@ -55,7 +58,7 @@ describe "JSON format", ->
       primitive:
         type: 'string'
         value: 'Žvýkačka: \' ≤ "'
-    repr: '"Žvýkačka: \' ≤ \\""'
+    repr: 'Žvýkačka: \' ≤ "'
     reprDesc: 'string with value ‘Žvýkačka: \' ≤ \\"’'
 
   describe "properly handles ‘number’", test
@@ -63,7 +66,7 @@ describe "JSON format", ->
       primitive:
         type: 'number'
         value: '1.2'
-    repr: '1.2'
+    repr: 1.2
     reprDesc: 'number with value ‘1.2’'
 
   describe "properly handles ‘bool’", test
@@ -71,7 +74,7 @@ describe "JSON format", ->
       primitive:
         type: 'bool'
         value: 'true'
-    repr: 'true'
+    repr: true
     reprDesc: 'boolean with value ‘true’'
 
   describe "properly handles ‘array’", test
@@ -87,7 +90,7 @@ describe "JSON format", ->
               type: 'number'
               value: '42'
         ]
-    repr: '["h2g2",42]'
+    repr: ['h2g2', 42]
     reprDesc: 'array containing two elements: string with value ‘h2g2’ and number with value ‘42’'
 
   describe "properly handles ‘object’", test
@@ -105,5 +108,7 @@ describe "JSON format", ->
               type: 'number'
               value: '42'
         ]
-    repr: '{"abbr":"h2g2","id":42}'
+    repr:
+      abbr: 'h2g2'
+      id: 42
     reprDesc: 'object containing two properties: string ‘abbr’ with value ‘h2g2’ and number ‘id’ with value ‘42’'

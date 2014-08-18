@@ -50,22 +50,22 @@ describe "Boutique", ->
       format = format or pseudoFormat
       boutique = new Boutique format, options
 
-      e = undefined
-      r = undefined
+      err = undefined
+      body = undefined
 
       before (next) ->
         boutique.represent ast, ->
-          [e, r] = arguments
+          [err, body] = arguments
           next()
 
       if errDesc
         it "fails on error, which contains words ‘#{errDesc}’", ->
-          assert.ok e
-          assert.include e.message, errDesc
+          assert.ok err
+          assert.include err.message, errDesc
       else
         desc = "produces " + (reprDesc or "the right representation")
         it desc, ->
-          assert.equal r, repr
+          assert.equal body, repr
 
   describe "handles basic MSON AST", test
     ast:
@@ -99,25 +99,25 @@ describe "Boutique's element handler", ->
       format = format or pseudoFormat
       boutique = new Boutique format, options
 
-      e = undefined
-      r = undefined
+      err = undefined
+      body = undefined
 
       before ->
         try
-          r = boutique.handleElement obj
+          body = boutique.handleElement obj
         catch err
-          e = err
+          err = err
 
       if errDesc
         it "fails on error, which contains words ‘#{errDesc}’", ->
-          assert.ok e
-          assert.include e.message, errDesc
+          assert.ok err
+          assert.include err.message, errDesc
       else
         it 'produces no error', ->
-          assert.notOk e
+          assert.notOk err
         desc = "produces " + (reprDesc or "the right representation")
         it desc, ->
-          assert.equal r, repr
+          assert.equal body, repr
 
   describe "ensures that ‘primitive’ and ‘oneOf’ are mutually exclusive", test
     obj:
