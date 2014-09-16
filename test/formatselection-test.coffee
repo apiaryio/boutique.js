@@ -1,7 +1,7 @@
 require 'mocha'
 {assert} = require 'chai'
 
-{selectFormat} = require '../lib/formatselection.coffee'
+{selectFormat} = require '../lib/formatselection'
 
 
 describe "Format selection", ->
