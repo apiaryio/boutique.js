@@ -1,24 +1,37 @@
 
-{Boutique} = require './lib/boutique.coffee'
-{selectFormat} = require './lib/formatselection.coffee'
+async = require 'async'
+
+{Boutique} = require './lib/boutique'
+{serializers} = require './lib/serializers'
+{selectFormat} = require './lib/formatselection'
 
 
-defaultFormats =
-  'application/json': require './lib/formats/json.coffee'
+formats =
+  'application/json':
+    lib: require './lib/formats/json'
+    serialize: serializers.json
 
 
-represent = (ast, contentType, cb) ->
-  format = selectFormat contentType, defaultFormats
-  if not format
-    cb new Error "Unknown format '#{contentType}'."
+represent = (ast, contentType, options, cb) ->
+  key = selectFormat contentType, Object.keys formats
+
+  if key
+    {lib, serialize} = formats[key]
+
+    async.waterfall [
+        (next) ->
+          format = new lib.Format options
+          boutique = new Boutique format
+          boutique.represent ast, impl, next
+      ,
+        (obj, next) ->
+          serialize obj, next
+
+    ], cb
   else
-    rep = new Boutique format
-    rep.represent ast, cb
+    cb new Error "Content-Type '#{contentType}' is not implemented."
 
 
 module.exports = {
-  defaultFormats
-  selectFormat
-  Boutique
   represent
 }
