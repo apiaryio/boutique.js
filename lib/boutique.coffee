@@ -4,17 +4,39 @@ class Boutique
 
   constructor: (@format, options) ->
     @skipOptional = options?.skipOptional or false
-    @skipTemplated = options?.skipTemplated or true
 
   # Traverses the AST tree and provides its complete representation.
   represent: (ast, cb) ->
+    ast = ast or {}
     try
       cb null, @handleElement ast
     catch err
       cb err, null
 
+  handleElement: (element, isProperty) ->
+    @validateElement element
+
+    if element.oneOf?.length > 0
+      value = @handleOneOf element.oneOf, isProperty
+      if isProperty then return value  # we already got the whole prop rendered
+
+    else if element.ref?
+      value = @handleRef element.ref
+
+    else if not element.primitive?.value
+      value = @format.representNull()
+
+    else
+      value = @handlePrimitive element.primitive
+
+    # if the element is also a property, we need to render it as such
+    if isProperty
+      @format.representObjectProperty element.name, value
+    else
+      value
+
   validateElement: (element) ->
-    # mutally exclusive properties
+    # check mutally exclusive properties
     present = []
     for prop in ['primitive', 'oneOf', 'ref']
       if element[prop]?
@@ -23,20 +45,8 @@ class Boutique
       present = ("'#{prop}'" for prop in present).join ', '
       throw new Error "Following properties are mutually exclusive: #{present}."
 
-  handleElement: (element) ->
-    @validateElement element
-
-    if element.oneOf?.length > 0
-      return @handleOneOf element.oneOf
-    if element.ref?
-      return @handleRef element.ref
-
-    if not element.primitive?.value
-      return @format.representNull()
-    @handlePrimitive element.primitive
-
   handlePrimitive: ({value, type}) ->
-    type = type or (if Array.isArray value then 'object' else 'string')
+    type = type or (if Array.isArray value then 'object')
 
     if type is 'object'
       @format.representObject @handleProperties value
@@ -55,24 +65,38 @@ class Boutique
     else  # string
       @format.representString value
 
-  handleOneOf: (oneOf) ->
-    @handleElement element.oneOf[0]  # choose the first one
+  handleOneOf: (oneOf, isProperty) ->
+    if isProperty
+      if not @format.representOneOfProperties?
+        return @handleProperty oneOf[0]
+
+      @format.representOneOfProperties (
+        @handleProperty prop for prop in oneOf
+      )
+    else
+      if not @format.representOneOfElements?
+        return @handleElement oneOf[0]
+
+      @format.representOneOfElements (
+        @handleElement elem for elem in oneOf
+      )
 
   handleRef: (ref) ->
+    # when implementing this, beware: referencing can be recursive
     throw new Error "Property 'ref' is not implemented yet. https://github.com/apiaryio/boutique/issues"
-
-  handleProperty: (property) ->
-    @format.representObjectProperty property.name, @handleElement property
 
   handleProperties: (properties) ->
     represented = []
     for prop in properties
       if not prop.required and @skipOptional
         continue
-      if prop.templated and @skipTemplated
+      if prop.templated
         continue
       represented.push @handleProperty prop
     represented
+
+  handleProperty: (property) ->
+    @handleElement property, true
 
 
 module.exports = {
