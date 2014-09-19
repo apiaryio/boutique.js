@@ -8,7 +8,7 @@
     "url": "https://github.com/apiaryio/boutique.git"
   },
   "engines": {
-    "node": ">= 0.10.x"
+    "node": ">= 0.8.x"
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script/register"

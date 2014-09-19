@@ -1,3 +1,13 @@
-machine:
-  node:
-    version: v0.10
+dependencies:
+  override:
+    - nvm use v0.8
+    - npm install
+    - nvm use v0.10
+    - npm install
+
+test:
+  override:
+    - nvm use v0.8
+    - npm test
+    - nvm use v0.10
+    - npm test
