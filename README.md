@@ -22,51 +22,49 @@ ast =
     ]
 ```
 
-...we can convert it using Boutique's **simple interface**. Simple interface
-has sensible defaults and built-in set of supported formats:
+...we can convert it by Boutique:
 
 ```coffee
 boutique = require 'boutique'
 boutique.represent ast, 'application/json', (err, body) ->
   # body contains '{"id": 1}' string
-
 ```
 
-However, there's also **fully-customizable interface**:
+It's possible to also pass format options:
 
 ```coffee
-{Boutique, defaultFormats} = require 'boutique'
+boutique = require 'boutique'
 
-jsonFormat = defaultFormats['application/json']
-boutique = new Boutique jsonFormat
-boutique.represent ast, (err, body) ->
-  # body contains '{"id": 1}' string
-
-foobarFormat = require './formats/foobar.coffee'
-boutique = new Boutique foobarFormat,
+options =
   skipOptional: false
-boutique.represent ast, (err, body) ->
-  # ...
 
+boutique.represent ast, 'application/json', options, (err, body) ->
+  ...
 ```
 
-Also the logic of **format selection** is exposed, if you need it:
+## API
 
-```coffee
-{defaultFormats, selectFormat} = require 'boutique'
-foobarFormat = require './formats/foobar.coffee'
+**boutique.represent(ast, contentType[, options], cb)**
 
-formats =
-  'application/vnd.foobar+json': foobarFormat
-for own contentType, format of defaultFormats
-  formats[contentType] = format
+-   ast (object) - MSON AST
+-   contentType: "application/json" (string)
+    
+    Smart matching takes place. For example, if following formats are implemented and provided by Boutique...
 
-format = selectFormat 'application/vnd.foobar+json', formats
-# format equals to `foobarFormat` from the example above
+    -   `application/json`
+    -   `application/xml`
+    -   `application/schema+json`
 
-format = selectFormat 'application/json', formats
-# format equals to `jsonFormat` from the example above
-```
+    ...then matching will work like this:
 
-For examples of format implementation please see [the
-collection of default formats](https://github.com/apiaryio/boutique/tree/master/lib/formats).
+    -   `image/svg+xml; charset=utf-8` → `application/xml`
+    -   `application/schema+json` → `application/schema+json`
+    -   `application/hal+json` → `application/json`
+
+-   options (object) - optional set of settings, which are passed to the selected format (*to be documented*)
+-   cb (function) - callback function:
+    
+    **callback(err, repr)**
+
+    -   err (object) - `null` or exception object in case of error
+    -   repr (string) - final string representation of given AST in given format
