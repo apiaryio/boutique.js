@@ -64,7 +64,8 @@ boutique.represent ast, 'application/json', options, (err, body) ->
 -   options (object) - optional set of settings, which are passed to the selected format (*to be documented*)
 -   cb (function) - callback function:
     
-    **callback(err, repr)**
+    **callback(err, repr, contentType)**
 
     -   err (object) - `null` or exception object in case of error
     -   repr (string) - final string representation of given AST in given format
+    -   contentType (string) - selected content type, which was actually used for rendering the representation

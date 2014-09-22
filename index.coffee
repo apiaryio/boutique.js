@@ -28,7 +28,8 @@ represent = (ast, contentType, options, cb) ->
         (obj, next) ->
           serialize obj, next
 
-    ], cb
+    ], (err, repr) ->
+      cb err, repr, key
   else
     cb new Error "Content-Type '#{contentType}' is not implemented."
 
