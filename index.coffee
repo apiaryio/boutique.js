@@ -13,6 +13,7 @@ formats =
 
 
 represent = (ast, contentType, options, cb) ->
+  if typeof options is 'function' then cb = options
   key = selectFormat contentType, Object.keys formats
 
   if key
