@@ -23,7 +23,7 @@ represent = (ast, contentType, options, cb) ->
         (next) ->
           format = new lib.Format options
           boutique = new Boutique format
-          boutique.represent ast, impl, next
+          boutique.represent ast, next
       ,
         (obj, next) ->
           serialize obj, next
