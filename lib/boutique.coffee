@@ -1,20 +1,23 @@
 
+async = require 'async'
+
+
 class Boutique
 
   constructor: (@format) ->
 
   represent: (ast, cb) ->
-    @traverseElement ast or {}, cb
+    @traverseElement ast or {}, false, cb
 
   traverseElement: (element, isProperty, cb) ->
-    @validateElement element, (err) ->
+    @validateElement element, (err) =>
       if err then return cb err
 
       if element.oneOf?.length > 0
         async.map element.oneOf
-        , (item, next) ->
+        , (item, next) =>
           @traverseElement item, isProperty, next
-        , (err, items) ->
+        , (err, items) =>
           if err then return cb err
           if isProperty
             @format.handleOneOfProperties element, items, cb

@@ -1,13 +1,13 @@
 require 'mocha'
 
-{createTest} = require '../testutils'
-format = require '../../lib/formats/json'
+{createDescribe} = require '../testutils'
+{Format} = require '../../lib/formats/json'
 
 
 describe "JSON format", ->
-  test = createTest format
+  boutique = createDescribe new Format
 
-  describe "handles basic MSON AST", test
+  boutique "handles basic MSON AST",
     ast:
       primitive:
         type: 'object'
@@ -23,7 +23,7 @@ describe "JSON format", ->
       id: 1
     reprDesc: 'object with one property of name ‘id’, having number ‘1’ as a value'
 
-  describe "properly handles ‘string’", test
+  boutique "properly handles ‘string’",
     ast:
       primitive:
         type: 'string'
@@ -31,7 +31,7 @@ describe "JSON format", ->
     repr: 'Dummy value'
     reprDesc: 'string with value ‘Dummy value’'
 
-  describe "properly handles tricky ‘string’", test
+  boutique "properly handles tricky ‘string’",
     ast:
       primitive:
         type: 'string'
@@ -39,7 +39,7 @@ describe "JSON format", ->
     repr: 'Žvýkačka: \' ≤ "'
     reprDesc: 'string with value ‘Žvýkačka: \' ≤ \\"’'
 
-  describe "properly handles ‘number’", test
+  boutique "properly handles ‘number’",
     ast:
       primitive:
         type: 'number'
@@ -47,7 +47,7 @@ describe "JSON format", ->
     repr: 1.2
     reprDesc: 'number with value ‘1.2’'
 
-  describe "properly handles ‘bool’", test
+  boutique "properly handles ‘bool’",
     ast:
       primitive:
         type: 'bool'
@@ -55,7 +55,7 @@ describe "JSON format", ->
     repr: true
     reprDesc: 'boolean with value ‘true’'
 
-  describe "properly handles ‘array’", test
+  boutique "properly handles ‘array’",
     ast:
       primitive:
         type: 'array'
@@ -71,7 +71,7 @@ describe "JSON format", ->
     repr: ['h2g2', 42]
     reprDesc: 'array containing two elements: string with value ‘h2g2’ and number with value ‘42’'
 
-  describe "properly handles ‘object’", test
+  boutique "properly handles ‘object’",
     ast:
       primitive:
         type: 'object'
