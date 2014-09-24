@@ -1,22 +1,14 @@
 require 'mocha'
-fs = require 'fs'
-path = require 'path'
 
-{createDescribe} = require './testutils'
+{createDescribe, iterFormats} = require './testutils'
 
 
-FORMATS_DIR = '../lib/formats'
-
-for file in fs.readdirSync path.join __dirname, FORMATS_DIR when file isnt 'base.coffee'
-  formatPath = path.join FORMATS_DIR, file
-  {Format} = require formatPath
-
-
+for format in iterFormats()
   # Core Boutique tests. Should test features of Boutique itself,
   # traversal algorithms, etc. Tested with every available format.
 
-  describe "Core Boutique (tested with ‘#{path.basename file, '.coffee'}’)", ->
-    boutique = createDescribe Format
+  describe "Core Boutique (tested with ‘#{format.name}’)", ->
+    boutique = createDescribe format.class
 
     boutique "handles empty MSON AST given as empty object",
       ast: {}

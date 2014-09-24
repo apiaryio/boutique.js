@@ -2,7 +2,7 @@
 async = require 'async'
 
 {Boutique} = require './lib/boutique'
-{serializers} = require './lib/serializers'
+serializers = require './lib/serializers'
 {selectFormat} = require './lib/formatselection'
 
 

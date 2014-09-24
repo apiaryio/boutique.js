@@ -1,7 +1,27 @@
 require 'mocha'
+fs = require 'fs'
+path = require 'path'
 {assert} = require 'chai'
 
 {Boutique} = require '../lib/boutique'
+
+
+FORMATS_DIR = '../lib/formats'
+
+
+iterFormats = () ->
+  formats = []
+  files = fs.readdirSync path.join __dirname, FORMATS_DIR
+
+  for file in files when file isnt 'base.coffee'
+    formatPath = path.join FORMATS_DIR, file
+    {Format} = require formatPath
+
+    formats.push
+      class: Format
+      name: path.basename file, '.coffee'
+
+  formats
 
 
 createDescribe = (Format) ->
@@ -32,4 +52,5 @@ createDescribe = (Format) ->
 
 module.exports = {
   createDescribe
+  iterFormats
 }
