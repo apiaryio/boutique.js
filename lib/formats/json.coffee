@@ -4,20 +4,30 @@ class Format
   constructor: (options) ->
     @skipOptional = options?.skipOptional or false
 
+  prepareProperties: (primitive, properties, cb) ->
+    props = []
+    for prop in properties
+      if prop.oneOf?.length > 0
+        prop = prop.oneOf[0]
+      props.push prop
+    cb null, props
+
+  handleOneOfProperties: (oneOf, properties, cb) ->
+    cb null, properties
+
+  handleOneOfElements: (oneOf, elements, cb) ->
+    cb null, elements[0].repr
+
   handleObject: (primitive, properties, cb) ->
     obj = {}
-    for prop, i in primitive.value
-      obj[prop.name] = properties[i]
+    for {element, repr} in properties
+      if element.templated or (@skipOptional and not element.required)
+        continue
+      obj[element.name] = repr
     cb null, obj
 
   handleArray: (primitive, elements, cb) ->
-    cb null, elements
-
-  handleOneOfProperties: (element, properties, cb) ->
-    cb null, properties[0]
-
-  handleOneOfElements: (element, elements, cb) ->
-    cb null, elements[0]
+    cb null, (repr for {element, repr} in elements)
 
   handleString: (primitive, cb) ->
     cb null, primitive.value.toString()

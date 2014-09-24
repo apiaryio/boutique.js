@@ -4,9 +4,10 @@ require 'mocha'
 {Boutique} = require '../lib/boutique'
 
 
-createDescribe = (format) ->
-  (description, {ast, repr, reprDesc, errDesc}) ->
+createDescribe = (Format) ->
+  (description, {ast, repr, reprDesc, errDesc, options}) ->
     describe description, ->
+      format = new Format options
       boutique = new Boutique format
 
       err = undefined

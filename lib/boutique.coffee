@@ -16,13 +16,14 @@ class Boutique
       if element.oneOf?.length > 0
         async.map element.oneOf
         , (item, next) =>
-          @traverseElement item, isProperty, next
+          @traverseElement item, isProperty, (err, repr) ->
+            next err, {element: item, repr}
         , (err, items) =>
           if err then return cb err
           if isProperty
-            @format.handleOneOfProperties element, items, cb
+            @format.handleOneOfProperties element.oneOf, items, cb
           else
-            @format.handleOneOfElements element, items, cb
+            @format.handleOneOfElements element.oneOf, items, cb
 
       else if element.ref?
         # when implementing this, beware: referencing can be recursive
@@ -53,17 +54,20 @@ class Boutique
     )
 
     if type is 'object'
-      async.map value
-      , (prop, next) =>
-        @traverseElement prop, true, next
-      , (err, properties) =>
-        if err then return cb err
-        @format.handleObject primitive, properties, cb
+      @format.prepareProperties primitive, value, (err, properties) =>
+        async.map properties
+        , (prop, next) =>
+          @traverseElement prop, true, (err, repr) =>
+            next err, {element: prop, repr}
+        , (err, properties) =>
+          if err then return cb err
+          @format.handleObject primitive, properties, cb
 
     else if type is 'array'
       async.map value
       , (elem, next) =>
-        @traverseElement elem, false, next
+        @traverseElement elem, false, (err, repr) =>
+          next err, {element: elem, repr}
       , (err, elements) =>
         if err then return cb err
         @format.handleArray primitive, elements, cb

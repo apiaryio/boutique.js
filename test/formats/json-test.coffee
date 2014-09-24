@@ -5,7 +5,7 @@ require 'mocha'
 
 
 describe "JSON format", ->
-  boutique = createDescribe new Format
+  boutique = createDescribe Format
 
   boutique "handles basic MSON AST",
     ast:
@@ -55,6 +55,14 @@ describe "JSON format", ->
     repr: true
     reprDesc: 'boolean with value ‘true’'
 
+  boutique "properly handles ‘boolean’",
+    ast:
+      primitive:
+        type: 'boolean'
+        value: 'true'
+    repr: true
+    reprDesc: 'boolean with value ‘true’'
+
   boutique "properly handles ‘array’",
     ast:
       primitive:
@@ -90,3 +98,126 @@ describe "JSON format", ->
       abbr: 'h2g2'
       id: 42
     reprDesc: 'object containing two properties: string ‘abbr’ with value ‘h2g2’ and number ‘id’ with value ‘42’'
+
+  boutique "generates optional properties by default",
+    ast:
+      primitive:
+        type: 'object'
+        value: [
+            name: 'id'
+            required: true
+            description: 'The unique identifier of an employee'
+            primitive:
+              type: 'number'
+              value: '1'
+          ,
+            name: 'name'
+            required: false
+            description: 'Name of the employee'
+            primitive:
+              type: 'string'
+              value: 'Věroš'
+        ]
+    repr:
+      id: 1
+      name: 'Věroš'
+    reprDesc: 'object with one required property of name ‘id’ and one optional property of name ‘name’'
+
+  boutique "doesn't generate optional properties if ‘skipOptional’ option given as ‘true’",
+    options:
+      skipOptional: true
+    ast:
+      primitive:
+        type: 'object'
+        value: [
+            name: 'id'
+            required: true
+            description: 'The unique identifier of an employee'
+            primitive:
+              type: 'number'
+              value: '1'
+          ,
+            name: 'name'
+            required: false
+            description: 'Name of the employee'
+            primitive:
+              type: 'string'
+              value: 'Věroš'
+        ]
+    repr:
+      id: 1
+    reprDesc: 'object with one required property of name ‘id’'
+
+  boutique "doesn't generate templated properties",
+    ast:
+      primitive:
+        type: 'object'
+        value: [
+            name: 'id'
+            required: true
+            description: 'The unique identifier of an employee'
+            primitive:
+              type: 'number'
+              value: '1'
+          ,
+            name: 'additional properties'
+            templated: true
+            description: 'Any other additional properties.'
+        ]
+    repr:
+      id: 1
+    reprDesc: 'object with one required property of name ‘id’'
+
+  boutique "selects the first element from ‘oneOf’",
+    ast:
+      primitive:
+        type: 'array'
+        value: [
+            primitive:
+              type: 'number'
+              value: '1'
+          ,
+            oneOf: [
+              primitive:
+                type: 'number'
+                value: '42'
+            ,
+              primitive:
+                type: 'string'
+                value: 'hello'
+          ]
+        ]
+    repr: [
+      1, 42
+    ]
+    reprDesc: 'array with numbers ‘1’ and ‘42’'
+
+  boutique "selects the first property from ‘oneOf’",
+    ast:
+      primitive:
+        value: [
+            name: 'name'
+            primitive:
+              value: 'Věroš'
+          ,
+            oneOf: [
+                name: 'xor1'
+                primitive:
+                  type: 'number'
+                  value: '42'
+              ,
+                name: 'xor2'
+                primitive:
+                  type: 'string'
+                  value: 'hello'
+            ]
+          ,
+            name: 'size'
+            primitive:
+              value: 'XL'
+        ]
+    repr:
+      name: 'Věroš'
+      xor1: 42
+      size: 'XL'
+    reprDesc: 'object with properties ‘name’, ‘xor1’, and ‘size’.'
