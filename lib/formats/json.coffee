@@ -1,10 +1,13 @@
 
-class Format
+{BaseFormat} = require './base'
+
+
+class Format extends BaseFormat
 
   constructor: (options) ->
     @skipOptional = options?.skipOptional or false
 
-  prepareProperties: (primitive, properties, cb) ->
+  prepareObjectProperties: (primitive, properties, cb) ->
     props = []
     for prop in properties
       if prop.oneOf?.length > 0
@@ -12,22 +15,24 @@ class Format
       props.push prop
     cb null, props
 
-  handleOneOfProperties: (oneOf, properties, cb) ->
-    cb null, properties
+  prepareArrayElements: (primitive, elements, cb) ->
+    elems = []
+    for elem in elements
+      if elem.oneOf?.length > 0
+        elem = elem.oneOf[0]
+      elems.push elem
+    cb null, elems
 
-  handleOneOfElements: (oneOf, elements, cb) ->
-    cb null, elements[0].repr
-
-  handleObject: (primitive, properties, cb) ->
+  handleObject: (primitive, wrappedProperties, cb) ->
     obj = {}
-    for {element, repr} in properties
+    for {element, repr} in wrappedProperties
       if element.templated or (@skipOptional and not element.required)
         continue
       obj[element.name] = repr
     cb null, obj
 
-  handleArray: (primitive, elements, cb) ->
-    cb null, (repr for {element, repr} in elements)
+  handleArray: (primitive, wrappedElements, cb) ->
+    cb null, (repr for {element, repr} in wrappedElements)
 
   handleString: (primitive, cb) ->
     cb null, primitive.value.toString()

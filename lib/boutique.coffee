@@ -14,16 +14,15 @@ class Boutique
       if err then return cb err
 
       if element.oneOf?.length > 0
-        async.map element.oneOf
-        , (item, next) =>
-          @traverseElement item, isProperty, (err, repr) ->
-            next err, {element: item, repr}
-        , (err, items) =>
-          if err then return cb err
-          if isProperty
-            @format.handleOneOfProperties element.oneOf, items, cb
-          else
-            @format.handleOneOfElements element.oneOf, items, cb
+        if isProperty
+          funcs =
+            prepare: 'prepareOneOfProperties'
+            handle: 'handleOneOfProperties'
+        else
+          funcs =
+            prepare: 'prepareOneOfElements'
+            handle: 'handleOneOfElements'
+        @traverseComposite element.oneOf, element.oneOf, isProperty, funcs, cb
 
       else if element.ref?
         # when implementing this, beware: referencing can be recursive
@@ -54,23 +53,16 @@ class Boutique
     )
 
     if type is 'object'
-      @format.prepareProperties primitive, value, (err, properties) =>
-        async.map properties
-        , (prop, next) =>
-          @traverseElement prop, true, (err, repr) =>
-            next err, {element: prop, repr}
-        , (err, properties) =>
-          if err then return cb err
-          @format.handleObject primitive, properties, cb
+      @traverseComposite primitive, value, true,
+        prepare: 'prepareObjectProperties'
+        handle: 'handleObject'
+      , cb
 
     else if type is 'array'
-      async.map value
-      , (elem, next) =>
-        @traverseElement elem, false, (err, repr) =>
-          next err, {element: elem, repr}
-      , (err, elements) =>
-        if err then return cb err
-        @format.handleArray primitive, elements, cb
+      @traverseComposite primitive, value, false,
+        prepare: 'prepareArrayElements'
+        handle: 'handleArray'
+      , cb
 
     else if type is 'number'
       @format.handleNumber primitive, cb
@@ -80,6 +72,16 @@ class Boutique
 
     else  # string
       @format.handleString primitive, cb
+
+  traverseComposite: (parent, subElements, areProperties, funcs, cb) ->
+    @format[funcs.prepare] parent, subElements, (err, subElements) =>
+      async.map subElements
+      , (subElement, next) =>
+        @traverseElement subElement, areProperties, (err, repr) =>
+          next err, {element: subElement, repr}  # wrapping every subElement
+      , (err, wrappedSubElements) =>
+        if err then return cb err
+        @format[funcs.handle] parent, wrappedSubElements, cb
 
 
 module.exports = {
