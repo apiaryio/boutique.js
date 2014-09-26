@@ -22,17 +22,17 @@ class Boutique
           funcs =
             prepare: 'prepareOneOfElements'
             handle: 'handleOneOfElements'
-        @traverseComposite element.oneOf, element.oneOf, isProperty, funcs, cb
+        @traverseComposite element, element.oneOf, isProperty, funcs, cb
 
       else if element.ref?
         # when implementing this, beware: referencing can be recursive
         cb new Error "Referencing is not implemented yet."
 
-      else if not element.primitive?.value
+      else if not element.primitive?
         @format.handleNull cb
 
       else
-        @traversePrimitive element.primitive, cb
+        @traversePrimitive element, cb
 
   validateElement: (element, cb) ->
     # check mutally exclusive properties
@@ -46,39 +46,39 @@ class Boutique
     else
       cb()
 
-  traversePrimitive: (primitive, cb) ->
-    value = primitive.value
-    type = primitive.type or (
+  traversePrimitive: (element, cb) ->
+    value = element.primitive.value
+    type = element.primitive.type or (
       if Array.isArray value then 'object' else 'string'
     )
 
     if type is 'object'
-      @traverseComposite primitive, value, true,
+      @traverseComposite element, value, true,
         prepare: 'prepareObjectProperties'
         handle: 'handleObject'
       , cb
 
     else if type is 'array'
-      @traverseComposite primitive, value, false,
+      @traverseComposite element, value, false,
         prepare: 'prepareArrayElements'
         handle: 'handleArray'
       , cb
 
     else if type is 'number'
-      @format.handleNumber primitive, cb
+      @format.handleNumber element, cb
 
     else if type in ['bool', 'boolean']
-      @format.handleBool primitive, cb
+      @format.handleBool element, cb
 
     else  # string
-      @format.handleString primitive, cb
+      @format.handleString element, cb
 
   traverseComposite: (parent, subElements, areProperties, funcs, cb) ->
-    @format[funcs.prepare] parent, subElements, (err, subElements) =>
+    @format[funcs.prepare] parent, subElements or [], (err, subElements) =>
       async.map subElements
       , (subElement, next) =>
-        @traverseElement subElement, areProperties, (err, repr) =>
-          next err, {element: subElement, repr}  # wrapping every subElement
+        @traverseElement subElement, areProperties, (err, repr) ->
+          next err, {subElement, repr}  # wrapping every subElement
       , (err, wrappedSubElements) =>
         if err then return cb err
         @format[funcs.handle] parent, wrappedSubElements, cb
