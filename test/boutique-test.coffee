@@ -1,14 +1,18 @@
 require 'mocha'
 
-{createDescribe, iterFormats} = require './testutils'
+{createDescribe} = require './testutils'
 
 
-for format in iterFormats()
+FORMATS_TO_TEST =
+  '../lib/formats/json': 'JSON'
+
+
+for formatPath, formatName of FORMATS_TO_TEST
   # Core Boutique tests. Should test features of Boutique itself,
   # traversal algorithms, etc. Tested with every available format.
 
-  describe "Core Boutique (tested with ‘#{format.name}’)", ->
-    boutique = createDescribe format.class
+  describe "Core Boutique (tested with ‘#{formatName}’)", ->
+    boutique = createDescribe require(formatPath).Format
 
     boutique "handles empty MSON AST given as empty object",
       ast: {}
