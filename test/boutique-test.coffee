@@ -5,6 +5,7 @@ require 'mocha'
 
 FORMATS_TO_TEST =
   '../lib/formats/json': 'JSON'
+  '../lib/formats/jsonschema-v4': 'JSON Schema v4'
 
 
 for formatPath, formatName of FORMATS_TO_TEST

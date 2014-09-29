@@ -2,6 +2,12 @@
 {BaseFormat} = require './base'
 
 
+addDescription = (element, schema) ->
+  if element.description
+    schema.description = element.description
+  schema
+
+
 class Format extends BaseFormat
 
   handleObject: (element, wrappedProperties, cb) ->
@@ -25,47 +31,34 @@ class Format extends BaseFormat
     if not additional
       schema.additionalProperties = false
 
-    cb null, schema
+    cb null, addDescription element, schema
+
+  handleOneOfProperties: (element, wrappedProperties, cb) ->
+    cb new Error "Unfortunatelly, oneOf for object properties is not implemented yet."
 
   handleArray: (element, wrappedElements, cb) ->
-    schema =
+    cb null, addDescription element,
       type: 'array'
       items: (repr for {subElement, repr} in wrappedElements)
 
-    if element.description
-      schema.description = element.description
-
-    cb null, schema
+  handleOneOfElements: (element, wrappedElements, cb) ->
+    cb null, addDescription element,
+      oneOf: (repr for {subElement, repr} in wrappedElements)
 
   handleString: (element, cb) ->
-    schema =
+    cb null, addDescription element,
       type: 'string'
 
-    if element.description
-      schema.description = element.description
-
-    cb null, schema
-
   handleNumber: (element, cb) ->
-    schema =
+    cb null, addDescription element,
       type: 'number'
 
-    if element.description
-      schema.description = element.description
-
-    cb null, schema
-
   handleBool: (element, cb) ->
-    schema =
+    cb null, addDescription element,
       type: 'boolean'
 
-    if element.description
-      schema.description = element.description
-
-    cb null, schema
-
-  handleNull: (cb) ->
-    cb null, {}
+  handleNull: (element, cb) ->
+    cb null, addDescription element, {}
 
 
 module.exports = {

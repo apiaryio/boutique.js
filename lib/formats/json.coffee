@@ -32,19 +32,19 @@ class Format extends BaseFormat
         obj[subElement.name] = repr
       cb null, obj
     else
-      @handleNull cb
+      @handleNull element, cb
 
   handleArray: (element, wrappedElements, cb) ->
     if wrappedElements.length
       cb null, (repr for {subElement, repr} in wrappedElements)
     else
-      @handleNull cb
+      @handleNull element, cb
 
   handleString: (element, cb) ->
     if element.primitive.value?
       cb null, element.primitive.value.toString()
     else
-      @handleNull cb
+      @handleNull element, cb
 
   handleNumber: (element, cb) ->
     if element.primitive.value?
@@ -54,7 +54,7 @@ class Format extends BaseFormat
       else
         cb new Error "Unable to convert to number: #{element.primitive.value}"
     else
-      @handleNull cb
+      @handleNull element, cb
 
   handleBool: (element, cb) ->
     if element.primitive.value?
@@ -63,9 +63,9 @@ class Format extends BaseFormat
       catch e
         cb new Error "Unable to convert to boolean: #{element.primitive.value}"
     else
-      @handleNull cb
+      @handleNull element, cb
 
-  handleNull: (cb) ->
+  handleNull: (element, cb) ->
     cb null, null
 
 

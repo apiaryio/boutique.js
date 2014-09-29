@@ -29,7 +29,7 @@ class Boutique
         cb new Error "Referencing is not implemented yet."
 
       else if not element.primitive?
-        @format.handleNull cb
+        @format.handleNull element, cb
 
       else
         @traversePrimitive element, cb
