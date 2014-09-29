@@ -14,10 +14,10 @@ formats =
 
 represent = (ast, contentType, options, cb) ->
   if typeof options is 'function' then cb = options
-  key = selectFormat contentType, Object.keys formats
+  selectedContentType = selectFormat contentType, Object.keys formats
 
-  if key
-    {lib, serialize} = formats[key]
+  if selectedContentType
+    {lib, serialize} = formats[selectedContentType]
 
     async.waterfall [
         (next) ->
@@ -29,7 +29,7 @@ represent = (ast, contentType, options, cb) ->
           serialize obj, next
 
     ], (err, repr) ->
-      cb err, repr, key
+      cb err, repr, selectedContentType
   else
     cb new Error "Content-Type '#{contentType}' is not implemented."
 
