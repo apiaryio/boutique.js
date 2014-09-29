@@ -1,78 +1,87 @@
 
+async = require 'async'
+
 
 class Boutique
 
-  constructor: (@format, options) ->
-    @skipOptional = options?.skipOptional or false
-    @skipTemplated = options?.skipTemplated or true
+  constructor: (@format) ->
 
-  # Traverses the AST tree and provides its complete representation.
   represent: (ast, cb) ->
-    try
-      cb null, @handleElement ast
-    catch err
-      cb err, null
+    @traverseElement ast or {}, false, cb
 
-  validateElement: (element) ->
-    # mutally exclusive properties
+  traverseElement: (element, isProperty, cb) ->
+    @validateElement element, (err) =>
+      if err then return cb err
+
+      if element.oneOf?.length > 0
+        if isProperty
+          funcs =
+            prepare: 'prepareOneOfProperties'
+            handle: 'handleOneOfProperties'
+        else
+          funcs =
+            prepare: 'prepareOneOfElements'
+            handle: 'handleOneOfElements'
+        @traverseComposite element.oneOf, element.oneOf, isProperty, funcs, cb
+
+      else if element.ref?
+        # when implementing this, beware: referencing can be recursive
+        cb new Error "Referencing is not implemented yet."
+
+      else if not element.primitive?.value
+        @format.handleNull cb
+
+      else
+        @traversePrimitive element.primitive, cb
+
+  validateElement: (element, cb) ->
+    # check mutally exclusive properties
     present = []
     for prop in ['primitive', 'oneOf', 'ref']
       if element[prop]?
         present.push prop
     if present.length > 1
       present = ("'#{prop}'" for prop in present).join ', '
-      throw new Error "Following properties are mutually exclusive: #{present}."
+      cb new Error "Following properties are mutually exclusive: #{present}."
+    else
+      cb()
 
-  handleElement: (element) ->
-    @validateElement element
-
-    if element.oneOf?.length > 0
-      return @handleOneOf element.oneOf
-    if element.ref?
-      return @handleRef element.ref
-
-    if not element.primitive?.value
-      return @format.representNull()
-    @handlePrimitive element.primitive
-
-  handlePrimitive: ({value, type}) ->
-    type = type or (if Array.isArray value then 'object' else 'string')
+  traversePrimitive: (primitive, cb) ->
+    value = primitive.value
+    type = primitive.type or (
+      if Array.isArray value then 'object' else 'string'
+    )
 
     if type is 'object'
-      @format.representObject @handleProperties value
+      @traverseComposite primitive, value, true,
+        prepare: 'prepareObjectProperties'
+        handle: 'handleObject'
+      , cb
 
     else if type is 'array'
-      @format.representArray (
-        @handleElement elem for elem in value
-      )
+      @traverseComposite primitive, value, false,
+        prepare: 'prepareArrayElements'
+        handle: 'handleArray'
+      , cb
 
     else if type is 'number'
-      @format.representNumber value
+      @format.handleNumber primitive, cb
 
     else if type in ['bool', 'boolean']
-      @format.representBool value
+      @format.handleBool primitive, cb
 
     else  # string
-      @format.representString value
+      @format.handleString primitive, cb
 
-  handleOneOf: (oneOf) ->
-    @handleElement element.oneOf[0]  # choose the first one
-
-  handleRef: (ref) ->
-    throw new Error "Property 'ref' is not implemented yet. https://github.com/apiaryio/boutique/issues"
-
-  handleProperty: (property) ->
-    @format.representObjectProperty property.name, @handleElement property
-
-  handleProperties: (properties) ->
-    represented = []
-    for prop in properties
-      if not prop.required and @skipOptional
-        continue
-      if prop.templated and @skipTemplated
-        continue
-      represented.push @handleProperty prop
-    represented
+  traverseComposite: (parent, subElements, areProperties, funcs, cb) ->
+    @format[funcs.prepare] parent, subElements, (err, subElements) =>
+      async.map subElements
+      , (subElement, next) =>
+        @traverseElement subElement, areProperties, (err, repr) =>
+          next err, {element: subElement, repr}  # wrapping every subElement
+      , (err, wrappedSubElements) =>
+        if err then return cb err
+        @format[funcs.handle] parent, wrappedSubElements, cb
 
 
 module.exports = {

@@ -1,78 +1,30 @@
 require 'mocha'
-{assert} = require 'chai'
 
-{Boutique} = require '../lib/boutique.coffee'
-
-
-# straightforward pseudo-format to keep testing of the Boutique core
-# as format-agnostic as it gets
-format =
-  representObject: (properties) ->
-    joined = properties.join ','
-    "obj[#{joined}]"
-
-  representObjectProperty: (name, value) ->
-    "prop[#{name},#{value}]"
-
-  representArray: (elements) ->
-    joined = elements.join ','
-    "arr[#{joined}]"
-
-  representString: (value) ->
-    "str[#{value}]"
-
-  representNumber: (value) ->
-    "num[#{value}]"
-
-  representBool: (value) ->
-    "bool[#{value}]"
-
-  representNull: ->
-    "nil"
+{createDescribe} = require './testutils'
 
 
-# test helper to keep things DRY a bit
-test = ({ast, body, bodyDesc, errDesc, options}) ->
-  ->
-    boutique = new Boutique format, options
-
-    e = undefined
-    b = undefined
-
-    before (next) ->
-      boutique.represent ast, ->
-        [e, b] = arguments
-        next()
-
-    if errDesc
-      it "fails on error, which contains words ‘#{errDesc}’", ->
-        assert.include e.message, errDesc
-    else
-      desc = "produces " + (bodyDesc or "the right body")
-      it desc, ->
-        assert.equal b, body
+FORMATS_TO_TEST =
+  '../lib/formats/json': 'JSON'
 
 
-describe "Boutique", ->
+for formatPath, formatName of FORMATS_TO_TEST
+  # Core Boutique tests. Should test features of Boutique itself,
+  # traversal algorithms, etc. Tested with every available format.
 
-  describe "handles basic MSON AST", test
-    ast:
-      primitive:
-        type: 'object'
-        value: [
-          name: 'id'
-          required: true
-          description: 'The unique identifier for a product'
-          primitive:
-            type: 'number'
-            value: '1'
-        ]
-    body: 'obj[prop[id,num[1]]]'
-    bodyDesc: 'object with one property of name ‘id’, having number ‘1’ as a value'
+  describe "Core Boutique (tested with ‘#{formatName}’)", ->
+    boutique = createDescribe require(formatPath).Format
 
-  describe "handles element the right way", ->
+    boutique "handles empty MSON AST given as empty object",
+      ast: {}
+      repr: null
+      reprDesc: 'empty representation'
 
-    describe "it ensures that ‘primitive’ and ‘oneOf’ are mutually exclusive", test
+    boutique "handles empty MSON AST given as ‘null’",
+      ast: null
+      repr: null
+      reprDesc: 'empty representation'
+
+    boutique "ensures that ‘primitive’ and ‘oneOf’ are mutually exclusive",
       ast:
         primitive:
           type: 'string'
@@ -88,7 +40,7 @@ describe "Boutique", ->
         ]
       errDesc: 'mutually exclusive'
 
-    describe "it ensures that ‘primitive’ and ‘ref’ are mutually exclusive", test
+    boutique "ensures that ‘primitive’ and ‘ref’ are mutually exclusive",
       ast:
         primitive:
           type: 'string'
@@ -96,7 +48,7 @@ describe "Boutique", ->
         ref: 'Something'
       errDesc: 'mutually exclusive'
 
-    describe "it ensures that ‘ref’ and ‘oneOf’ are mutually exclusive", test
+    boutique "ensures that ‘ref’ and ‘oneOf’ are mutually exclusive",
       ast:
         oneOf: [
             primitive:
@@ -110,20 +62,20 @@ describe "Boutique", ->
         ref: 'Something'
       errDesc: 'mutually exclusive'
 
-    describe "it properly handles an element without neither type or example value", test
+    boutique "properly handles an element without neither type or example value",
       ast:
         description: 'Dummy description'
-      body: 'nil'
-      bodyDesc: 'empty value'
+      repr: null
+      reprDesc: 'empty value'
 
-    describe "it properly handles an element with simple value, but without type", test
+    boutique "properly handles simple value without type as ‘string’",
       ast:
         primitive:
           value: '123'
-      body: 'str[123]'
-      bodyDesc: 'string with value ‘123’'
+      repr: '123'
+      reprDesc: 'string with value ‘123’'
 
-    describe "it properly handles an element with complex value, but without type", test
+    boutique "properly handles complex value without type as ‘object’",
       ast:
         primitive:
           value: [
@@ -131,68 +83,18 @@ describe "Boutique", ->
             primitive:
               value: 'Gargamel'
           ]
-      body: 'obj[prop[name,str[Gargamel]]]'
-      bodyDesc: 'object with one property of name ‘name’, having string ‘Gargamel’ as a value'
+      repr:
+        name: 'Gargamel'
+      reprDesc: 'object with one property of name ‘name’, having string ‘Gargamel’ as a value'
 
-    describe "it properly handles an element with type, but without value", test
+    boutique "properly handles an element with type, but without value",
       ast:
         primitive:
           type: 'number'
-      body: 'nil'
-      bodyDesc: 'empty value'
+      repr: null
+      reprDesc: 'empty value'
 
-    describe "it properly handles ‘string’", test
+    boutique "doesn't implement ‘ref’ yet",
       ast:
-        primitive:
-          type: 'string'
-          value: 'Dummy value'
-      body: 'str[Dummy value]'
-      bodyDesc: 'string with value ‘Dummy value’'
-
-    describe "it properly handles ‘number’", test
-      ast:
-        primitive:
-          type: 'number'
-          value: '1.2'
-      body: 'num[1.2]'
-      bodyDesc: 'number with value ‘1.2’'
-
-    describe "it properly handles ‘bool’", test
-      ast:
-        primitive:
-          type: 'bool'
-          value: 'True'
-      body: 'bool[True]'
-      bodyDesc: 'boolean with value ‘True’'
-
-    describe "it properly handles ‘boolean’", test
-      ast:
-        primitive:
-          type: 'boolean'
-          value: 'False'
-      body: 'bool[False]'
-      bodyDesc: 'boolean with value ‘False’'
-
-    describe "it properly handles ‘array’", test
-      ast:
-        primitive:
-          type: 'array'
-          value: [
-              primitive:
-                type: 'string'
-                value: 'h2g2'
-            ,
-              primitive:
-                type: 'number'
-                value: '42'
-          ]
-      body: 'arr[str[h2g2],num[42]]'
-      bodyDesc: 'array containing two elements: string with value ‘h2g2’ and number with value ‘42’'
-
-  # describe "handles property the right way", ->
-
-  # describe "deals with empty MSON AST", ->
-
-  # describe "can generate optional properties if asked", ->
-
-  # describe "can generate templated property if asked", ->
+        ref: 'Another'
+      errDesc: 'implemented'

@@ -2,29 +2,29 @@
 typer = require 'media-typer'
 
 
-selectFormat = (contentType, formats) ->
+selectFormat = (needle, haystack) ->
   # shortcut for simple cases
-  return contentType[contentType] if contentType[contentType]
+  return needle if needle in haystack
 
-  contentTypeParts = typer.parse contentType
+  needleParts = typer.parse needle
   candidates = []
 
-  for own formatContentType, lib of formats
-    formatContentTypeParts = typer.parse formatContentType
+  for contentType in haystack
+    contentTypeParts = typer.parse contentType
 
-    if contentTypeParts.suffix is formatContentTypeParts.subtype
+    if needleParts.suffix is contentTypeParts.subtype
       # this means `image/svg+xml` will eventually match with `application/xml`
-      candidates.push lib
+      candidates.push contentType
 
-    if contentTypeParts.type isnt formatContentTypeParts.type
+    if needleParts.type isnt contentTypeParts.type
       continue
-    if contentTypeParts.subtype isnt formatContentTypeParts.subtype
+    if needleParts.subtype isnt contentTypeParts.subtype
       continue
-    if contentTypeParts.suffix isnt formatContentTypeParts.suffix
+    if needleParts.suffix isnt contentTypeParts.suffix
       continue
     # ignoring `.parameters` for now
 
-    return lib
+    return contentType
 
   return candidates?[0]  # or undefined in case there's absolutely no match
 
