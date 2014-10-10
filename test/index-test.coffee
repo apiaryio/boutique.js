@@ -4,7 +4,7 @@ require 'mocha'
 boutique = require '../index'
 
 
-describe "Public interface", ->
+describe "Main ‘represent(...)’ function", ->
 
   describe "when given a simple AST", ->
     ast =
@@ -34,7 +34,7 @@ describe "Public interface", ->
     contentType = undefined
 
     before (next) ->
-      boutique.represent ast, 'application/hal+json', () ->
+      boutique.represent ast, 'application/hal+json', ->
         [err, repr, contentType] = arguments
         next err
 
@@ -47,7 +47,7 @@ describe "Public interface", ->
     it "AST is represented correctly", ->
       assert.deepEqual expected, JSON.parse repr
 
-  describe "when given a simple AST and format options are also passed", ->
+  describe "when given a simple AST and format options are passed", ->
     ast =
       primitive:
         type: 'object'
@@ -74,7 +74,7 @@ describe "Public interface", ->
     contentType = undefined
 
     before (next) ->
-      boutique.represent ast, 'application/hal+json', {skipOptional: true}, () ->
+      boutique.represent ast, 'application/hal+json', {skipOptional: true}, ->
         [err, repr, contentType] = arguments
         next err
 
@@ -91,7 +91,7 @@ describe "Public interface", ->
     err = undefined
 
     before (next) ->
-      boutique.represent {}, 'papa/smurf', () ->
+      boutique.represent {}, 'papa/smurf', ->
         [err] = arguments
         next()
 
