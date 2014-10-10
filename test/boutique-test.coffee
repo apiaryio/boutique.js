@@ -5,6 +5,7 @@ require 'mocha'
 
 FORMATS_TO_TEST =
   '../lib/formats/json': 'JSON'
+  '../lib/formats/jsonschema-v4': 'JSON Schema v4'
 
 
 for formatPath, formatName of FORMATS_TO_TEST
@@ -13,16 +14,6 @@ for formatPath, formatName of FORMATS_TO_TEST
 
   describe "Core Boutique (tested with ‘#{formatName}’)", ->
     boutique = createDescribe require(formatPath).Format
-
-    boutique "handles empty MSON AST given as empty object",
-      ast: {}
-      repr: null
-      reprDesc: 'empty representation'
-
-    boutique "handles empty MSON AST given as ‘null’",
-      ast: null
-      repr: null
-      reprDesc: 'empty representation'
 
     boutique "ensures that ‘primitive’ and ‘oneOf’ are mutually exclusive",
       ast:
@@ -61,38 +52,6 @@ for formatPath, formatName of FORMATS_TO_TEST
         ]
         ref: 'Something'
       errDesc: 'mutually exclusive'
-
-    boutique "properly handles an element without neither type or example value",
-      ast:
-        description: 'Dummy description'
-      repr: null
-      reprDesc: 'empty value'
-
-    boutique "properly handles simple value without type as ‘string’",
-      ast:
-        primitive:
-          value: '123'
-      repr: '123'
-      reprDesc: 'string with value ‘123’'
-
-    boutique "properly handles complex value without type as ‘object’",
-      ast:
-        primitive:
-          value: [
-            name: 'name'
-            primitive:
-              value: 'Gargamel'
-          ]
-      repr:
-        name: 'Gargamel'
-      reprDesc: 'object with one property of name ‘name’, having string ‘Gargamel’ as a value'
-
-    boutique "properly handles an element with type, but without value",
-      ast:
-        primitive:
-          type: 'number'
-      repr: null
-      reprDesc: 'empty value'
 
     boutique "doesn't implement ‘ref’ yet",
       ast:
