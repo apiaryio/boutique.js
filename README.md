@@ -8,55 +8,157 @@ Looking for the best fashion for your [MSON AST](https://github.com/apiaryio/mso
 
 Having following AST...
 
-```coffee
-ast = types: [
-  name: null
-  base:
-    typeSpecification:
-      name: "object"
-  sections: [
-    type: "member"
-    content: [
-        type: "property"
-        content:
-          name:
-            literal: "id"
-          valueDefinition:
-            values: [literal: "1"]
-      ,
-        type: "property"
-        content:
-          name:
-            literal: "name"
-          valueDefinition:
-            values: [literal: "A green door"]
-      ,
-        type: "property"
-        content:
-          name:
-            literal: "price"
-          valueDefinition:
-            values: [literal: "12.50"]
-            typeDefinition:
-              typeSpecification:
-                name: "number"
-      ,
-        type: "property"
-        content:
-          name:
-            literal: "tags"
-          valueDefinition:
-            values: [
-                literal: "home"
-              ,
-                literal: "green"
-            ]
-            typeDefinition:
-              typeSpecification:
-                name: "array"
-    ]
+```json
+{
+  "types": [
+    {
+      "name": null,
+      "base": {
+        "typeSpecification": {
+          "name": "object"
+        }
+      },
+      "sections": [
+        {
+          "type": "member",
+          "content": [
+            {
+              "type": "property",
+              "content": {
+                "name": {
+                  "literal": "id"
+                },
+                "valueDefinition": {
+                  "values": [
+                    {
+                      "literal": "1"
+                    }
+                  ],
+                  "typeDefinition": {
+                    "attributes": [
+                      "required"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "type": "property",
+              "content": {
+                "name": {
+                  "literal": "name"
+                },
+                "valueDefinition": {
+                  "values": [
+                    {
+                      "literal": "A green door"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "property",
+              "content": {
+                "name": {
+                  "literal": "price"
+                },
+                "valueDefinition": {
+                  "values": [
+                    {
+                      "literal": "12.50"
+                    }
+                  ],
+                  "typeDefinition": {
+                    "typeSpecification": {
+                      "name": "number"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "property",
+              "content": {
+                "name": {
+                  "literal": "tags"
+                },
+                "valueDefinition": {
+                  "values": [
+                    {
+                      "literal": "home"
+                    },
+                    {
+                      "literal": "green"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "property",
+              "content": {
+                "name": {
+                  "literal": "vector"
+                },
+                "valueDefinition": {
+                  "typeDefinition": {
+                    "typeSpecification": {
+                      "name": "array"
+                    }
+                  }
+                },
+                "sections": [
+                  {
+                    "type": "member",
+                    "content": [
+                      {
+                        "type": "value",
+                        "content": {
+                          "valueDefinition": {
+                            "values": [
+                              {
+                                "literal": "1"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "value",
+                        "content": {
+                          "valueDefinition": {
+                            "values": [
+                              {
+                                "literal": "2"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "value",
+                        "content": {
+                          "valueDefinition": {
+                            "values": [
+                              {
+                                "literal": "3"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
   ]
-]
+}
 ```
 
 ...we can convert it by Boutique to a representation:
@@ -65,11 +167,11 @@ ast = types: [
 boutique = require 'boutique'
 boutique.represent ast, 'application/json', (err, body) ->
   # body contains following string:
-  # '{"id":"1","name":"A green door","price":12.50,"tags":["home","green"]}'
+  # '{"id":"1","name":"A green door","price":12.50,"tags":["home","green"],"vector":["1","2","3"]}'
 
 boutique.represent ast, 'application/schema+json', (err, body) ->
   # body contains following string:
-  # '{"type":"object","properties":"id":{"type":"string"},"name":{"type":"string"},"price":{"type":"number"},"tags":{"type":"array"}}'
+  # '{"type":"object","properties":"id":{"type":"string"},"name":{"type":"string"},"price":{"type":"number"},"tags":{"type":"array"},"vector":{"type":"array"}}'
 ```
 
 It's also possible to pass format options:
