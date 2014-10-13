@@ -130,7 +130,7 @@ boutique.represent ast, 'application/schema+json', 'Person List', options, (err,
 
 ## API
 
-**boutique.represent(ast, contentType[, typeIdentifier, options], cb)**
+**boutique.represent(ast, contentType[, typeName, options], cb)**
 
 -   ast (object) - MSON AST
 -   contentType: "application/json" (string)
@@ -149,7 +149,7 @@ boutique.represent ast, 'application/schema+json', 'Person List', options, (err,
 
     Distinguishing JSON Schema draft versions by matching according to `profile` parameter is [not implemented yet](https://github.com/apiaryio/boutique/issues/14).
 
--   typeIdentifier (string) - optional name of top-level [Named Type](https://github.com/apiaryio/mson-ast#named-type-object) to be rendered (defaults to the first one)
+-   typeName (string) - optional name of top-level [Named Type](https://github.com/apiaryio/mson-ast#named-type-object) to be rendered (defaults to the first one)
 -   options (object) - optional set of settings, which are passed to the selected format (*to be documented*)
 -   cb (function) - callback function:
     

@@ -9,9 +9,9 @@ class Boutique
   # Possible signatures:
   #
   # represent(ast, cb)
-  # represent(ast, typeIdentifier, cb)
-  represent: (ast, typeIdentifier, cb) ->
-    if typeof typeIdentifier is 'function' then cb = typeIdentifier
+  # represent(ast, typeName, cb)
+  represent: (ast, typeName, cb) ->
+    if typeof typeName is 'function' then cb = typeName
     @traverseElement ast or {}, false, cb
 
   traverseElement: (element, isProperty, cb) ->

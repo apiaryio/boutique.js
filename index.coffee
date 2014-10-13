@@ -17,10 +17,10 @@ formats =
 #
 # represent(ast, contentType, cb)
 # represent(ast, contentType, options, cb)
-# represent(ast, contentType, typeIdentifier, cb)
-# represent(ast, contentType, typeIdentifier, options, cb)
+# represent(ast, contentType, typeName, cb)
+# represent(ast, contentType, typeName, options, cb)
 represent = ->
-  {ast, contentType, typeIdentifier, options, cb} = parseArguments arguments
+  {ast, contentType, typeName, options, cb} = parseArguments arguments
 
   selectedContentType = selectFormat contentType, Object.keys formats
   if selectedContentType
@@ -30,7 +30,7 @@ represent = ->
         (next) ->
           format = new lib.Format options
           boutique = new Boutique format
-          boutique.represent ast, typeIdentifier, next
+          boutique.represent ast, typeName, next
       ,
         (obj, next) ->
           serialize obj, next
