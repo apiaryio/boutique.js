@@ -130,10 +130,21 @@ boutique.represent ast, 'application/schema+json', 'Person List', options, (err,
 
 ## API
 
-**boutique.represent(ast, contentType[, typeName, options], cb)**
+> **NOTE:** Refer to the [MSON Specification](https://github.com/apiaryio/mson/blob/master/MSON%20Specification.md) for the explanation of terms used throughout this documentation.
 
--   ast (object) - MSON AST
--   contentType: "application/json" (string)
+### Represent (function)
+Generate representation for given content type from given MSON AST.
+
+#### Signature
+
+```javascript
+boutique.represent(ast, contentType[, typeIdentifier, options], cb)
+```
+
+#### Parameters
+
+-   `ast` (object, required) - MSON AST in form of tree of plain JavaScript objects
+-   `contentType`: `application/json` (string, required)
     
     Smart matching takes place. For example, if following formats are implemented and provided by Boutique...
 
@@ -147,14 +158,22 @@ boutique.represent ast, 'application/schema+json', 'Person List', options, (err,
     -   `application/schema+json` → `application/schema+json`
     -   `application/hal+json` → `application/json`
 
-    Distinguishing JSON Schema draft versions by matching according to `profile` parameter is [not implemented yet](https://github.com/apiaryio/boutique/issues/14).
+    > **NOTE:** Distinguishing JSON Schema draft versions by matching according to `profile` parameter is [not implemented yet](https://github.com/apiaryio/boutique/issues/14).
 
--   typeName (string) - optional name of top-level [Named Type](https://github.com/apiaryio/mson-ast#named-type-object) to be rendered (defaults to the first one)
--   options (object) - optional set of settings, which are passed to the selected format (*to be documented*)
--   cb (function) - callback function:
-    
-    **callback(err, repr, contentType)**
+-   `typeName` (string) - optional name of top-level [Named Type](https://github.com/apiaryio/mson-ast#named-type-object) to be rendered (defaults to the first one)
+-   `options` (object) - optional set of settings, which are passed to the selected format (*to be documented*)
+-   `cb` ([Represent Callback](#represent-callback-function), required) - callback function
 
-    -   err (object) - `null` or exception object in case of error
-    -   repr (string) - final string representation of given AST in given format
-    -   contentType (string) - selected content type, which was actually used for rendering the representation
+### Represent Callback (function)
+
+#### Signature
+
+```javascript
+callback(err, repr, contentType)
+```
+
+#### Parameters
+
+-   `err`: `null` (object, default) - Exception object in case of error
+-   `repr` (string) - final string representation of given AST in given format
+-   `contentType` (string) - selected content type, which was actually used for rendering the representation
