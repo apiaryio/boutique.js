@@ -1,66 +1,41 @@
 
-{BaseFormat} = require './base'
+traverse = require 'traverse'
 
 
-addDescription = (element, schema) ->
-  if element.description
-    schema.description = element.description
-  schema
+transform = (type, symbolTable, options, cb) ->
+  # TODO
+  # - vyresit dedicnost, includes, aby format dostal cisty typ, ktery nejak
+  #   vyrenderuje (z vysledku si schema vezme jen to co potrebuje),
+  #   rekurzivne (?) pro kazdy vnoreny typ (?)
+  # - pak vyhodit genericke veci do utils
 
+  required = []
+  properties = {}
 
-class Format extends BaseFormat
+  for member in type.sections when member.type is 'member'
+    for property in member.content when property.type is 'property'
+      # getting information about given member
+      propName = property.content.name.literal
+      propType = property.content?.valueDefinition?.typeDefinition?.typeSpecification?.name
 
-  handleObject: (element, wrappedProperties, cb) ->
-    schema =
-      type: 'object'
-      properties: {}
+      if not propType
+        if property.content?.valueDefinition?.values?.length > 1
+          propType = 'array'
+        else
+          propType = 'string'
 
-    required = []
-    additional = false
+      propRequired = 'required' in (property.content?.valueDefinition?.typeDefinition?.attributes or [])
 
-    for {subElement, repr} in wrappedProperties
-      if subElement.templated
-        additional = true
-      else
-        if subElement.required
-          required.push subElement.name
-        schema.properties[subElement.name] = repr
+      # rendering the member
+      properties[propName] = type: propType
+      if propRequired then required.push propName
 
-    if required.length
-      schema.required = required
-    if not additional
-      schema.additionalProperties = false
+  repr = {type: 'object', properties}
+  if required.length > 0 then repr.required = required
 
-    cb null, addDescription element, schema
-
-  handleOneOfProperties: (element, wrappedProperties, cb) ->
-    cb new Error "Unfortunatelly, oneOf for object properties is not implemented yet."
-
-  handleArray: (element, wrappedElements, cb) ->
-    cb null, addDescription element,
-      type: 'array'
-      items: (repr for {subElement, repr} in wrappedElements)
-
-  handleOneOfElements: (element, wrappedElements, cb) ->
-    cb null, addDescription element,
-      oneOf: (repr for {subElement, repr} in wrappedElements)
-
-  handleString: (element, cb) ->
-    cb null, addDescription element,
-      type: 'string'
-
-  handleNumber: (element, cb) ->
-    cb null, addDescription element,
-      type: 'number'
-
-  handleBool: (element, cb) ->
-    cb null, addDescription element,
-      type: 'boolean'
-
-  handleNull: (element, cb) ->
-    cb null, addDescription element, {}
+  cb null, repr
 
 
 module.exports = {
-  Format
+  transform
 }

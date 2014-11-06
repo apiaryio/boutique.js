@@ -1,20 +1,20 @@
 
 async = require 'async'
 
-{Boutique} = require './lib/boutique'
 serializers = require './lib/serializers'
 {selectFormat} = require './lib/formatselection'
+{selectType} = require './lib/utils'
 
 
 formats =
-  'application/json':
-    lib: require './lib/formats/json'
+  'application/schema+json':
+    lib: require './lib/formats/jsonschema-v4'
     serialize: serializers.json
 
 
 represent = ({ast, contentType, typeName, options}, cb) ->
   ast ?= {}
-  contentType ?= 'application/json'  # might change to JSON Schema in the future!
+  contentType ?= 'application/schema+json'
   options ?= {}
 
   selectedContentType = selectFormat contentType, Object.keys formats
@@ -23,9 +23,10 @@ represent = ({ast, contentType, typeName, options}, cb) ->
 
     async.waterfall [
         (next) ->
-          format = new lib.Format options
-          boutique = new Boutique format
-          boutique.represent {ast, typeName}, next
+          selectType ast, typeName, next
+      ,
+        (type, symbolTable, next) ->
+          lib.transform type, symbolTable, options, next
       ,
         (obj, next) ->
           serialize obj, next

@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "price": {
+      "type": "number"
+    },
+    "tags": {
+      "type": "array"
+    },
+    "vector": {
+      "type": "array"
+    }
+  },
+  "required": ["id"]
+}
