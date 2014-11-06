@@ -97,13 +97,19 @@ ast = types: [
 
 ```coffeescript
 boutique = require 'boutique'
-boutique.represent ast, 'application/json', (err, body) ->
-  # body contains following string:
-  # '{"id":"1","name":"A green door","price":12.50,"tags":["home","green"],"vector":["1","2","3"]}'
+boutique.represent
+    ast: ast,
+    contentType: 'application/json'
+  , (err, body) ->
+    # body contains following string:
+    # '{"id":"1","name":"A green door","price":12.50,"tags":["home","green"],"vector":["1","2","3"]}'
 
-boutique.represent ast, 'application/schema+json', (err, body) ->
-  # body contains following string:
-  # '{"type":"object","properties":"id":{"type":"string"},"name":{"type":"string"},"price":{"type":"number"},"tags":{"type":"array"},"vector":{"type":"array"}}'
+boutique.represent
+    ast: ast,
+    contentType: 'application/schema+json'
+  , (err, body) ->
+    # body contains following string:
+    # '{"type":"object","properties":"id":{"type":"string"},"name":{"type":"string"},"price":{"type":"number"},"tags":{"type":"array"},"vector":{"type":"array"}}'
 ```
 
 It's also possible to pass format options:
@@ -114,8 +120,12 @@ boutique = require 'boutique'
 options =
   skipOptional: false
 
-boutique.represent ast, 'application/json', options, (err, body) ->
-  ...
+boutique.represent
+    ast: ast
+    contentType: 'application/json'
+    options: options
+  , (err, body) ->
+    ...
 ```
 
 In case AST contains more (named) top-level `types`, it's possible to select the one to be rendered by passing it's name (identifier) as a third argument:
@@ -124,8 +134,13 @@ In case AST contains more (named) top-level `types`, it's possible to select the
 ast =
   ...  # AST contains array of multiple named types deliberately referencing each other: 'Person', 'Person List', and 'Address'
 
-boutique.represent ast, 'application/schema+json', 'Person List', options, (err, body) ->
-  ...  # body contains 'Person List' rendered as JSON Schema
+boutique.represent
+    ast: ast
+    contentType: 'application/schema+json'
+    typeName: 'Person List'
+    options: options
+  , (err, body) ->
+    ...  # body contains 'Person List' rendered as JSON Schema
 ```
 
 ## API
@@ -137,15 +152,15 @@ Generate representation for given content type from given MSON AST.
 
 #### Signature
 
-```javascript
-boutique.represent(ast, contentType[, typeIdentifier, options], cb)
+```coffeescript
+boutique.represent({ast, contentType, typeName, options}, cb)
 ```
 
 #### Parameters
 
--   `ast` (object, required) - MSON AST in form of tree of plain JavaScript objects
--   `contentType`: `application/json` (string, required)
-    
+-   `ast` (object) - MSON AST in form of tree of plain JavaScript objects.
+-   `contentType`: `application/json` (string, default)
+
     Smart matching takes place. For example, if following formats are implemented and provided by Boutique...
 
     -   `application/json`
@@ -168,7 +183,7 @@ boutique.represent(ast, contentType[, typeIdentifier, options], cb)
 
 #### Signature
 
-```javascript
+```coffeescript
 callback(err, repr, contentType)
 ```
 

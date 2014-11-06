@@ -6,13 +6,9 @@ class Boutique
 
   constructor: (@format) ->
 
-  # Possible signatures:
-  #
-  # represent(ast, cb)
-  # represent(ast, typeName, cb)
-  represent: (ast, typeName, cb) ->
-    if typeof typeName is 'function' then cb = typeName
-    @traverseElement ast or {}, false, cb
+  represent: ({ast, typeName}, cb) ->  # typeName ignored for now (not implemented yet)
+    ast ?= {}
+    @traverseElement ast, false, cb
 
   traverseElement: (element, isProperty, cb) ->
     @validateElement element, (err) =>

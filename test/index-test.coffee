@@ -34,7 +34,10 @@ describe "Main ‘represent(...)’ function", ->
     contentType = undefined
 
     before (next) ->
-      boutique.represent ast, 'application/hal+json', ->
+      boutique.represent
+        ast: ast
+        contentType: 'application/hal+json'
+      , ->
         [err, repr, contentType] = arguments
         next err
 
@@ -74,7 +77,12 @@ describe "Main ‘represent(...)’ function", ->
     contentType = undefined
 
     before (next) ->
-      boutique.represent ast, 'application/hal+json', {skipOptional: true}, ->
+      boutique.represent
+        ast: ast
+        contentType: 'application/hal+json'
+        options:
+          skipOptional: true
+      , ->
         [err, repr, contentType] = arguments
         next err
 
@@ -91,7 +99,10 @@ describe "Main ‘represent(...)’ function", ->
     err = undefined
 
     before (next) ->
-      boutique.represent {}, 'papa/smurf', ->
+      boutique.represent
+        ast: {}
+        contentType: 'papa/smurf'
+      , ->
         [err] = arguments
         next()
 

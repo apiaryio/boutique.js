@@ -3,7 +3,6 @@ async = require 'async'
 
 {Boutique} = require './lib/boutique'
 serializers = require './lib/serializers'
-{parseArguments} = require './lib/arguments'
 {selectFormat} = require './lib/formatselection'
 
 
@@ -13,14 +12,10 @@ formats =
     serialize: serializers.json
 
 
-# Possible signatures:
-#
-# represent(ast, contentType, cb)
-# represent(ast, contentType, options, cb)
-# represent(ast, contentType, typeName, cb)
-# represent(ast, contentType, typeName, options, cb)
-represent = ->
-  {ast, contentType, typeName, options, cb} = parseArguments arguments
+represent = ({ast, contentType, typeName, options}, cb) ->
+  ast ?= {}
+  contentType ?= 'application/json'  # might change to JSON Schema in the future!
+  options ?= {}
 
   selectedContentType = selectFormat contentType, Object.keys formats
   if selectedContentType
@@ -30,7 +25,7 @@ represent = ->
         (next) ->
           format = new lib.Format options
           boutique = new Boutique format
-          boutique.represent ast, typeName, next
+          boutique.represent {ast, typeName}, next
       ,
         (obj, next) ->
           serialize obj, next

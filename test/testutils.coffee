@@ -14,7 +14,9 @@ createDescribe = (Format) ->
       result = undefined
 
       before (next) ->
-        boutique.represent ast, ->
+        boutique.represent
+          ast: ast
+        , ->
           [err, result] = arguments
           next()
 
