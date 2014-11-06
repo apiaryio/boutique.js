@@ -12,10 +12,12 @@ formats =
     serialize: serializers.json
 
 
-represent = (ast, contentType, options, cb) ->
-  if typeof options is 'function' then cb = options
-  selectedContentType = selectFormat contentType, Object.keys formats
+represent = ({ast, contentType, typeName, options}, cb) ->
+  ast ?= {}
+  contentType ?= 'application/json'  # might change to JSON Schema in the future!
+  options ?= {}
 
+  selectedContentType = selectFormat contentType, Object.keys formats
   if selectedContentType
     {lib, serialize} = formats[selectedContentType]
 
@@ -23,7 +25,7 @@ represent = (ast, contentType, options, cb) ->
         (next) ->
           format = new lib.Format options
           boutique = new Boutique format
-          boutique.represent ast, next
+          boutique.represent {ast, typeName}, next
       ,
         (obj, next) ->
           serialize obj, next
