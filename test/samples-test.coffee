@@ -14,6 +14,7 @@ formatSamplesDirs = {
 
 samples = {
   'readme-sample.json': "example from MSON spec README file"
+  'nested-object-sample.json': "nested object"
 }
 
 

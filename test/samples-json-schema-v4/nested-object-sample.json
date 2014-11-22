@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "nested": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "size": {
+          "type": "string"
+        }
+      },
+      "required": ["id"]
+    }
+  }
+}

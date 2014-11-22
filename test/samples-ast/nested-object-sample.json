@@ -1,0 +1,79 @@
+{
+  "types": [
+    {
+      "name": null,
+      "base": {
+        "typeSpecification": {
+          "name": "object"
+        }
+      },
+      "sections": [
+        {
+          "type": "member",
+          "content": [
+            {
+              "type": "property",
+              "content": {
+                "name": {
+                  "literal": "nested"
+                },
+                "valueDefinition": {
+                  "typeDefinition": {
+                    "typeSpecification": {
+                      "name": "object"
+                    }
+                  }
+                },
+                "sections": [
+                  {
+                    "type": "member",
+                    "content": [
+                      {
+                        "type": "property",
+                        "content": {
+                          "name": {
+                            "literal": "id"
+                          },
+                          "valueDefinition": {
+                            "typeDefinition": {
+                              "typeSpecification": {
+                                "name": "number"
+                              },
+                              "attributes": [
+                                "required"
+                              ]
+                            },
+                            "values": [
+                              {
+                                "literal": "1"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "property",
+                        "content": {
+                          "name": {
+                            "literal": "size"
+                          },
+                          "valueDefinition": {
+                            "values": [
+                              {
+                                "literal": "XL"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

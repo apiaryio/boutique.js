@@ -1,39 +1,70 @@
 
-traverse = require 'traverse'
+async = require 'async'
+
+
+handleValue = (value, symbolTable, options, cb) ->
+  valueType = value.base?.typeSpecification?.name  # for top-level objects
+  valueType = valueType or value.content?.valueDefinition?.typeDefinition?.typeSpecification?.name
+
+  if not valueType
+    if value.content?.valueDefinition?.values?.length > 1
+      valueType = 'array'
+    else
+      valueType = 'string'
+
+  switch valueType
+    when 'object'
+      return handleObject value.content, symbolTable, options, cb
+
+    # when 'array'
+    #   do nothing - not implemented yet
+
+  cb null, type: valueType
+
+
+handleObject = (type, symbolTable, options, cb) ->
+  # prepare a simple array of property objects
+  props = []
+
+  for member in type.sections when member.type is 'member'
+    for prop in member.content when prop.type is 'property'
+      props.push prop
+
+  # map over that array, get representations of property values and wrap them
+  # with object carrying also property-specific information (name, required, ...)
+  async.map props, (prop, next) ->
+    handleValue prop, symbolTable, options, (err, propRepr) ->
+      next err,
+        name: prop.content.name.literal
+        repr: propRepr
+        required: 'required' in (prop.content?.valueDefinition?.typeDefinition?.attributes or [])
+
+  , (err, reprWrappers) ->
+    if err then return cb err
+
+    # prepare containers for the final representation of the object
+    propsRepr = {}
+    requiredRepr = []
+
+    # unwrap info for each property and render what needs to be rendered
+    for {name, repr, required} in reprWrappers
+      propsRepr[name] = repr
+      if required
+        requiredRepr.push name
+
+    # build the final object representation and send it to callback
+    repr =
+      type: 'object'
+      properties: propsRepr
+    if requiredRepr.length > 0 then repr.required = requiredRepr
+    cb null, repr
 
 
 transform = (type, symbolTable, options, cb) ->
-  # TODO
-  # - vyresit dedicnost, includes, aby format dostal cisty typ, ktery nejak
-  #   vyrenderuje (z vysledku si schema vezme jen to co potrebuje),
-  #   rekurzivne (?) pro kazdy vnoreny typ (?)
-  # - pak vyhodit genericke veci do utils
-
-  required = []
-  properties = {}
-
-  for member in type.sections when member.type is 'member'
-    for property in member.content when property.type is 'property'
-      # getting information about given member
-      propName = property.content.name.literal
-      propType = property.content?.valueDefinition?.typeDefinition?.typeSpecification?.name
-
-      if not propType
-        if property.content?.valueDefinition?.values?.length > 1
-          propType = 'array'
-        else
-          propType = 'string'
-
-      propRequired = 'required' in (property.content?.valueDefinition?.typeDefinition?.attributes or [])
-
-      # rendering the member
-      properties[propName] = type: propType
-      if propRequired then required.push propName
-
-  repr = {type: 'object', properties}
-  if required.length > 0 then repr.required = required
-
-  cb null, repr
+  handleObject type, symbolTable, options, (err, repr) ->
+    if err then return cb err
+    repr["$schema"] = "http://json-schema.org/draft-04/schema#"
+    cb null, repr
 
 
 module.exports = {
