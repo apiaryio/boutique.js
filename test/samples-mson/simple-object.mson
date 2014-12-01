@@ -1,0 +1,4 @@
+- address
+    - street
+    - city (string)
+    - state (string, required)

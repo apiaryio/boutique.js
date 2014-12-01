@@ -1,0 +1,4 @@
+- address (array)
+    - street
+    - city
+    - state

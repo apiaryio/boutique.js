@@ -1,0 +1,5 @@
+- tag (enum)
+    - green (string)
+    - (object)
+        - tag_id: 1
+        - label: green
