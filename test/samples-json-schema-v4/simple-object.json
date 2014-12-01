@@ -2,17 +2,20 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "nested": {
+    "address": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "number"
+        "street": {
+          "type": "string"
         },
-        "size": {
+        "city": {
+          "type": "string"
+        },
+        "state": {
           "type": "string"
         }
       },
-      "required": ["id"]
+      "required": ["state"]
     }
   }
 }

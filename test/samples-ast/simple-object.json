@@ -15,7 +15,7 @@
               "type": "property",
               "content": {
                 "name": {
-                  "literal": "nested"
+                  "literal": "address"
                 },
                 "valueDefinition": {
                   "typeDefinition": {
@@ -32,22 +32,7 @@
                         "type": "property",
                         "content": {
                           "name": {
-                            "literal": "id"
-                          },
-                          "valueDefinition": {
-                            "typeDefinition": {
-                              "typeSpecification": {
-                                "name": "number"
-                              },
-                              "attributes": [
-                                "required"
-                              ]
-                            },
-                            "values": [
-                              {
-                                "literal": "1"
-                              }
-                            ]
+                            "literal": "street"
                           }
                         }
                       },
@@ -55,14 +40,32 @@
                         "type": "property",
                         "content": {
                           "name": {
-                            "literal": "size"
+                            "literal": "city"
                           },
                           "valueDefinition": {
-                            "values": [
-                              {
-                                "literal": "XL"
+                            "typeDefinition": {
+                              "typeSpecification": {
+                                "name": "string"
                               }
-                            ]
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "property",
+                        "content": {
+                          "name": {
+                            "literal": "state"
+                          },
+                          "valueDefinition": {
+                            "typeDefinition": {
+                              "typeSpecification": {
+                                "name": "string"
+                              },
+                              "attributes": [
+                                "required"
+                              ]
+                            }
                           }
                         }
                       }
