@@ -11,7 +11,7 @@ handleValue = (value, symbolTable, options, cb) ->
   valueType = value.base?.typeSpecification?.name  # for top-level objects
   valueType = valueType or value.content?.valueDefinition?.typeDefinition?.typeSpecification?.name
 
-  if not valueType
+  unless valueType
     if value.content?.valueDefinition?.values?.length > 1
       valueType = 'array'
     else
@@ -45,7 +45,7 @@ handleObject = (type, symbolTable, options, cb) ->
         required: 'required' in (prop.content?.valueDefinition?.typeDefinition?.attributes or [])
 
   , (err, reprWrappers) ->
-    if err then return cb err
+    return cb err if err
 
     # prepare containers for the final representation of the object
     propsRepr = {}
@@ -54,20 +54,19 @@ handleObject = (type, symbolTable, options, cb) ->
     # unwrap info for each property and render what needs to be rendered
     for {name, repr, required} in reprWrappers
       propsRepr[name] = repr
-      if required
-        requiredRepr.push name
+      requiredRepr.push name if required
 
     # build the final object representation and send it to callback
     repr =
       type: 'object'
       properties: propsRepr
-    if requiredRepr.length > 0 then repr.required = requiredRepr
+    repr.required = requiredRepr if requiredRepr.length > 0
     cb null, repr
 
 
 transform = (type, symbolTable, options, cb) ->
   handleObject type, symbolTable, options, (err, repr) ->
-    if err then return cb err
+    return cb err if err
     repr["$schema"] = "http://json-schema.org/draft-04/schema#"
     cb null, repr
 
