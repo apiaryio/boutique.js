@@ -2,6 +2,11 @@
 traverse = require 'traverse'
 
 
+###########################################################################
+## PROTOTYPE ALERT! This is work in progress as much as it only can be.  ##
+###########################################################################
+
+
 # Provides the type to be rendered and "symbol table" for named types.
 selectType = (ast, typeName, cb) ->
   typesArray = ast?.types or []
@@ -18,10 +23,6 @@ selectType = (ast, typeName, cb) ->
     selectedType = types[typeName]
 
   cb null, selectedType, symbolTable
-
-
-# resolveReferences = (type, symbolTable, cb) ->
-#   # TODO
 
 
 module.exports = {

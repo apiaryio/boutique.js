@@ -2,6 +2,11 @@
 async = require 'async'
 
 
+###########################################################################
+## PROTOTYPE ALERT! This is work in progress as much as it only can be.  ##
+###########################################################################
+
+
 handleValue = (value, symbolTable, options, cb) ->
   valueType = value.base?.typeSpecification?.name  # for top-level objects
   valueType = valueType or value.content?.valueDefinition?.typeDefinition?.typeSpecification?.name

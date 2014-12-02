@@ -6,44 +6,71 @@ path = require 'path'
 boutique = require '../index'
 
 
-astSamplesDir = 'samples-ast'
+# TODO
+# Currently, following test takes file with AST sample, runs Boutique and checks
+# whether the output is the same as in file with output sample (e.g. JSON Schema).
+#
+# In future, this should change - the test should take plain text files with MSON,
+# parse them on-the-fly into ASTs and then run Boutique with them. The directory
+# with AST samples should not be present in the future. Directory with MSON files
+# is prepared, but not used for anything useful now - it's there just as a roadmap
+# and for the future version of this test suite.
 
-formatSamplesDirs = {
-  'samples-json-schema-v4': 'application/schema+json'
-}
+
+astSamplesDir = 'samples-ast'
+astSamplesExt = 'json'
+
+formatSamples = [
+    dir: 'samples-json-schema-v4'
+    ext: 'json'
+    contentType: 'application/schema+json'
+    parse: (str) -> JSON.parse str
+
+  # TODO (once there's JSON representer...)
+  #
+  #,
+  #  directory: 'json'
+  #  extension: 'json'
+  #  contentType: 'application/json'
+  #  parse: (str) -> JSON.parse str
+]
+
 
 samples = {
-  'readme-sample.json': "example from MSON spec README file"
-  'nested-object-sample.json': "nested object"
+  'complex-object': "complex object (example from MSON AST spec README file)"
+  'simple-object': "simple object"
+  # ... more tests
 }
 
 
 describe "Main ‘represent(...)’ function", ->
 
-  for file, name of samples
-    describe "when given sample AST for ‘#{name}’ (file ‘#{file}’)", ->
+  for name, description of samples
+    astFileBasename = "#{name}.#{astSamplesExt}"
+    describe "with sample AST for #{description} (file ‘#{astFileBasename}’)", ->
 
-      for directory, contentType of formatSamplesDirs
-        describe "and trying to get it's representation in ‘#{contentType}’", ->
+      for {dir, ext, contentType, parse} in formatSamples
+        describe "generates representation in ‘#{contentType}’", ->
 
-          astFile = path.resolve __dirname, astSamplesDir, file
-          schemaFile = path.resolve __dirname, directory, file
+          reprFileBasename = "#{name}.#{ext}"
+          astFile = path.resolve __dirname, astSamplesDir, astFileBasename
+          reprFile = path.resolve __dirname, dir, reprFileBasename
 
           ast = undefined
-          schema = undefined
+          repr = undefined
 
           before (next) ->
             fs.readFile astFile, 'utf8', (err, data) ->
               if err then return next err
 
               boutique.represent
-                ast: JSON.parse data
+                ast: parse data
               , ->
-                [err, schema] = arguments
+                [err, repr] = arguments
                 next err
 
-          it "AST is represented correctly", (next) ->
-            fs.readFile schemaFile, 'utf8', (err, data) ->
+          it "correctly, as in ‘#{reprFileBasename}’", (next) ->
+            fs.readFile reprFile, 'utf8', (err, data) ->
               if err then return next err
-              assert.deepEqual JSON.parse(data), JSON.parse(schema)
+              assert.deepEqual parse(data), parse(repr)
               next()
