@@ -143,7 +143,7 @@ boutique.represent({ast, contentType, options}, cb)
 #### Parameters
 
 -   `ast` (object) - MSON AST in form of tree of plain JavaScript objects.
--   `contentType`: `application/json` (string, default)
+-   `contentType`: `application/schema+json` (string, default)
 
     Smart matching takes place. For example, if following formats are implemented and provided by Boutique...
 
