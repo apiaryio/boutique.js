@@ -9,7 +9,7 @@ Looking for the best fashion for your [MSON AST](https://github.com/apiaryio/mso
 Having following AST...
 
 ```coffeescript
-ast = types: [
+ast =
   name: null
   base:
     typeSpecification:
@@ -90,7 +90,6 @@ ast = types: [
         ]
     ]
   ]
-]
 ```
 
 ...we can convert it by Boutique to a representation:
@@ -128,21 +127,6 @@ boutique.represent
     ...
 ```
 
-In case AST contains more (named) top-level `types`, it's possible to select the one to be rendered by passing it's name (identifier) as a third argument:
-
-```coffeescript
-ast =
-  ...  # AST contains array of multiple named types deliberately referencing each other: 'Person', 'Person List', and 'Address'
-
-boutique.represent
-    ast: ast
-    contentType: 'application/schema+json'
-    typeName: 'Person List'
-    options: options
-  , (err, body) ->
-    ...  # body contains 'Person List' rendered as JSON Schema
-```
-
 ## API
 
 > **NOTE:** Refer to the [MSON Specification](https://github.com/apiaryio/mson/blob/master/MSON%20Specification.md) for the explanation of terms used throughout this documentation.
@@ -153,7 +137,7 @@ Generate representation for given content type from given MSON AST.
 #### Signature
 
 ```coffeescript
-boutique.represent({ast, contentType, typeName, options}, cb)
+boutique.represent({ast, contentType, options}, cb)
 ```
 
 #### Parameters
@@ -175,7 +159,6 @@ boutique.represent({ast, contentType, typeName, options}, cb)
 
     > **NOTE:** Distinguishing JSON Schema draft versions by matching according to `profile` parameter is [not implemented yet](https://github.com/apiaryio/boutique/issues/14).
 
--   `typeName` (string) - optional name of top-level [Named Type](https://github.com/apiaryio/mson-ast#named-type-object) to be rendered (defaults to the first one)
 -   `options` (object) - optional set of settings, which are passed to the selected format (*to be documented*)
 -   `cb` ([Represent Callback](#represent-callback-function), required) - callback function
 

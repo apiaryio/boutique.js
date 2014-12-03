@@ -7,7 +7,7 @@ async = require 'async'
 ###########################################################################
 
 
-handleValue = (value, symbolTable, options, cb) ->
+handleValue = (value, options, cb) ->
   valueType = value.base?.typeSpecification?.name  # for top-level objects
   valueType = valueType or value.content?.valueDefinition?.typeDefinition?.typeSpecification?.name
 
@@ -19,7 +19,7 @@ handleValue = (value, symbolTable, options, cb) ->
 
   switch valueType
     when 'object'
-      return handleObject value.content, symbolTable, options, cb
+      return handleObject value.content, options, cb
 
     # when 'array'
     #   do nothing - not implemented yet
@@ -27,7 +27,7 @@ handleValue = (value, symbolTable, options, cb) ->
   cb null, type: valueType
 
 
-handleObject = (type, symbolTable, options, cb) ->
+handleObject = (type, options, cb) ->
   # prepare a simple array of property objects
   props = []
 
@@ -38,7 +38,7 @@ handleObject = (type, symbolTable, options, cb) ->
   # map over that array, get representations of property values and wrap them
   # with object carrying also property-specific information (name, required, ...)
   async.map props, (prop, next) ->
-    handleValue prop, symbolTable, options, (err, propRepr) ->
+    handleValue prop, options, (err, propRepr) ->
       next err,
         name: prop.content.name.literal
         repr: propRepr
@@ -64,8 +64,8 @@ handleObject = (type, symbolTable, options, cb) ->
     cb null, repr
 
 
-transform = (type, symbolTable, options, cb) ->
-  handleObject type, symbolTable, options, (err, repr) ->
+transform = (type, options, cb) ->
+  handleObject type, options, (err, repr) ->
     return cb err if err
     repr["$schema"] = "http://json-schema.org/draft-04/schema#"
     cb null, repr
