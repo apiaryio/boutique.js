@@ -1,0 +1,3 @@
+- _links
+    - *self*
+        - href: a URI

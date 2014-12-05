@@ -1,66 +1,76 @@
 
-{BaseFormat} = require './base'
+async = require 'async'
 
 
-addDescription = (element, schema) ->
-  if element.description
-    schema.description = element.description
-  schema
+###########################################################################
+## PROTOTYPE ALERT! This is work in progress as much as it only can be.  ##
+###########################################################################
 
 
-class Format extends BaseFormat
+handleValue = (value, symbolTable, options, cb) ->
+  valueType = value.base?.typeSpecification?.name  # for top-level objects
+  valueType = valueType or value.content?.valueDefinition?.typeDefinition?.typeSpecification?.name
 
-  handleObject: (element, wrappedProperties, cb) ->
-    schema =
+  unless valueType
+    if value.content?.valueDefinition?.values?.length > 1
+      valueType = 'array'
+    else
+      valueType = 'string'
+
+  switch valueType
+    when 'object'
+      return handleObject value.content, symbolTable, options, cb
+
+    # when 'array'
+    #   do nothing - not implemented yet
+
+  cb null, type: valueType
+
+
+handleObject = (type, symbolTable, options, cb) ->
+  # prepare a simple array of property objects
+  props = []
+
+  for member in type.sections when member.type is 'member'
+    for prop in member.content when prop.type is 'property'
+      props.push prop
+
+  # map over that array, get representations of property values and wrap them
+  # with object carrying also property-specific information (name, required, ...)
+  async.map props, (prop, next) ->
+    handleValue prop, symbolTable, options, (err, propRepr) ->
+      next err,
+        name: prop.content.name.literal
+        repr: propRepr
+        required: 'required' in (prop.content?.valueDefinition?.typeDefinition?.attributes or [])
+
+  , (err, reprWrappers) ->
+    return cb err if err
+
+    # prepare containers for the final representation of the object
+    propsRepr = {}
+    requiredRepr = []
+
+    # unwrap info for each property and render what needs to be rendered
+    for {name, repr, required} in reprWrappers
+      propsRepr[name] = repr
+      requiredRepr.push name if required
+
+    # build the final object representation and send it to callback
+    repr =
       type: 'object'
-      properties: {}
+      properties: propsRepr
+    repr.required = requiredRepr if requiredRepr.length > 0
+    cb null, repr
 
-    required = []
-    additional = false
 
-    for {subElement, repr} in wrappedProperties
-      if subElement.templated
-        additional = true
-      else
-        if subElement.required
-          required.push subElement.name
-        schema.properties[subElement.name] = repr
-
-    if required.length
-      schema.required = required
-    if not additional
-      schema.additionalProperties = false
-
-    cb null, addDescription element, schema
-
-  handleOneOfProperties: (element, wrappedProperties, cb) ->
-    cb new Error "Unfortunatelly, oneOf for object properties is not implemented yet."
-
-  handleArray: (element, wrappedElements, cb) ->
-    cb null, addDescription element,
-      type: 'array'
-      items: (repr for {subElement, repr} in wrappedElements)
-
-  handleOneOfElements: (element, wrappedElements, cb) ->
-    cb null, addDescription element,
-      oneOf: (repr for {subElement, repr} in wrappedElements)
-
-  handleString: (element, cb) ->
-    cb null, addDescription element,
-      type: 'string'
-
-  handleNumber: (element, cb) ->
-    cb null, addDescription element,
-      type: 'number'
-
-  handleBool: (element, cb) ->
-    cb null, addDescription element,
-      type: 'boolean'
-
-  handleNull: (element, cb) ->
-    cb null, addDescription element, {}
+transform = (type, symbolTable, options, cb) ->
+  handleObject type, symbolTable, options, (err, repr) ->
+    return cb err if err
+    repr["$schema"] = "http://json-schema.org/draft-04/schema#"
+    cb null, repr
 
 
 module.exports = {
-  Format
+  transform
 }
