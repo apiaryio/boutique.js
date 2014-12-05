@@ -3,7 +3,6 @@ async = require 'async'
 
 serializers = require './lib/serializers'
 {selectFormat} = require './lib/formatselection'
-{selectType} = require './lib/utils'
 
 
 formats =
@@ -12,7 +11,7 @@ formats =
     serialize: serializers.json
 
 
-represent = ({ast, contentType, typeName, options}, cb) ->
+represent = ({ast, contentType, options}, cb) ->
   ast ?= {}
   contentType ?= 'application/schema+json'
   options ?= {}
@@ -23,10 +22,7 @@ represent = ({ast, contentType, typeName, options}, cb) ->
 
     async.waterfall [
         (next) ->
-          selectType ast, typeName, next
-      ,
-        (type, symbolTable, next) ->
-          lib.transform type, symbolTable, options, next
+          lib.transform ast, options, next
       ,
         (obj, next) ->
           serialize obj, next

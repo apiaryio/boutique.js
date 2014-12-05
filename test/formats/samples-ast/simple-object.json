@@ -1,80 +1,76 @@
 {
-  "types": [
+  "name": null,
+  "base": {
+    "typeSpecification": {
+      "name": "object"
+    }
+  },
+  "sections": [
     {
-      "name": null,
-      "base": {
-        "typeSpecification": {
-          "name": "object"
-        }
-      },
-      "sections": [
+      "type": "member",
+      "content": [
         {
-          "type": "member",
-          "content": [
-            {
-              "type": "property",
-              "content": {
-                "name": {
-                  "literal": "address"
-                },
-                "valueDefinition": {
-                  "typeDefinition": {
-                    "typeSpecification": {
-                      "name": "object"
-                    }
-                  }
-                },
-                "sections": [
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "address"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": "object"
+                }
+              }
+            },
+            "sections": [
+              {
+                "type": "member",
+                "content": [
                   {
-                    "type": "member",
-                    "content": [
-                      {
-                        "type": "property",
-                        "content": {
-                          "name": {
-                            "literal": "street"
-                          }
-                        }
+                    "type": "property",
+                    "content": {
+                      "name": {
+                        "literal": "street"
+                      }
+                    }
+                  },
+                  {
+                    "type": "property",
+                    "content": {
+                      "name": {
+                        "literal": "city"
                       },
-                      {
-                        "type": "property",
-                        "content": {
-                          "name": {
-                            "literal": "city"
-                          },
-                          "valueDefinition": {
-                            "typeDefinition": {
-                              "typeSpecification": {
-                                "name": "string"
-                              }
-                            }
-                          }
-                        }
-                      },
-                      {
-                        "type": "property",
-                        "content": {
-                          "name": {
-                            "literal": "state"
-                          },
-                          "valueDefinition": {
-                            "typeDefinition": {
-                              "typeSpecification": {
-                                "name": "string"
-                              },
-                              "attributes": [
-                                "required"
-                              ]
-                            }
+                      "valueDefinition": {
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": "string"
                           }
                         }
                       }
-                    ]
+                    }
+                  },
+                  {
+                    "type": "property",
+                    "content": {
+                      "name": {
+                        "literal": "state"
+                      },
+                      "valueDefinition": {
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": "string"
+                          },
+                          "attributes": [
+                            "required"
+                          ]
+                        }
+                      }
+                    }
                   }
                 ]
               }
-            }
-          ]
+            ]
+          }
         }
       ]
     }
