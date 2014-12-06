@@ -13,12 +13,6 @@ handleValue = (value, options, cb) ->
     return cb err if err
 
     valueType = typeSpec.name  # ignoring nested types for now
-    unless valueType
-      if value.valueDefinition?.values?.length > 1
-        valueType = 'array'
-      else
-        valueType = 'string'
-
     switch valueType
       when 'object'
         return handleObject value, options, cb
