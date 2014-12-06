@@ -6,15 +6,10 @@ async = require 'async'
 primitiveTypes = ['boolean', 'string', 'number', 'array', 'enum', 'object']
 
 
-# Checks whether given type name is one of primitive types.
-isPrimitiveType = (type) ->
-  type in primitiveTypes
-
-
 # Calls given function with an error in case given type name is not one
 # of primitive types.
 ensurePrimitiveType = (type, cb) ->
-  if not isPrimitiveType type
+  if type not in primitiveTypes
     cb new Error "Unable to resolve type: #{type}"
   else
     cb null
