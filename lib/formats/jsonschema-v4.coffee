@@ -1,6 +1,6 @@
 
 async = require 'async'
-{resolveType} = require '../typeResolution'
+{resolveType} = require '../typeresolution'
 
 
 ###########################################################################

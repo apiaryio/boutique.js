@@ -2,7 +2,9 @@
   "name": null,
   "base": {
     "typeSpecification": {
-      "name": "object"
+      "name": {
+        "name": "object"
+      }
     }
   },
   "sections": [
@@ -18,7 +20,9 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": "object"
+                  "name": {
+                    "name": "object"
+                  }
                 }
               }
             },
@@ -31,6 +35,15 @@
                     "content": {
                       "name": {
                         "literal": "street"
+                      },
+                      "valueDefinition": {
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          }
+                        }
                       }
                     }
                   },
@@ -43,7 +56,9 @@
                       "valueDefinition": {
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": "string"
+                            "name": {
+                              "name": "string"
+                            }
                           }
                         }
                       }
@@ -58,7 +73,9 @@
                       "valueDefinition": {
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": "string"
+                            "name": {
+                              "name": "string"
+                            }
                           },
                           "attributes": [
                             "required"

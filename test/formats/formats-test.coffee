@@ -15,9 +15,10 @@ readAstSample = (sampleName, cb) ->
 testFormat = ({name, contentType, dir, ext, parse, samples}) ->
   # generate single top-level 'describe' block for given format
   describe "#{name} format", ->
-    for sampleName in samples
+    for sample in samples
       # generate 'describe' block for each specified sample
-      describe "given ‘#{sampleName}’ sample", ->
+      describe "given ‘#{sample}’ sample", ->
+        sampleName = sample  # without this the variable isn't properly scoped for `before` (grr..)
         repr = null
         reprSample = null
 
@@ -34,7 +35,7 @@ testFormat = ({name, contentType, dir, ext, parse, samples}) ->
 
               # 3. run Boutique with the AST and save the output
               boutique.represent {ast, contentType}, (err, data) ->
-                repr = parse data
+                repr = parse data if not err
                 next err
 
         it "generates expected representation", ->

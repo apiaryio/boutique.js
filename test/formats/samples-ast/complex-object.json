@@ -2,7 +2,9 @@
   "name": null,
   "base": {
     "typeSpecification": {
-      "name": "object"
+      "name": {
+        "name": "object"
+      }
     }
   },
   "sections": [
@@ -22,6 +24,11 @@
                 }
               ],
               "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "string"
+                  }
+                },
                 "attributes": [
                   "required"
                 ]
@@ -40,7 +47,14 @@
                 {
                   "literal": "A green door"
                 }
-              ]
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "string"
+                  }
+                }
+              }
             }
           }
         },
@@ -58,7 +72,9 @@
               ],
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": "number"
+                  "name": {
+                    "name": "number"
+                  }
                 }
               }
             }
@@ -78,7 +94,14 @@
                 {
                   "literal": "green"
                 }
-              ]
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "array"
+                  }
+                }
+              }
             }
           }
         },
@@ -91,7 +114,9 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": "array"
+                  "name": {
+                    "name": "array"
+                  }
                 }
               }
             },
@@ -107,7 +132,14 @@
                           {
                             "literal": "1"
                           }
-                        ]
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          }
+                        }
                       }
                     }
                   },
@@ -119,7 +151,14 @@
                           {
                             "literal": "2"
                           }
-                        ]
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          }
+                        }
                       }
                     }
                   },
@@ -131,7 +170,14 @@
                           {
                             "literal": "3"
                           }
-                        ]
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          }
+                        }
                       }
                     }
                   }
