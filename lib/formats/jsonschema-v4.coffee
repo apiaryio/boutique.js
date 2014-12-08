@@ -1,5 +1,6 @@
 
 async = require 'async'
+{resolveType} = require '../typeresolution'
 
 
 ###########################################################################
@@ -8,37 +9,32 @@ async = require 'async'
 
 
 handleValue = (value, options, cb) ->
-  valueType = value.base?.typeSpecification?.name  # for top-level objects
-  valueType = valueType or value.content?.valueDefinition?.typeDefinition?.typeSpecification?.name
+  resolveType value, (err, typeSpec) ->
+    return cb err if err
 
-  unless valueType
-    if value.content?.valueDefinition?.values?.length > 1
-      valueType = 'array'
-    else
-      valueType = 'string'
+    valueType = typeSpec.name  # ignoring nested types for now
+    switch valueType
+      when 'object'
+        return handleObject value, options, cb
 
-  switch valueType
-    when 'object'
-      return handleObject value.content, options, cb
+      # when 'array'
+      #   do nothing - not implemented yet
 
-    # when 'array'
-    #   do nothing - not implemented yet
-
-  cb null, type: valueType
+    cb null, type: valueType
 
 
 handleObject = (type, options, cb) ->
   # prepare a simple array of property objects
   props = []
 
-  for member in type.sections when member.type is 'member'
+  for member in (type.sections or []) when member.type is 'member'
     for prop in member.content when prop.type is 'property'
       props.push prop
 
   # map over that array, get representations of property values and wrap them
   # with object carrying also property-specific information (name, required, ...)
   async.map props, (prop, next) ->
-    handleValue prop, options, (err, propRepr) ->
+    handleValue prop.content, options, (err, propRepr) ->
       next err,
         name: prop.content.name.literal
         repr: propRepr
