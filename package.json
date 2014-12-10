@@ -11,7 +11,8 @@
     "node": ">= 0.8.x"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script/register ./test ./test/formats"
+    "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script/register ./test ./test/formats",
+    "preinstall": "./install-protagonist.sh"
   },
   "dependencies": {
     "coffee-script": "~1.7.1",
