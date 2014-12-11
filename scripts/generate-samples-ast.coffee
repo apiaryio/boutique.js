@@ -27,7 +27,7 @@ parse = (mson, cb) ->
         #{mson}
   """
   protagonist.parse blueprint, (err, result) ->
-    ast = result?.ast?.resourceGroups?[0]?.resources?[0]?.attributes
+    ast = result?.ast?.resourceGroups?[0]?.resources?[0]?.attributes?.source
     cb err, ast
 
 
