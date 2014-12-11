@@ -6,11 +6,8 @@ async = require 'async'
 try
   protagonist = require 'protagonist'
 catch
-  protagonist = null
-
-
-unless protagonist
-  throw new Error "You need to install the latest Protagonist first by running 'npm install protagonist-experimental'."
+  console.error "You need to install the latest Protagonist first by running 'npm install protagonist-experimental'."
+  process.exit 1
 
 
 formatsDir = path.resolve __dirname, '..', 'test', 'formats'
