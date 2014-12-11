@@ -49,18 +49,23 @@ describe "Type resolution", ->
       assert.deepEqual ['string', 'number'], typeSpec.nested
 
   describe "if given Named Type with no explicit base type", ->
-    error = null
+    typeSpec = null
     astTreeNode =
       name:
         name: 'Person'
+      sections: [
+          type: 'member'
+        ,
+          type: 'member'
+      ]
 
     before (next) ->
-      resolveType astTreeNode, (err) ->
-        error = err
-        next null
+      resolveType astTreeNode, (err, result) ->
+        typeSpec = result
+        next err
 
-    it "results in an error", ->
-      assert.include error.message, 'type information missing'
+    it "resolves ‘object’ as the effective type", ->
+      assert.equal 'object', typeSpec.name
 
   describe "if given Named Type with type, which is not primitive", ->
     error = null
@@ -122,7 +127,7 @@ describe "Type resolution", ->
       assert.deepEqual ['string', 'boolean'], typeSpec.nested
 
   describe "if given Value Member with no explicit type", ->
-    error = null
+    typeSpec = null
     astTreeNode =
       valueDefinition:
         typeDefinition:
@@ -131,12 +136,12 @@ describe "Type resolution", ->
               name: null
 
     before (next) ->
-      resolveType astTreeNode, (err) ->
-        error = err
-        next null
+      resolveType astTreeNode, (err, result) ->
+        typeSpec = result
+        next err
 
-    it "results in an error", ->
-      assert.include error.message, 'type information missing'
+    it "resolves ‘string’ as the effective type", ->
+      assert.equal 'string', typeSpec.name
 
   describe "if given Value Member with type, which is not primitive", ->
     error = null

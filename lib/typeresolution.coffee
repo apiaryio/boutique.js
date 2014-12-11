@@ -42,6 +42,20 @@ simplifyTypeSpecification = (typeSpecification, cb) ->
       cb null, {name: type, nested}
 
 
+# There are two ways how to say whether there are "nested member types".
+# First way is to count individual member types one by one, second way is
+# to count whether there are "containers" for these nested types.
+#
+# The second approach makes more sense, because counting individual
+# nested objects would cause problems with empty "containers", which
+# are probably sufficient proof of nested members, but contain zero of them.
+containsNestedMemberTypes = (node) ->
+  sections = node.sections or []
+  memberSections = sections.filter (section) ->
+    section.type is 'member'
+  memberSections.length > 0
+
+
 # Takes top-level *Named Type* or *Property Member* or *Value Member* tree node.
 # Provides a sort of 'simple type specification object':
 #
@@ -50,10 +64,10 @@ simplifyTypeSpecification = (typeSpecification, cb) ->
 #
 # In case it isn't able to resolve this *typeSpecification* object with
 # primitive types only, ends with an error (Boutique builds no symbol table,
-# so it can't resolve any possible inheritance). Also missing type information
-# results in error (Boutique does no implicit assumptions about types).
+# so it can't resolve any possible inheritance).
 resolveType = (node, cb) ->
   typeSpecification = null
+  implicitType = if containsNestedMemberTypes node then 'object' else 'string'
 
   if node?.base?.typeSpecification?
     # We got top-level *Named Type* node.
@@ -64,8 +78,7 @@ resolveType = (node, cb) ->
 
   simplifyTypeSpecification typeSpecification, (err, spec) ->
     return cb err if err
-    return cb new Error 'Unable to resolve type: type information missing' if not spec
-    cb null, spec
+    cb null, spec or {name: implicitType}
 
 
 module.exports = {
