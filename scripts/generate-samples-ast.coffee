@@ -10,7 +10,7 @@ catch
 
 
 unless protagonist
-  throw new Error "You need to install the latest Protagonist first by running 'install-protagonist.sh'."
+  throw new Error "You need to install the latest Protagonist first by running 'npm install protagonist-experimental'."
 
 
 formatsDir = path.resolve __dirname, '..', 'test', 'formats'
