@@ -44,9 +44,7 @@ generate = (filename, cb) ->
         data = JSON.stringify ast, undefined, 2
         fs.writeFile astPath, data, next
 
-  ], (err) ->
-    console.error "Sample '#{filename}' couldn't be parsed: #{err.message}" if err
-    cb null, not err
+  ], cb
 
 
 main = ->
@@ -55,13 +53,22 @@ main = ->
         fs.readdir msonSamplesDir, next
     ,
       (filenames, next) ->
-        async.map filenames, generate, (err, results) ->
-          if not err and false in results
+        async.map filenames, (filename, cb) ->
+          generate filename, (err) ->
+            # we don't want to stop the loop on error, so we pass no error and we record
+            # unsuccessful generation by providing 'false' result
+            console.error "Sample '#{filename}' couldn't be parsed: #{err.message}" if err
+            cb null, not err
+
+        , (err, successFlags) ->
+          if not err and false in successFlags
             err = new Error 'Generation of some samples was unsuccessful.'
           next err
 
   ], (err) ->
-    process.exit 1 if err
+    if err
+      console.error err.message
+      process.exit 1
 
 
 main()
