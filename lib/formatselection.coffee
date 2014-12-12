@@ -17,22 +17,26 @@ parse = (contentType, cb) ->
 # Takes parsed needle Content-Type and array of parsed Content-Types as haystack.
 findCandidates = (needle, haystack, cb) ->
   candidates = []
+  needleParts = needle.parts or {}
 
   for contentType in haystack
-    if needle.parts.suffix is contentType.parts.subtype
+    contentTypeParts = contentType.parts or {}
+    candidate = contentType.string
+
+    if needleParts.suffix is contentTypeParts.subtype
       # this means `image/svg+xml` will eventually match with `application/xml`
-      candidates.push contentType.string
+      candidates.push candidate
 
-    if needle.parts.type isnt contentType.parts.type
+    if needleParts.type isnt contentTypeParts.type
       continue
-    if needle.parts.subtype isnt contentType.parts.subtype
+    if needleParts.subtype isnt contentTypeParts.subtype
       continue
-    if needle.parts.suffix isnt contentType.parts.suffix
+    if needleParts.suffix isnt contentTypeParts.suffix
       continue
-    if contentType.parts.parameters?.profile? and needle.parts.parameters?.profile isnt contentType.parts.parameters?.profile
+    if contentTypeParts.parameters?.profile? and needleParts.parameters?.profile isnt contentTypeParts.parameters?.profile
       continue
 
-    return cb null, contentType.string
+    return cb null, candidate
 
   cb null, candidates?[0]  # or undefined in case there's absolutely no match
 
@@ -42,12 +46,8 @@ selectFormat = (needle, haystack, cb) ->
   return (cb null, needle) if needle in haystack
 
   async.parallel [
-      (next) ->  # parse the needle Content-Type
-        parse needle, next
-    ,
-      (next) ->  # parse each of haystack Content-Types
-        async.map haystack, parse, next
-
+    (next) -> parse needle, next  # parse the needle Content-Type
+    (next) -> async.map haystack, parse, next  # parse each of haystack Content-Types
   ], (err, [needle, haystack]) ->
     return cb err if err
 
