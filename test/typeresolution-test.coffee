@@ -16,7 +16,7 @@ testTypeResolution = (description, {astTreeNode, typeName, nestedTypes, errConta
 
     if errContains
       it "results in an error with message containing ‘#{errContains}’", ->
-        assert.include err.message, errContains
+        assert.include err.message.toLowerCase(), errContains.toLowerCase()
     else
       it "resolves ‘#{typeName}’ as the effective type", ->
         assert.equal typeName, typeSpec.name

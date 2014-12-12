@@ -32,7 +32,7 @@ simplifyTypeSpecification = (typeSpecification, cb) ->
     return cb err if err  # non-primitive type results in error
     return cb null, {name: type} if (typeSpecification?.nestedTypes?.length or 0) < 1  # no nested types
 
-    # just playing safe, this should be already checked by MSON parser
+    # just playing safe, this should be already ensured by MSON parser
     if type not in ['array', 'enum']
       return cb new Error "Nested types are allowed only for array and enum types."
 
@@ -42,6 +42,14 @@ simplifyTypeSpecification = (typeSpecification, cb) ->
       cb null, {name: type, nested}
 
 
+# Helps to identify whether given node is an implicit array.
+hasMultipleValues = (node) ->
+  values = node.valueDefinition?.values or []
+  values.length > 0
+
+
+# Helps to identify whether given node is an implicit object.
+#
 # There are two ways how to say whether there are "nested member types".
 # First way is to count individual member types one by one, second way is
 # to count whether there are "containers" for these nested types.
@@ -56,6 +64,31 @@ containsNestedMemberTypes = (node) ->
   memberSections.length > 0
 
 
+# Resolves implicit type for given *Named Type* or *Property Member*
+# or *Value Member* tree node.
+resolveImplicitType = (node, cb) ->
+  isArray = hasMultipleValues node
+  isObject = containsNestedMemberTypes node
+
+  if isObject and isArray
+    # just playing safe, this should be already ensured by MSON parser
+    cb new Error "Unable to resolve type. Ambiguous implicit type (seems to be both object and inline array)."
+  else
+    type = ('array' if isArray) or ('object' if isObject) or 'string'
+    cb null, type
+
+
+# Finds *typeSpecification* object for given *Named Type* or *Property Member*
+# or *Value Member* tree node.
+findTypeSpecification = (node) ->
+  if node.base?.typeSpecification?
+    # Top-level *Named Type* node.
+    node.base?.typeSpecification
+  else
+    # *Property Member* or *Value Member* node
+    node.valueDefinition?.typeDefinition?.typeSpecification
+
+
 # Takes top-level *Named Type* or *Property Member* or *Value Member* tree node.
 # Provides a sort of 'simple type specification object':
 #
@@ -66,19 +99,15 @@ containsNestedMemberTypes = (node) ->
 # primitive types only, ends with an error (Boutique builds no symbol table,
 # so it can't resolve any possible inheritance).
 resolveType = (node, cb) ->
-  typeSpecification = null
-  implicitType = if containsNestedMemberTypes node then 'object' else 'string'
-
-  if node?.base?.typeSpecification?
-    # We got top-level *Named Type* node.
-    typeSpecification = node?.base?.typeSpecification
-  else
-    # *Property Member* or *Value Member* node
-    typeSpecification = node?.valueDefinition?.typeDefinition?.typeSpecification
-
+  typeSpecification = findTypeSpecification node
   simplifyTypeSpecification typeSpecification, (err, spec) ->
-    return cb err if err
-    cb null, spec or {name: implicitType}
+    if err
+      cb err
+    else if not spec
+      resolveImplicitType node, (err, implicitType) ->
+        cb err, {name: implicitType}
+    else
+      cb null, spec
 
 
 module.exports = {
