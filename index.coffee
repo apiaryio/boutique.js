@@ -19,8 +19,9 @@ represent = ({ast, contentType, options}, cb) ->
   ast ?= {}
   contentType ?= 'application/schema+json'
   options ?= {}
+  availableContentTypes = Object.keys formats
 
-  selectFormat contentType, Object.keys formats, (err, selectedContentType) ->
+  selectFormat contentType, availableContentTypes, (err, selectedContentType) ->
     return cb err if err
     return cb new Error "Content-Type '#{contentType}' is not implemented." unless selectedContentType
 
