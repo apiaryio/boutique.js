@@ -44,8 +44,7 @@ simplifyTypeSpecification = (typeSpecification, cb) ->
 
 # Helps to identify whether given node is an implicit array.
 hasMultipleValues = (node) ->
-  values = node.valueDefinition?.values or []
-  values.length > 0
+  !!node.valueDefinition?.values?.length
 
 
 # Helps to identify whether given node is an implicit object.
@@ -57,6 +56,9 @@ hasMultipleValues = (node) ->
 # The second approach makes more sense, because counting individual
 # nested objects would cause problems with empty "containers", which
 # are probably sufficient proof of nested members, but contain zero of them.
+#
+# However, this 'race condition' probably can't happen anyway, so these
+# approaches shouldn't(tm) make a difference.
 containsNestedMemberTypes = (node) ->
   sections = node.sections or []
   memberSections = sections.filter (section) ->
@@ -83,7 +85,7 @@ resolveImplicitType = (node, cb) ->
 findTypeSpecification = (node) ->
   if node.base?.typeSpecification?
     # Top-level *Named Type* node.
-    node.base?.typeSpecification
+    node.base.typeSpecification
   else
     # *Property Member* or *Value Member* node
     node.valueDefinition?.typeDefinition?.typeSpecification
@@ -105,7 +107,7 @@ resolveType = (node, cb) ->
       cb err
     else if not spec
       resolveImplicitType node, (err, implicitType) ->
-        cb err, {name: implicitType}
+        cb err, name: implicitType
     else
       cb null, spec
 
