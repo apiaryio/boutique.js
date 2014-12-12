@@ -48,12 +48,12 @@ selectFormat = (needle, haystack, cb) ->
       (next) ->  # parse each of haystack Content-Types
         async.map haystack, parse, next
 
-  ], (err, results) ->
+  ], (err, [needle, haystack]) ->
     return cb err if err
 
     # both needle and haystack are now transformed
     # from strings to parsed objects
-    findCandidates results[0], results[1], cb
+    findCandidates needle, haystack, cb
 
 
 module.exports = {
