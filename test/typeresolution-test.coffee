@@ -4,158 +4,199 @@ require 'mocha'
 {resolveType} = require '../lib/typeresolution'
 
 
+testTypeResolution = (description, {astTreeNode, typeName, nestedTypes, errContains}) ->
+  describe description, ->
+    typeSpec = null
+    err = null
+
+    before (next) ->
+      resolveType astTreeNode, ->
+        [err, typeSpec] = arguments
+        next (err unless errContains)
+
+    if errContains
+      it "results in an error with message containing ‘#{errContains}’", ->
+        assert.include err.message, errContains
+    else
+      it "resolves ‘#{typeName}’ as the effective type", ->
+        assert.equal typeName, typeSpec.name
+
+      if nestedTypes
+        quotedNames = nestedTypes.map (name) -> "‘#{name}’"
+        joinedQuotedNames = quotedNames.join ' and '
+
+        it "resolves #{joinedQuotedNames} as nested types", ->
+          assert.deepEqual nestedTypes, typeSpec.nested
+
+
 describe "Type resolution", ->
-  describe "if given Named Type with ‘object’ base type", ->
-    typeSpec = null
-    astTreeNode =
-      name:
-        name: 'Person'
-      base:
-        typeSpecification:
-          name:
-            name: 'object'
-
-    before (next) ->
-      resolveType astTreeNode, (err, result) ->
-        typeSpec = result
-        next err
-
-    it "resolves ‘object’ as the effective type", ->
-      assert.equal 'object', typeSpec.name
-
-  describe "if given Named Type with ‘array’ base type and some nested types", ->
-    typeSpec = null
-    astTreeNode =
-      name:
-        name: 'Some Elements'
-      base:
-        typeSpecification:
-          name:
-            name: 'array'
-          nestedTypes: [
-              name: 'string'
-            ,
-              name: 'number'
-          ]
-
-    before (next) ->
-      resolveType astTreeNode, (err, result) ->
-        typeSpec = result
-        next err
-
-    it "resolves ‘array’ as the effective type", ->
-      assert.equal 'array', typeSpec.name
-    it "resolves ‘string’ and ‘number’ as nested types", ->
-      assert.deepEqual ['string', 'number'], typeSpec.nested
-
-  describe "if given Named Type with no explicit base type", ->
-    typeSpec = null
-    astTreeNode =
-      name:
-        name: 'Person'
-      sections: [
-          type: 'member'
-        ,
-          type: 'member'
-      ]
-
-    before (next) ->
-      resolveType astTreeNode, (err, result) ->
-        typeSpec = result
-        next err
-
-    it "resolves ‘object’ as the effective type", ->
-      assert.equal 'object', typeSpec.name
-
-  describe "if given Named Type with type, which is not primitive", ->
-    error = null
-    astTreeNode =
-      name:
-        name: 'Person'
-      base:
-        typeSpecification:
-          name:
-            name: 'Human'
-
-    before (next) ->
-      resolveType astTreeNode, (err) ->
-        error = err
-        next null
-
-    it "results in an error", ->
-      assert.include error.message, 'Human'
-
-  describe "if given Value Member with ‘number’ base type", ->
-    typeSpec = null
-    astTreeNode =
-      valueDefinition:
-        typeDefinition:
+  describe "on Named Type node", ->
+    testTypeResolution "if given with explicit type",
+      astTreeNode:
+        name:
+          name: 'Person'
+        base:
           typeSpecification:
             name:
-              name: 'number'
+              name: 'object'
+      typeName: 'object'
 
-    before (next) ->
-      resolveType astTreeNode, (err, result) ->
-        typeSpec = result
-        next err
+    testTypeResolution "if given with ‘array’ type and some nested types",
+      astTreeNode:
+        name:
+          name: 'Some Elements'
+        base:
+          typeSpecification:
+            name:
+              name: 'array'
+            nestedTypes: [
+                name: 'string'
+              ,
+                name: 'number'
+            ]
+      typeName: 'array'
+      nestedTypes: ['string', 'number']
 
-    it "resolves ‘number’ as the effective type", ->
-      assert.equal 'number', typeSpec.name
-
-  describe "if given Value Member with ‘enum’ base type and some nested types", ->
-    typeSpec = null
-    astTreeNode =
-      valueDefinition:
-        typeDefinition:
+    testTypeResolution "if given with ‘enum’ type and some nested types",
+      astTreeNode:
+        name:
+          name: 'Some Elements'
+        base:
           typeSpecification:
             name:
               name: 'enum'
             nestedTypes: [
                 name: 'string'
               ,
-                name: 'boolean'
+                name: 'number'
             ]
+      typeName: 'enum'
+      nestedTypes: ['string', 'number']
 
-    before (next) ->
-      resolveType astTreeNode, (err, result) ->
-        typeSpec = result
-        next err
-
-    it "resolves ‘enum’ as the effective type", ->
-      assert.equal 'enum', typeSpec.name
-    it "resolves ‘string’ and ‘boolean’ as nested types", ->
-      assert.deepEqual ['string', 'boolean'], typeSpec.nested
-
-  describe "if given Value Member with no explicit type", ->
-    typeSpec = null
-    astTreeNode =
-      valueDefinition:
-        typeDefinition:
+    testTypeResolution "if given with nested types for type other than ‘array’ or ‘enum’",
+      astTreeNode:
+        name:
+          name: 'Some Elements'
+        base:
           typeSpecification:
             name:
-              name: null
+              name: 'string'
+            nestedTypes: [
+                name: 'string'
+              ,
+                name: 'number'
+            ]
+      errContains: 'array and enum'
 
-    before (next) ->
-      resolveType astTreeNode, (err, result) ->
-        typeSpec = result
-        next err
+    testTypeResolution "if given with member sections and with no explicit type",
+      astTreeNode:
+        name:
+          name: 'Person'
+        sections: [
+            type: 'member'
+          ,
+            type: 'member'
+        ]
+      typeName: 'object'
 
-    it "resolves ‘string’ as the effective type", ->
-      assert.equal 'string', typeSpec.name
+    testTypeResolution "if given with no explicit type",
+      astTreeNode:
+        name:
+          name: 'Person'
+      typeName: 'string'
 
-  describe "if given Value Member with type, which is not primitive", ->
-    error = null
-    astTreeNode =
-      valueDefinition:
-        typeDefinition:
+    testTypeResolution "if given with type, which is not primitive",
+      astTreeNode:
+        name:
+          name: 'Person'
+        base:
           typeSpecification:
             name:
-              name: 'Person'
+              name: 'Human'
+      errContains: 'Human'
 
-    before (next) ->
-      resolveType astTreeNode, (err) ->
-        error = err
-        next null
+  describe "on Value Member (or Property Member) node", ->
+    testTypeResolution "if given with explicit type",
+      astTreeNode:
+        valueDefinition:
+          typeDefinition:
+            typeSpecification:
+              name:
+                name: 'number'
+      typeName: 'number'
 
-    it "results in an error", ->
-      assert.include error.message, 'Person'
+    testTypeResolution "if given with ‘array’ type and some nested types",
+      astTreeNode:
+        valueDefinition:
+          typeDefinition:
+            typeSpecification:
+              name:
+                name: 'array'
+              nestedTypes: [
+                  name: 'string'
+                ,
+                  name: 'boolean'
+              ]
+      typeName: 'array'
+      nestedTypes: ['string', 'boolean']
+
+    testTypeResolution "if given with ‘enum’ type and some nested types",
+      astTreeNode:
+        valueDefinition:
+          typeDefinition:
+            typeSpecification:
+              name:
+                name: 'enum'
+              nestedTypes: [
+                  name: 'string'
+                ,
+                  name: 'boolean'
+              ]
+      typeName: 'enum'
+      nestedTypes: ['string', 'boolean']
+
+    testTypeResolution "if given with nested types for type other than ‘array’ or ‘enum’",
+      astTreeNode:
+        valueDefinition:
+          typeDefinition:
+            typeSpecification:
+              name:
+                name: 'string'
+              nestedTypes: [
+                  name: 'string'
+                ,
+                  name: 'boolean'
+              ]
+      errContains: 'array and enum'
+
+    testTypeResolution "if given with member sections and with no explicit type",
+      astTreeNode:
+        valueDefinition:
+          typeDefinition:
+            typeSpecification:
+              name:
+                name: null
+        sections: [
+            type: 'member'
+          ,
+            type: 'member'
+        ]
+      typeName: 'object'
+
+    testTypeResolution "if given with no explicit type",
+      astTreeNode:
+        valueDefinition:
+          typeDefinition:
+            typeSpecification:
+              name:
+                name: null
+      typeName: 'string'
+
+    testTypeResolution "if given with type, which is not primitive",
+      astTreeNode:
+        valueDefinition:
+          typeDefinition:
+            typeSpecification:
+              name:
+                name: 'Person'
+      errContains: 'Person'
