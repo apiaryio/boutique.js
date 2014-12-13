@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "simple-object.mson",
+    "literal": "escaping.mson",
     "variable": false
   },
   "sections": [
@@ -11,9 +11,22 @@
           "type": "property",
           "content": {
             "name": {
-              "literal": "address"
+              "literal": "listing"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "object"
+                  }
+                }
+              }
             },
             "sections": [
+              {
+                "type": "blockDescription",
+                "content": "Our real estate listing has different properties available.\n\n- `Properties`\n    - This one.\n    - That one. \n"
+              },
               {
                 "type": "member",
                 "content": [
@@ -21,15 +34,7 @@
                     "type": "property",
                     "content": {
                       "name": {
-                        "literal": "street"
-                      }
-                    }
-                  },
-                  {
-                    "type": "property",
-                    "content": {
-                      "name": {
-                        "literal": "city"
+                        "literal": "description"
                       },
                       "valueDefinition": {
                         "typeDefinition": {
@@ -46,7 +51,7 @@
                     "type": "property",
                     "content": {
                       "name": {
-                        "literal": "state"
+                        "literal": "date_listed"
                       },
                       "valueDefinition": {
                         "typeDefinition": {
@@ -54,10 +59,30 @@
                             "name": {
                               "name": "string"
                             }
-                          },
-                          "attributes": [
-                            "required"
-                          ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "property",
+                    "content": {
+                      "name": {
+                        "literal": "some:location"
+                      },
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "local",
+                            "variable": false
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          }
                         }
                       }
                     }

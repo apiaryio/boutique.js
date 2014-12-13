@@ -1,0 +1,118 @@
+{
+  "name": {
+    "literal": "mixed-array-complex.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "array"
+                  }
+                }
+              }
+            },
+            "sections": [
+              {
+                "type": "member",
+                "content": [
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "object"
+                            }
+                          }
+                        }
+                      },
+                      "sections": [
+                        {
+                          "type": "member",
+                          "content": [
+                            {
+                              "type": "property",
+                              "content": {
+                                "name": {
+                                  "literal": "name"
+                                },
+                                "valueDefinition": {
+                                  "values": [
+                                    {
+                                      "literal": "snow",
+                                      "variable": false
+                                    }
+                                  ],
+                                  "typeDefinition": {
+                                    "typeSpecification": {
+                                      "name": {
+                                        "name": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "property",
+                              "content": {
+                                "name": {
+                                  "literal": "description"
+                                },
+                                "valueDefinition": {
+                                  "typeDefinition": {
+                                    "typeSpecification": {
+                                      "name": {
+                                        "name": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "42",
+                            "variable": false
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "name": {
+              "variable": {}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

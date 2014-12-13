@@ -1,0 +1,66 @@
+{
+  "name": {
+    "literal": "variable-property.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "_links"
+            },
+            "sections": [
+              {
+                "type": "member",
+                "content": [
+                  {
+                    "type": "property",
+                    "content": {
+                      "name": {
+                        "variable": {
+                          "values": [
+                            {
+                              "literal": "self",
+                              "variable": false
+                            }
+                          ]
+                        }
+                      },
+                      "sections": [
+                        {
+                          "type": "member",
+                          "content": [
+                            {
+                              "type": "property",
+                              "content": {
+                                "name": {
+                                  "literal": "href"
+                                },
+                                "valueDefinition": {
+                                  "values": [
+                                    {
+                                      "literal": "a URI",
+                                      "variable": false
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

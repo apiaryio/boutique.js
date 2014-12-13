@@ -1,0 +1,110 @@
+{
+  "name": {
+    "literal": "enum.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "tag"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "enum"
+                  }
+                }
+              }
+            },
+            "sections": [
+              {
+                "type": "member",
+                "content": [
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "green",
+                            "variable": false
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "object"
+                            }
+                          }
+                        }
+                      },
+                      "sections": [
+                        {
+                          "type": "member",
+                          "content": [
+                            {
+                              "type": "property",
+                              "content": {
+                                "name": {
+                                  "literal": "tag_id"
+                                },
+                                "valueDefinition": {
+                                  "values": [
+                                    {
+                                      "literal": "1",
+                                      "variable": false
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "property",
+                              "content": {
+                                "name": {
+                                  "literal": "label"
+                                },
+                                "valueDefinition": {
+                                  "values": [
+                                    {
+                                      "literal": "green",
+                                      "variable": false
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

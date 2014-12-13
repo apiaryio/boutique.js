@@ -1,0 +1,52 @@
+{
+  "name": {
+    "literal": "one-of.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "city"
+            }
+          }
+        },
+        {
+          "type": "oneOf",
+          "content": {
+            "members": [
+              {
+                "type": "property",
+                "content": {
+                  "name": {
+                    "literal": "state"
+                  }
+                }
+              },
+              {
+                "type": "property",
+                "content": {
+                  "name": {
+                    "literal": "province"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "country"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
