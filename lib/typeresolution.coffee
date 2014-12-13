@@ -43,8 +43,8 @@ simplifyTypeSpecification = (typeSpecification, cb) ->
 
 
 # Helps to identify whether given node is an implicit array.
-hasMultipleValues = (node) ->
-  (node.valueDefinition?.values?.length or 0) > 1
+isArray = (node) ->
+  (node.valueDefinition?.values?.length or 0) > 1  # has multiple values?
 
 
 # Helps to identify whether given node is an implicit object.
@@ -59,7 +59,7 @@ hasMultipleValues = (node) ->
 #
 # However, this 'race condition' probably can't happen anyway, so these
 # approaches shouldn't(tm) make a difference.
-containsNestedMemberTypes = (node) ->
+isObject = (node) ->
   sections = node.sections or []
   memberSections = sections.filter (section) ->
     section.type is 'member'
@@ -69,14 +69,14 @@ containsNestedMemberTypes = (node) ->
 # Resolves implicit type for given *Named Type* or *Property Member*
 # or *Value Member* tree node.
 resolveImplicitType = (node, cb) ->
-  isArray = hasMultipleValues node
-  isObject = containsNestedMemberTypes node
+  isArr = isArray node
+  isObj = isObject node
 
-  if isObject and isArray
+  if isObj and isArr
     # just playing safe, this should be already ensured by MSON parser
     cb new Error "Unable to resolve type. Ambiguous implicit type (seems to be both object and inline array)."
   else
-    type = ('array' if isArray) or ('object' if isObject) or 'string'
+    type = ('array' if isArr) or ('object' if isObj) or 'string'
     cb null, type
 
 
