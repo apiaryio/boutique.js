@@ -44,7 +44,7 @@ simplifyTypeSpecification = (typeSpecification, cb) ->
 
 # Helps to identify whether given node is an implicit array.
 hasMultipleValues = (node) ->
-  !!node.valueDefinition?.values?.length
+  (node.valueDefinition?.values?.length or 0) > 1
 
 
 # Helps to identify whether given node is an implicit object.
