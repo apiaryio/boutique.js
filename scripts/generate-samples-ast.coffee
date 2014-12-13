@@ -47,7 +47,7 @@ writeAstFile = (filename, ast, cb) ->
   astPath = path.resolve astSamplesDir, "#{basename}.json"
 
   data = JSON.stringify ast, undefined, 2
-  fs.writeFile astPath, data, cb
+  fs.writeFile astPath, "#{data}\n", cb
 
 
 # Generates AST version of given MSON file.
