@@ -72,8 +72,9 @@ generateMany = (filenames, cb) ->
 
   , (err, successFlags) ->
     if not err and false in successFlags
-      err = new Error 'Generation of some samples was unsuccessful.'
-    cb err
+      cb new Error 'Generation of some samples was unsuccessful.'
+    else
+      cb err
 
 
 main = ->
