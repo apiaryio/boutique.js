@@ -16,12 +16,12 @@ astSamplesDir = path.resolve formatsDir, 'samples-ast'
 
 
 # Parses given MSON and passes resulting AST to the callback.
-parse = (mson, cb) ->
+parse = (topLevelName, mson, cb) ->
   indentedMson = ("    #{line}" for line in mson.split '\n').join '\n'
 
   # Dummy API Blueprint
   blueprint = """
-    # Name [/]
+    # #{topLevelName} [/]
 
     + Attributes
     #{indentedMson}
@@ -54,7 +54,7 @@ writeAstFile = (filename, ast, cb) ->
 generate = (filename, cb) ->
   async.waterfall [
     (next) -> readMsonFile filename, next
-    parse
+    (mson, next) -> parse filename, mson, next
     (ast, next) -> writeAstFile filename, ast, next
   ], cb
 
