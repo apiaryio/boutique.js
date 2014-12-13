@@ -4,7 +4,7 @@ path = require 'path'
 async = require 'async'
 
 try
-  protagonist = require 'protagonist'
+  protagonist = require 'protagonist-experimental'
 catch
   console.error "You need to install the latest Protagonist first by running 'npm install protagonist-experimental'."
   process.exit 1
@@ -17,13 +17,16 @@ astSamplesDir = path.resolve formatsDir, 'samples-ast'
 
 # Parses given MSON and passes resulting AST to the callback.
 parse = (mson, cb) ->
+  indentedMson = ("    #{line}" for line in mson.split '\n').join '\n'
+
   # Dummy API Blueprint
   blueprint = """
     # Name [/]
 
     + Attributes
-        #{mson}
+    #{indentedMson}
   """
+
   protagonist.parse blueprint, (err, result) ->
     ast = result?.ast?.resourceGroups?[0]?.resources?[0]?.attributes?.source
     cb err, ast
@@ -70,7 +73,7 @@ generateMany = (filenames, cb) ->
   , (err, successFlags) ->
     if not err and false in successFlags
       err = new Error 'Generation of some samples was unsuccessful.'
-    next err
+    cb err
 
 
 main = ->
