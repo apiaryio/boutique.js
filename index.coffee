@@ -5,19 +5,26 @@ serializers = require './lib/serializers'
 {selectFormat} = require './lib/formatselection'
 
 
+jsonSchemaV4 =
+  lib: require './lib/formats/jsonschema-v4'
+  serialize: serializers.json
+
 formats =
-  'application/schema+json':
-    lib: require './lib/formats/jsonschema-v4'
-    serialize: serializers.json
+  'application/schema+json': jsonSchemaV4
+  'application/schema+json; profile="http://json-schema.org/schema"': jsonSchemaV4
+  'application/schema+json; profile="http://json-schema.org/draft-04/schema"': jsonSchemaV4
 
 
 represent = ({ast, contentType, options}, cb) ->
   ast ?= {}
   contentType ?= 'application/schema+json'
   options ?= {}
+  availableContentTypes = Object.keys formats
 
-  selectedContentType = selectFormat contentType, Object.keys formats
-  if selectedContentType
+  selectFormat contentType, availableContentTypes, (err, selectedContentType) ->
+    return cb err if err
+    return cb new Error "Content-Type '#{contentType}' is not implemented." unless selectedContentType
+
     {lib, serialize} = formats[selectedContentType]
 
     async.waterfall [
@@ -29,8 +36,6 @@ represent = ({ast, contentType, options}, cb) ->
 
     ], (err, repr) ->
       cb err, repr, selectedContentType
-  else
-    cb new Error "Content-Type '#{contentType}' is not implemented."
 
 
 module.exports = {
