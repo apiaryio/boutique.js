@@ -4,95 +4,19 @@ Looking for the best fashion for your [MSON AST](https://github.com/apiaryio/mso
 
 ![illustration](https://github.com/apiaryio/boutique/blob/master/assets/boutique.png?raw=true)
 
+## Introduction
+
+Imagine you have some [MSON](https://github.com/apiaryio/mson) to describe body attributes in your [API Blueprint](https://github.com/apiaryio/api-blueprint/). Drafter should be able to not only to parse it, but also to provide representations of those body attributes in formats you specified, e.g. in `application/json`. Boutique is a simple tool to do exactly that.
+
+Boutique takes an [MSON AST](https://github.com/apiaryio/mson-ast) and provides a representation of it in JSON, JSON Schema or other formats.
+
+![diagram](https://github.com/apiaryio/boutique/blob/master/assets/boutique-diagram.png?raw=true)
+
+> **NOTE:** Boutique knows nothing about hypermedia. For example, it understands that `application/hal+json` means it should generate JSON, but it generates *plain* JSON. To generate [HAL](http://stateless.co/hal_specification.html) document properly, the AST has to explicitly contain all HAL structures already on input to this tool.
+
 ## Usage
 
-Having following AST...
-
-```coffeescript
-ast =
-  name: null
-  base:
-    typeSpecification:
-      name: "object"
-
-  sections: [
-    type: "member"
-    content: [
-      type: "property"
-      content:
-        name:
-          literal: "id"
-
-        valueDefinition:
-          values: [literal: "1"]
-          typeDefinition:
-            attributes: ["required"]
-    ,
-      type: "property"
-      content:
-        name:
-          literal: "name"
-
-        valueDefinition:
-          values: [literal: "A green door"]
-    ,
-      type: "property"
-      content:
-        name:
-          literal: "price"
-
-        valueDefinition:
-          values: [literal: "12.50"]
-          typeDefinition:
-            typeSpecification:
-              name: "number"
-    ,
-      type: "property"
-      content:
-        name:
-          literal: "tags"
-
-        valueDefinition:
-          values: [
-            literal: "home"
-          ,
-            literal: "green"
-          ]
-    ,
-      type: "property"
-      content:
-        name:
-          literal: "vector"
-
-        valueDefinition:
-          typeDefinition:
-            typeSpecification:
-              name: "array"
-
-        sections: [
-          type: "member"
-          content: [
-            type: "value"
-            content:
-              valueDefinition:
-                values: [literal: "1"]
-          ,
-            type: "value"
-            content:
-              valueDefinition:
-                values: [literal: "2"]
-          ,
-            type: "value"
-            content:
-              valueDefinition:
-                values: [literal: "3"]
-          ]
-        ]
-    ]
-  ]
-```
-
-...we can convert it by Boutique to a representation:
+Using the MSON AST from [this example](https://github.com/apiaryio/mson-ast#example) as the `ast` variable, we can convert it by Boutique to a representation:
 
 ```coffeescript
 boutique = require 'boutique'
