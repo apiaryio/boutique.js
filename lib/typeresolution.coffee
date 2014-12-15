@@ -24,19 +24,19 @@ ensurePrimitiveType = (type, cb) ->
 # In case it isn't able to resolve this *typeSpecification* object with
 # primitive types only, ends with an error (Boutique builds no symbol table,
 # so it can't resolve any possible inheritance).
-simplifyTypeSpecification = (typeSpecification, cb) ->
-  type = typeSpecification?.name?.name
+simplifyTypeSpecification = (typeSpec, cb) ->
+  type = typeSpec?.name?.name
   return cb null, null if not type  # no type? return null...
 
   ensurePrimitiveType type, (err) ->
     return cb err if err  # non-primitive type results in error
-    return cb null, {name: type} if (typeSpecification?.nestedTypes?.length or 0) < 1  # no nested types
+    return cb null, {name: type} if (typeSpec?.nestedTypes?.length or 0) < 1  # no nested types
 
     # just playing safe, this should be already ensured by MSON parser
     if type not in ['array', 'enum']
       return cb new Error "Nested types are allowed only for array and enum types."
 
-    nested = (typeName.name for typeName in typeSpecification.nestedTypes)
+    nested = (typeName.name for typeName in typeSpec.nestedTypes)
     async.map nested, ensurePrimitiveType, (err) ->
       return cb err if err  # again, non-primitive types result in error
       cb null, {name: type, nested}
@@ -101,15 +101,15 @@ findTypeSpecification = (node) ->
 # primitive types only, ends with an error (Boutique builds no symbol table,
 # so it can't resolve any possible inheritance).
 resolveType = (node, cb) ->
-  typeSpecification = findTypeSpecification node
-  simplifyTypeSpecification typeSpecification, (err, spec) ->
+  typeSpec = findTypeSpecification node
+  simplifyTypeSpecification typeSpec, (err, simpleTypeSpec) ->
     if err
       cb err
-    else if not spec
+    else if not simpleTypeSpec
       resolveImplicitType node, (err, implicitType) ->
         cb err, name: implicitType
     else
-      cb null, spec
+      cb null, simpleTypeSpec
 
 
 module.exports = {
