@@ -1,0 +1,323 @@
+{
+  "name": {
+    "literal": "very-complex-object.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "id"
+            },
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "1",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": null
+                },
+                "attributes": [
+                  "required"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "name"
+            },
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "A green door",
+                  "variable": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "price"
+            },
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "12.50",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "tags"
+            },
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "home",
+                  "variable": false
+                },
+                {
+                  "literal": "green",
+                  "variable": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "vector"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "array"
+                  }
+                }
+              }
+            },
+            "sections": [
+              {
+                "type": "member",
+                "content": [
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "1",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "2",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "3",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "address"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "object"
+                  }
+                }
+              }
+            },
+            "sections": [
+              {
+                "type": "member",
+                "content": [
+                  {
+                    "type": "property",
+                    "content": {
+                      "name": {
+                        "literal": "street"
+                      },
+                      "valueDefinition": {
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": null
+                          },
+                          "attributes": [
+                            "required"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "property",
+                    "content": {
+                      "name": {
+                        "literal": "number"
+                      },
+                      "valueDefinition": {
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
+                            }
+                          },
+                          "attributes": [
+                            "required"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "property",
+                    "content": {
+                      "name": {
+                        "literal": "zip_code"
+                      },
+                      "valueDefinition": {
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": null
+                          },
+                          "attributes": [
+                            "required"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "property",
+                    "content": {
+                      "name": {
+                        "literal": "state"
+                      },
+                      "sections": [
+                        {
+                          "type": "member",
+                          "content": [
+                            {
+                              "type": "property",
+                              "content": {
+                                "name": {
+                                  "literal": "name"
+                                }
+                              }
+                            },
+                            {
+                              "type": "property",
+                              "content": {
+                                "name": {
+                                  "literal": "code"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "property",
+                    "content": {
+                      "name": {
+                        "literal": "country"
+                      },
+                      "valueDefinition": {
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "enum"
+                            }
+                          },
+                          "attributes": [
+                            "required"
+                          ]
+                        }
+                      },
+                      "sections": [
+                        {
+                          "type": "member",
+                          "content": [
+                            {
+                              "type": "value",
+                              "content": {
+                                "valueDefinition": {
+                                  "values": [
+                                    {
+                                      "literal": "Czech Republic",
+                                      "variable": false
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "value",
+                              "content": {
+                                "valueDefinition": {
+                                  "values": [
+                                    {
+                                      "literal": "United States of America",
+                                      "variable": false
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

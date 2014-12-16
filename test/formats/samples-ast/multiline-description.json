@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "complex-object.mson",
+    "literal": "multiline-description.mson",
     "variable": false
   },
   "sections": [
@@ -13,6 +13,7 @@
             "name": {
               "literal": "id"
             },
+            "description": "The unique identifier for a product",
             "valueDefinition": {
               "values": [
                 {
@@ -22,7 +23,9 @@
               ],
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": null
+                  "name": {
+                    "name": "number"
+                  }
                 },
                 "attributes": [
                   "required"
@@ -43,8 +46,24 @@
                   "literal": "A green door",
                   "variable": false
                 }
-              ]
-            }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "string"
+                  }
+                },
+                "attributes": [
+                  "required"
+                ]
+              }
+            },
+            "sections": [
+              {
+                "type": "blockDescription",
+                "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. \n \n\nSed sed lacus a arcu vehicula ultricies sed vel nibh. Mauris id cursus felis. \n \n\nInterdum et malesuada fames ac ante ipsum primis in faucibus.\n\n- unus\n\n- duo\n\n- tres\n\n- quattuor    \n"
+              }
+            ]
           }
         },
         {
@@ -65,7 +84,10 @@
                   "name": {
                     "name": "number"
                   }
-                }
+                },
+                "attributes": [
+                  "required"
+                ]
               }
             }
           }
@@ -86,17 +108,7 @@
                   "literal": "green",
                   "variable": false
                 }
-              ]
-            }
-          }
-        },
-        {
-          "type": "property",
-          "content": {
-            "name": {
-              "literal": "vector"
-            },
-            "valueDefinition": {
+              ],
               "typeDefinition": {
                 "typeSpecification": {
                   "name": {
@@ -104,53 +116,7 @@
                   }
                 }
               }
-            },
-            "sections": [
-              {
-                "type": "member",
-                "content": [
-                  {
-                    "type": "value",
-                    "content": {
-                      "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "1",
-                            "variable": false
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  {
-                    "type": "value",
-                    "content": {
-                      "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "2",
-                            "variable": false
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  {
-                    "type": "value",
-                    "content": {
-                      "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "3",
-                            "variable": false
-                          }
-                        ]
-                      }
-                    }
-                  }
-                ]
-              }
-            ]
+            }
           }
         }
       ]

@@ -1,0 +1,74 @@
+{
+  "name": {
+    "literal": "array-of-arrays.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "array"
+                  }
+                }
+              }
+            },
+            "sections": [
+              {
+                "type": "member",
+                "content": [
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "1",
+                            "variable": false
+                          },
+                          {
+                            "literal": "2",
+                            "variable": false
+                          },
+                          {
+                            "literal": "3",
+                            "variable": false
+                          },
+                          {
+                            "literal": "4",
+                            "variable": false
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "array"
+                            },
+                            "nestedTypes": [
+                              {
+                                "name": "number"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "name": {
+              "variable": {}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

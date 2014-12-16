@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "simple-object.mson",
+    "literal": "mixed-array.mson",
     "variable": false
   },
   "sections": [
@@ -11,27 +11,31 @@
           "type": "property",
           "content": {
             "name": {
-              "literal": "address"
+              "literal": "tags"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "array"
+                  }
+                }
+              }
             },
             "sections": [
               {
                 "type": "member",
                 "content": [
                   {
-                    "type": "property",
+                    "type": "value",
                     "content": {
-                      "name": {
-                        "literal": "street"
-                      }
-                    }
-                  },
-                  {
-                    "type": "property",
-                    "content": {
-                      "name": {
-                        "literal": "city"
-                      },
                       "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "hello",
+                            "variable": false
+                          }
+                        ],
                         "typeDefinition": {
                           "typeSpecification": {
                             "name": {
@@ -43,21 +47,21 @@
                     }
                   },
                   {
-                    "type": "property",
+                    "type": "value",
                     "content": {
-                      "name": {
-                        "literal": "state"
-                      },
                       "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "42",
+                            "variable": false
+                          }
+                        ],
                         "typeDefinition": {
                           "typeSpecification": {
                             "name": {
-                              "name": "string"
+                              "name": "number"
                             }
-                          },
-                          "attributes": [
-                            "required"
-                          ]
+                          }
                         }
                       }
                     }
