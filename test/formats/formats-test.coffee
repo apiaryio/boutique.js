@@ -50,8 +50,25 @@ testFormat
   ext: 'json'
   parse: JSON.parse
   samples: [
+    'array'
+    # 'array-of-arrays'
+    # 'array-with-type'
+    'boolean'
     'complex-object'
+    # 'description'
+    # 'enum-types'
+    # 'enum-values'
+    # 'escaping'
+    'inline-array'
+    # 'mixed-array-complex'
+    # 'mixed-array'
+    'number'
+    'optional'
+    # 'required'
     'simple-object'
+    'string'
+    # 'variable-property'
+    # 'very-complex-object'
   ]
 
 
