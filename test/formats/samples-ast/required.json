@@ -1,0 +1,31 @@
+{
+  "name": {
+    "literal": "required.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "street"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": null
+                },
+                "attributes": [
+                  "required"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

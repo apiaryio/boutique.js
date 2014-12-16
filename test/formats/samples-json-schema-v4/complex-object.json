@@ -16,6 +16,9 @@
     },
     "vector": {
       "type": "array"
+    },
+    "available": {
+      "type": "boolean"
     }
   },
   "required": ["id"]

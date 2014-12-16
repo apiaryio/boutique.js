@@ -65,7 +65,10 @@
                   "name": {
                     "name": "number"
                   }
-                }
+                },
+                "attributes": [
+                  "optional"
+                ]
               }
             }
           }
