@@ -1,20 +1,24 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "array",
-  "items": [
-    {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
+  "type": "object",
+  "properties": {
+    "tags": {
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
         },
-        "description": {
-          "type": "string"
+        {
+          "type": "number"
         }
-      }
-    },
-    {
-      "type": "number"
+      ]
     }
-  ]
+  }
 }

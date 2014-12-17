@@ -1,4 +1,4 @@
-- (array)
+- tags (array)
     - (object)
         - name: snow (string)
         - description (string)
