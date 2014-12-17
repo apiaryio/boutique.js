@@ -57,19 +57,66 @@ buildObjectSchema = (resolvedProps, options, cb) ->
 handleObject = (objectType, simpleTypeSpec, options, cb) ->
   async.waterfall [
     (next) -> listProperties objectType, next
-    (properties, next) -> resolveProperties properties, options, next
+    (props, next) -> resolveProperties props, options, next
     (resolvedProps, next) -> buildObjectSchema resolvedProps, options, next
   ], cb
 
 
+# Takes object type node and lists its value nodes.
+listValues = (objectType, cb) ->
+  vals = []
+  for member in (objectType.sections or []) when member.type is 'member'
+    for val in member.content when val.type is 'value'
+      vals.push val
+  cb null, vals
+
+
+# Turns value node into a 'resolved value' object with both
+# representation in JSON Schema and also possible additional info.
+resolveValue = (val, options, cb) ->
+  async.waterfall [
+    (next) ->
+      async.parallel [
+        (done) -> resolveType val, done
+        (done) -> handleType val.content, options, done
+      ], next
+    ([simpleTypeSpec, schema], next) ->
+      next null,
+        typeName: simpleTypeSpec.name
+        schema: schema
+  ], cb
+
+
+# Turns multiple property nodes into 'resolved values', i.e. objects
+# carrying both representations of those values in JSON Schema
+# and also possible additional info.
+resolveValues = (vals, options, cb) ->
+  async.map vals, (val, next) ->
+    resolveValue val, options, next
+  , cb
+
+
+# Takes 'resolved values' and generates JSON Schema
+# for their wrapper array type node.
+buildArraySchema = (resolvedVals, simpleTypeSpec, options, cb) ->
+  cb null,
+    type: 'array'
+    # TODO, WIP - will I'll continue in subsequent PRs
+    # items: (rv.schema for rv in resolvedVals)
+
+
 # Generates JSON Schema representation for given array type node.
 handleArray = (arrayType, simpleTypeSpec, options, cb) ->
-  cb null, type: 'array'
+  async.waterfall [
+    (next) -> listValues arrayType, next
+    (vals, next) -> resolveValues vals, options, next
+    (resolvedVals, next) -> buildArraySchema resolvedVals, simpleTypeSpec, options, next
+  ], cb
 
 
-# Generates JSON Schema representation for given primitive
+# Generates JSON Schema representation for given base
 # type node (string, number, etc.).
-handlePrimitiveType = (primitiveType, simpleTypeSpec, options, cb) ->
+handlePrimitiveType = (baseType, simpleTypeSpec, options, cb) ->
   cb null, type: simpleTypeSpec.name
 
 
