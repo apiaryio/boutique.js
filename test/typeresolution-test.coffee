@@ -93,7 +93,7 @@ describe "Type resolution", ->
       astTreeNode: {}
       typeName: 'string'
 
-    testTypeResolution "if given with type, which is not primitive",
+    testTypeResolution "if given with type, which is not base type",
       astTreeNode:
         base:
           typeSpecification:
@@ -191,7 +191,7 @@ describe "Type resolution", ->
         ]
       errContains: 'ambiguous'
 
-    testTypeResolution "if given with type, which is not primitive",
+    testTypeResolution "if given with type, which is not base type",
       astTreeNode:
         valueDefinition:
           typeDefinition:
