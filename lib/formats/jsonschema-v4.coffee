@@ -3,6 +3,7 @@ async = require 'async'
 {resolveType} = require '../typeresolution'
 
 
+# Takes object type node and lists its property nodes.
 listProperties = (objectType, cb) ->
   props = []
   for member in (objectType.sections or []) when member.type is 'member'
@@ -11,6 +12,9 @@ listProperties = (objectType, cb) ->
   cb null, props
 
 
+# Turns property node into a 'resolved property' object with both
+# representation in JSON Schema and also additional info, such as property
+# name, attributes, etc.
 resolveProperty = (prop, options, cb) ->
   async.waterfall [
     (next) -> handleType prop.content, options, next
@@ -22,12 +26,17 @@ resolveProperty = (prop, options, cb) ->
   ], cb
 
 
+# Turns multiple property nodes into 'resolved properties', i.e. objects
+# carrying both representations of those properties in JSON Schema
+# and also additional info, such as property names, attributes, etc.
 resolveProperties = (props, options, cb) ->
   async.map props, (prop, next) ->
     resolveProperty prop, options, next
   , cb
 
 
+# Takes 'resolved properties' and generates JSON Schema
+# for their wrapper object type node.
 buildObjectSchema = (resolvedProps, options, cb) ->
   schemaProps = {}
   schemaRequired = []
@@ -44,6 +53,7 @@ buildObjectSchema = (resolvedProps, options, cb) ->
   cb null, schema
 
 
+# Generates JSON Schema representation for given object type node.
 handleObject = (objectType, simpleTypeSpec, options, cb) ->
   async.waterfall [
     (next) -> listProperties objectType, next
@@ -52,14 +62,18 @@ handleObject = (objectType, simpleTypeSpec, options, cb) ->
   ], cb
 
 
+# Generates JSON Schema representation for given array type node.
 handleArray = (arrayType, simpleTypeSpec, options, cb) ->
   cb null, type: 'array'
 
 
+# Generates JSON Schema representation for given primitive
+# type node (string, number, etc.).
 handlePrimitiveType = (primitiveType, simpleTypeSpec, options, cb) ->
   cb null, type: simpleTypeSpec.name
 
 
+# Generates JSON Schema representation for given type node.
 handleType = (type, options, cb) ->
   resolveType type, (err, simpleTypeSpec) ->
     return cb err if err
@@ -72,11 +86,13 @@ handleType = (type, options, cb) ->
         handlePrimitiveType type, simpleTypeSpec, options, cb
 
 
+# Adds JSON Schema declaration to given schema object.
 addSchemaDeclaration = (schema, cb) ->
   schema["$schema"] = "http://json-schema.org/draft-04/schema#"
   cb null, schema
 
 
+# Transforms given MSON AST into JSON Schema.
 transform = (ast, options, cb) ->
   async.waterfall [
     (next) -> handleType ast, options, next
