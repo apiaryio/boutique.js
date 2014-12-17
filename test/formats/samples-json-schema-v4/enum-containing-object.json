@@ -5,7 +5,8 @@
     "tag": {
       "oneOf": [
         {
-          "type": "string"
+          "type": "string",
+          "enum": ["green"]
         },
         {
           "type": "object",
