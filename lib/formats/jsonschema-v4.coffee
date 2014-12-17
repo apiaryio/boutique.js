@@ -3,68 +3,85 @@ async = require 'async'
 {resolveType} = require '../typeresolution'
 
 
-###########################################################################
-## PROTOTYPE ALERT! This is work in progress as much as it only can be.  ##
-###########################################################################
-
-
-handleValue = (value, options, cb) ->
-  resolveType value, (err, typeSpec) ->
-    return cb err if err
-
-    valueType = typeSpec.name  # ignoring nested types for now
-    switch valueType
-      when 'object'
-        return handleObject value, options, cb
-
-      # when 'array'
-      #   do nothing - not implemented yet
-
-    cb null, type: valueType
-
-
-handleObject = (type, options, cb) ->
-  # prepare a simple array of property objects
+listProperties = (objectType, cb) ->
   props = []
-
-  for member in (type.sections or []) when member.type is 'member'
+  for member in (objectType.sections or []) when member.type is 'member'
     for prop in member.content when prop.type is 'property'
       props.push prop
+  cb null, props
 
-  # map over that array, get representations of property values and wrap them
-  # with object carrying also property-specific information (name, required, ...)
-  async.map props, (prop, next) ->
-    handleValue prop.content, options, (err, propRepr) ->
-      next err,
+
+resolveProperty = (prop, options, cb) ->
+  async.waterfall [
+    (next) -> handleType prop.content, options, next
+    (schema, next) ->
+      next null,
         name: prop.content.name.literal
-        repr: propRepr
+        schema: schema
         required: 'required' in (prop.content?.valueDefinition?.typeDefinition?.attributes or [])
+  ], cb
 
-  , (err, reprWrappers) ->
+
+resolveProperties = (props, options, cb) ->
+  async.map props, (prop, next) ->
+    resolveProperty prop, options, next
+  , cb
+
+
+buildObjectSchema = (resolvedProps, options, cb) ->
+  schemaProps = {}
+  schemaRequired = []
+
+  for {name, schema, required} in resolvedProps
+    schemaProps[name] = schema
+    schemaRequired.push name if required
+
+  schema =
+    type: 'object'
+    properties: schemaProps
+  schema.required = schemaRequired if schemaRequired.length > 0
+
+  cb null, schema
+
+
+handleObject = (objectType, simpleTypeSpec, options, cb) ->
+  async.waterfall [
+    (next) -> listProperties objectType, next
+    (properties, next) -> resolveProperties properties, options, next
+    (resolvedProps, next) -> buildObjectSchema resolvedProps, options, next
+  ], cb
+
+
+handleArray = (arrayType, simpleTypeSpec, options, cb) ->
+  cb null, type: 'array'
+
+
+handlePrimitiveType = (primitiveType, simpleTypeSpec, options, cb) ->
+  cb null, type: simpleTypeSpec.name
+
+
+handleType = (type, options, cb) ->
+  resolveType type, (err, simpleTypeSpec) ->
     return cb err if err
-
-    # prepare containers for the final representation of the object
-    propsRepr = {}
-    requiredRepr = []
-
-    # unwrap info for each property and render what needs to be rendered
-    for {name, repr, required} in reprWrappers
-      propsRepr[name] = repr
-      requiredRepr.push name if required
-
-    # build the final object representation and send it to callback
-    repr =
-      type: 'object'
-      properties: propsRepr
-    repr.required = requiredRepr if requiredRepr.length > 0
-    cb null, repr
+    switch simpleTypeSpec.name
+      when 'object'
+        handleObject type, simpleTypeSpec, options, cb
+      when 'array'
+        handleArray type, simpleTypeSpec, options, cb
+      else
+        handlePrimitiveType type, simpleTypeSpec, options, cb
 
 
-transform = (type, options, cb) ->
-  handleObject type, options, (err, repr) ->
-    return cb err if err
-    repr["$schema"] = "http://json-schema.org/draft-04/schema#"
-    cb null, repr
+addSchemaDeclaration = (schema, cb) ->
+  schema["$schema"] = "http://json-schema.org/draft-04/schema#"
+  cb null, schema
+
+
+transform = (ast, options, cb) ->
+  async.waterfall [
+    (next) -> handleType ast, options, next
+    addSchemaDeclaration
+  ], cb
 
 
 module.exports = {
