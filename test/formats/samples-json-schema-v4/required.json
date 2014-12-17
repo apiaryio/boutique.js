@@ -6,5 +6,5 @@
       "type": "string"
     }
   },
-  "required": ["required"]
+  "required": ["street"]
 }

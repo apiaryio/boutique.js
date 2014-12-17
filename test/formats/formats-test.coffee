@@ -67,7 +67,7 @@ testFormat
     # 'mixed-array'
     'number'
     'optional'
-    # 'required'
+    'required'
     'simple-object'
     'string'
     # 'variable-property'
