@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "array.mson",
+    "literal": "array-with-nested-types.mson",
     "variable": false
   },
   "sections": [
@@ -18,7 +18,15 @@
                 "typeSpecification": {
                   "name": {
                     "name": "array"
-                  }
+                  },
+                  "nestedTypes": [
+                    {
+                      "name": "number"
+                    },
+                    {
+                      "name": "string"
+                    }
+                  ]
                 }
               }
             },
@@ -32,7 +40,7 @@
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "street",
+                            "literal": "4",
                             "variable": false
                           }
                         ]
@@ -45,7 +53,7 @@
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "city",
+                            "literal": "2",
                             "variable": false
                           }
                         ]
@@ -58,7 +66,20 @@
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "state",
+                            "literal": "hello",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "42",
                             "variable": false
                           }
                         ]

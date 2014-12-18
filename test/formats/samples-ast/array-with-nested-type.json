@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "array-with-type.mson",
+    "literal": "array-with-nested-type.mson",
     "variable": false
   },
   "sections": [

@@ -1,0 +1,2 @@
+- items (object, required)
+    - count: 1

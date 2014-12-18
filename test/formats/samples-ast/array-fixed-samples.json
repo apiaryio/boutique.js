@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "multiline-description-keyword.mson",
+    "literal": "array-fixed-samples.mson",
     "variable": false
   },
   "sections": [
@@ -19,14 +19,13 @@
                   "name": {
                     "name": "array"
                   }
-                }
+                },
+                "attributes": [
+                  "fixed"
+                ]
               }
             },
             "sections": [
-              {
-                "type": "blockDescription",
-                "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n \n\nSed sed lacus a arcu vehicula ultricies sed vel nibh. Mauris id cursus felis.\n \n\nInterdum et malesuada fames ac ante ipsum primis in faucibus.\n\n- unus\n\n- duo\n\n- tres\n\n- quattuor\n"
-              },
               {
                 "type": "member",
                 "content": [
@@ -36,10 +35,17 @@
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "home",
-                            "variable": false
+                            "literal": "hello",
+                            "variable": true
                           }
-                        ]
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          }
+                        }
                       }
                     }
                   },
@@ -49,10 +55,17 @@
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "green",
-                            "variable": false
+                            "literal": "42",
+                            "variable": true
                           }
-                        ]
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
+                            }
+                          }
+                        }
                       }
                     }
                   }

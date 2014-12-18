@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "enum-values.mson",
+    "literal": "required-object.mson",
     "variable": false
   },
   "sections": [
@@ -11,15 +11,18 @@
           "type": "property",
           "content": {
             "name": {
-              "literal": "gender"
+              "literal": "items"
             },
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
                   "name": {
-                    "name": "enum"
+                    "name": "object"
                   }
-                }
+                },
+                "attributes": [
+                  "required"
+                ]
               }
             },
             "sections": [
@@ -27,25 +30,15 @@
                 "type": "member",
                 "content": [
                   {
-                    "type": "value",
+                    "type": "property",
                     "content": {
+                      "name": {
+                        "literal": "count"
+                      },
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "male",
-                            "variable": false
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  {
-                    "type": "value",
-                    "content": {
-                      "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "female",
+                            "literal": "1",
                             "variable": false
                           }
                         ]

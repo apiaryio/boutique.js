@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "mixed-array-complex.mson",
+    "literal": "array-fixed-samples-complex.mson",
     "variable": false
   },
   "sections": [
@@ -19,13 +19,56 @@
                   "name": {
                     "name": "array"
                   }
-                }
+                },
+                "attributes": [
+                  "fixed"
+                ]
               }
             },
             "sections": [
               {
                 "type": "member",
                 "content": [
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "hello",
+                            "variable": false
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "42",
+                            "variable": true
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
                   {
                     "type": "value",
                     "content": {
@@ -52,7 +95,7 @@
                                   "values": [
                                     {
                                       "literal": "snow",
-                                      "variable": false
+                                      "variable": true
                                     }
                                   ],
                                   "typeDefinition": {
@@ -62,6 +105,22 @@
                                       }
                                     }
                                   }
+                                }
+                              }
+                            },
+                            {
+                              "type": "property",
+                              "content": {
+                                "name": {
+                                  "literal": "color"
+                                },
+                                "valueDefinition": {
+                                  "values": [
+                                    {
+                                      "literal": "white",
+                                      "variable": false
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -85,26 +144,6 @@
                           ]
                         }
                       ]
-                    }
-                  },
-                  {
-                    "type": "value",
-                    "content": {
-                      "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "42",
-                            "variable": false
-                          }
-                        ],
-                        "typeDefinition": {
-                          "typeSpecification": {
-                            "name": {
-                              "name": "number"
-                            }
-                          }
-                        }
-                      }
                     }
                   }
                 ]

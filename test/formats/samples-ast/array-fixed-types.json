@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "mixed-array.mson",
+    "literal": "array-fixed-types.mson",
     "variable": false
   },
   "sections": [
@@ -19,7 +19,10 @@
                   "name": {
                     "name": "array"
                   }
-                }
+                },
+                "attributes": [
+                  "fixed"
+                ]
               }
             },
             "sections": [
@@ -30,12 +33,6 @@
                     "type": "value",
                     "content": {
                       "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "hello",
-                            "variable": false
-                          }
-                        ],
                         "typeDefinition": {
                           "typeSpecification": {
                             "name": {
@@ -50,12 +47,6 @@
                     "type": "value",
                     "content": {
                       "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "42",
-                            "variable": false
-                          }
-                        ],
                         "typeDefinition": {
                           "typeSpecification": {
                             "name": {
