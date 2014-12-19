@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "array-of-arrays.mson",
+    "literal": "enum-values.mson",
     "variable": false
   },
   "sections": [
@@ -11,13 +11,13 @@
           "type": "property",
           "content": {
             "name": {
-              "literal": "tags"
+              "literal": "gender"
             },
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
                   "name": {
-                    "name": "array"
+                    "name": "enum"
                   }
                 }
               }
@@ -32,34 +32,23 @@
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "1",
-                            "variable": false
-                          },
-                          {
-                            "literal": "2",
-                            "variable": false
-                          },
-                          {
-                            "literal": "3",
-                            "variable": false
-                          },
-                          {
-                            "literal": "4",
+                            "literal": "male",
                             "variable": false
                           }
-                        ],
-                        "typeDefinition": {
-                          "typeSpecification": {
-                            "name": {
-                              "name": "array"
-                            },
-                            "nestedTypes": [
-                              {
-                                "name": "number"
-                              }
-                            ]
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "female",
+                            "variable": false
                           }
-                        }
+                        ]
                       }
                     }
                   }

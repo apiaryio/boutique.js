@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "tag": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["green"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "tag_id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

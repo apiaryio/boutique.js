@@ -1,0 +1,4 @@
+- address (enum[number])
+    - 4
+    - 2
+    - 42

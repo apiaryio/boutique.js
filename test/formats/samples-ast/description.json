@@ -2,5 +2,146 @@
   "name": {
     "literal": "description.mson",
     "variable": false
-  }
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "id"
+            },
+            "description": "The unique identifier for a product",
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "1",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "number"
+                  }
+                },
+                "attributes": [
+                  "required"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "name"
+            },
+            "description": "Name of the product",
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "A green door",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "string"
+                  }
+                },
+                "attributes": [
+                  "required"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "price"
+            },
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "12.50",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "number"
+                  }
+                },
+                "attributes": [
+                  "required"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "tags"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "array"
+                  }
+                }
+              }
+            },
+            "sections": [
+              {
+                "type": "blockDescription",
+                "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n \n\nSed sed lacus a arcu vehicula ultricies sed vel nibh. Mauris id cursus felis.\n \n\nInterdum et malesuada fames ac ante ipsum primis in faucibus.\n\n- unus\n\n- duo\n\n- tres\n\n- quattuor\n"
+              },
+              {
+                "type": "member",
+                "content": [
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "home",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "green",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
 }

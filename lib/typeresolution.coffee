@@ -2,14 +2,14 @@
 async = require 'async'
 
 
-# Listing of all primitive types as defined in MSON AST spec.
-primitiveTypes = ['boolean', 'string', 'number', 'array', 'enum', 'object']
+# Listing of all base types as defined in MSON AST spec.
+baseTypes = ['boolean', 'string', 'number', 'array', 'enum', 'object']
 
 
 # Calls given function with an error in case given type name is not one
-# of primitive types.
-ensurePrimitiveType = (type, cb) ->
-  if type not in primitiveTypes
+# of base types.
+ensureBaseType = (type, cb) ->
+  if type not in baseTypes
     cb new Error "Unable to resolve type: #{type}"
   else
     cb null
@@ -22,14 +22,14 @@ ensurePrimitiveType = (type, cb) ->
 #     nested: [...]
 #
 # In case it isn't able to resolve this *typeSpecification* object with
-# primitive types only, ends with an error (Boutique builds no symbol table,
+# base types only, ends with an error (Boutique builds no symbol table,
 # so it can't resolve any possible inheritance).
 simplifyTypeSpecification = (typeSpec, cb) ->
   type = typeSpec?.name?.name
   return cb null, null if not type  # no type? return null...
 
-  ensurePrimitiveType type, (err) ->
-    return cb err if err  # non-primitive type results in error
+  ensureBaseType type, (err) ->
+    return cb err if err  # non-base type results in error
     return cb null, {name: type} if (typeSpec?.nestedTypes?.length or 0) < 1  # no nested types
 
     # just playing safe, this should be already ensured by MSON parser
@@ -37,8 +37,8 @@ simplifyTypeSpecification = (typeSpec, cb) ->
       return cb new Error "Nested types are allowed only for array and enum types."
 
     nested = (typeName.name for typeName in typeSpec.nestedTypes)
-    async.map nested, ensurePrimitiveType, (err) ->
-      return cb err if err  # again, non-primitive types result in error
+    async.map nested, ensureBaseType, (err) ->
+      return cb err if err  # again, non-base types result in error
       cb null, {name: type, nested}
 
 
@@ -98,7 +98,7 @@ findTypeSpecification = (node) ->
 #     nested: [...]
 #
 # In case it isn't able to resolve this *typeSpecification* object with
-# primitive types only, ends with an error (Boutique builds no symbol table,
+# base types only, ends with an error (Boutique builds no symbol table,
 # so it can't resolve any possible inheritance).
 resolveType = (node, cb) ->
   typeSpec = findTypeSpecification node

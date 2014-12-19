@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "array-of-arrays.mson",
+    "literal": "enum-containing-sample.mson",
     "variable": false
   },
   "sections": [
@@ -11,13 +11,13 @@
           "type": "property",
           "content": {
             "name": {
-              "literal": "tags"
+              "literal": "tag"
             },
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
                   "name": {
-                    "name": "array"
+                    "name": "enum"
                   }
                 }
               }
@@ -32,32 +32,35 @@
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "1",
-                            "variable": false
-                          },
-                          {
-                            "literal": "2",
-                            "variable": false
-                          },
-                          {
-                            "literal": "3",
-                            "variable": false
-                          },
-                          {
-                            "literal": "4",
+                            "literal": "green",
                             "variable": false
                           }
                         ],
                         "typeDefinition": {
                           "typeSpecification": {
                             "name": {
-                              "name": "array"
-                            },
-                            "nestedTypes": [
-                              {
-                                "name": "number"
-                              }
-                            ]
+                              "name": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "5",
+                            "variable": true
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
+                            }
                           }
                         }
                       }

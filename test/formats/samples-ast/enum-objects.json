@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "mixed-array-complex.mson",
+    "literal": "enum-types.mson",
     "variable": false
   },
   "sections": [
@@ -11,13 +11,13 @@
           "type": "property",
           "content": {
             "name": {
-              "literal": "tags"
+              "literal": "tag"
             },
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
                   "name": {
-                    "name": "array"
+                    "name": "enum"
                   }
                 }
               }
@@ -26,6 +26,26 @@
               {
                 "type": "member",
                 "content": [
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "green",
+                            "variable": false
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
                   {
                     "type": "value",
                     "content": {
@@ -46,22 +66,15 @@
                               "type": "property",
                               "content": {
                                 "name": {
-                                  "literal": "name"
+                                  "literal": "tag_id"
                                 },
                                 "valueDefinition": {
                                   "values": [
                                     {
-                                      "literal": "snow",
+                                      "literal": "1",
                                       "variable": false
                                     }
-                                  ],
-                                  "typeDefinition": {
-                                    "typeSpecification": {
-                                      "name": {
-                                        "name": "string"
-                                      }
-                                    }
-                                  }
+                                  ]
                                 }
                               }
                             },
@@ -69,42 +82,21 @@
                               "type": "property",
                               "content": {
                                 "name": {
-                                  "literal": "description"
+                                  "literal": "label"
                                 },
                                 "valueDefinition": {
-                                  "typeDefinition": {
-                                    "typeSpecification": {
-                                      "name": {
-                                        "name": "string"
-                                      }
+                                  "values": [
+                                    {
+                                      "literal": "green",
+                                      "variable": false
                                     }
-                                  }
+                                  ]
                                 }
                               }
                             }
                           ]
                         }
                       ]
-                    }
-                  },
-                  {
-                    "type": "value",
-                    "content": {
-                      "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "42",
-                            "variable": false
-                          }
-                        ],
-                        "typeDefinition": {
-                          "typeSpecification": {
-                            "name": {
-                              "name": "number"
-                            }
-                          }
-                        }
-                      }
                     }
                   }
                 ]

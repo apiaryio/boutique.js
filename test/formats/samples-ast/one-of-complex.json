@@ -1,0 +1,90 @@
+{
+  "name": {
+    "literal": "one-of-complex.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "name"
+            }
+          }
+        },
+        {
+          "type": "oneOf",
+          "content": {
+            "members": [
+              {
+                "type": "property",
+                "content": {
+                  "name": {
+                    "literal": "city"
+                  }
+                }
+              },
+              {
+                "type": "property",
+                "content": {
+                  "name": {
+                    "literal": "town"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "oneOf",
+          "content": {
+            "members": [
+              {
+                "type": "property",
+                "content": {
+                  "name": {
+                    "literal": "state"
+                  }
+                }
+              },
+              {
+                "type": "oneOf",
+                "content": {
+                  "members": [
+                    {
+                      "type": "property",
+                      "content": {
+                        "name": {
+                          "literal": "province"
+                        }
+                      }
+                    },
+                    {
+                      "type": "property",
+                      "content": {
+                        "name": {
+                          "literal": "territory"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "country"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

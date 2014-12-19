@@ -7,6 +7,9 @@ dependencies:
 
 test:
   override:
+    - (coffee scripts/generate-samples-ast.coffee && git diff --exit-code ./test/formats/samples-ast/) || (echo "Test suite is not up to date!" && exit 1)
+    - coffee scripts/lint-json.coffee
+    - coffee scripts/lint-json-schema-v4.coffee
     - nvm use v0.8
     - npm test
     - nvm use v0.10

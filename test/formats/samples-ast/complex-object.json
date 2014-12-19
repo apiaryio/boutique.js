@@ -102,7 +102,10 @@
                   "name": {
                     "name": "array"
                   }
-                }
+                },
+                "attributes": [
+                  "optional"
+                ]
               }
             },
             "sections": [
@@ -151,6 +154,29 @@
                 ]
               }
             ]
+          }
+        },
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "available"
+            },
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "false",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "boolean"
+                  }
+                }
+              }
+            }
           }
         }
       ]

@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "number",
+      "description": "The unique identifier for a product"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the product"
+    },
+    "price": {
+      "type": "number"
+    },
+    "tags": {
+      "type": "array",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n\nSed sed lacus a arcu vehicula ultricies sed vel nibh. Mauris id cursus felis.\n\nInterdum et malesuada fames ac ante ipsum primis in faucibus.\n\n- unus\n- duo\n- tres\n- quattuor\n"
+    }
+  },
+  "required": ["id", "name", "price"]
+}

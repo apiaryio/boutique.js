@@ -23,6 +23,7 @@
     "chai": "~1.9.1"
   },
   "optionalDependencies": {
-    "protagonist-experimental": ""
+    "protagonist-experimental": "0.18.1",
+    "tv4": "~1.1.5"
   }
 }

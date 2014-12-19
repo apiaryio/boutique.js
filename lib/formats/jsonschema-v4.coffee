@@ -3,68 +3,148 @@ async = require 'async'
 {resolveType} = require '../typeresolution'
 
 
-###########################################################################
-## PROTOTYPE ALERT! This is work in progress as much as it only can be.  ##
-###########################################################################
-
-
-handleValue = (value, options, cb) ->
-  resolveType value, (err, typeSpec) ->
-    return cb err if err
-
-    valueType = typeSpec.name  # ignoring nested types for now
-    switch valueType
-      when 'object'
-        return handleObject value, options, cb
-
-      # when 'array'
-      #   do nothing - not implemented yet
-
-    cb null, type: valueType
-
-
-handleObject = (type, options, cb) ->
-  # prepare a simple array of property objects
+# Takes object type node and lists its property nodes.
+listProperties = (objectType, cb) ->
   props = []
-
-  for member in (type.sections or []) when member.type is 'member'
+  for member in (objectType.sections or []) when member.type is 'member'
     for prop in member.content when prop.type is 'property'
       props.push prop
+  cb null, props
 
-  # map over that array, get representations of property values and wrap them
-  # with object carrying also property-specific information (name, required, ...)
-  async.map props, (prop, next) ->
-    handleValue prop.content, options, (err, propRepr) ->
-      next err,
+
+# Turns property node into a 'resolved property' object with both
+# representation in JSON Schema and also additional info, such as property
+# name, attributes, etc.
+resolveProperty = (prop, options, cb) ->
+  async.waterfall [
+    (next) -> handleType prop.content, options, next
+    (schema, next) ->
+      next null,
         name: prop.content.name.literal
-        repr: propRepr
+        schema: schema
         required: 'required' in (prop.content?.valueDefinition?.typeDefinition?.attributes or [])
+  ], cb
 
-  , (err, reprWrappers) ->
+
+# Turns multiple property nodes into 'resolved properties', i.e. objects
+# carrying both representations of those properties in JSON Schema
+# and also additional info, such as property names, attributes, etc.
+resolveProperties = (props, options, cb) ->
+  async.map props, (prop, next) ->
+    resolveProperty prop, options, next
+  , cb
+
+
+# Takes 'resolved properties' and generates JSON Schema
+# for their wrapper object type node.
+buildObjectSchema = (resolvedProps, options, cb) ->
+  schemaProps = {}
+  schemaRequired = []
+
+  for {name, schema, required} in resolvedProps
+    schemaProps[name] = schema
+    schemaRequired.push name if required
+
+  schema =
+    type: 'object'
+    properties: schemaProps
+  schema.required = schemaRequired if schemaRequired.length > 0
+
+  cb null, schema
+
+
+# Generates JSON Schema representation for given object type node.
+handleObject = (objectType, resolvedType, options, cb) ->
+  async.waterfall [
+    (next) -> listProperties objectType, next
+    (props, next) -> resolveProperties props, options, next
+    (resolvedProps, next) -> buildObjectSchema resolvedProps, options, next
+  ], cb
+
+
+# Takes object type node and lists its value nodes.
+listValues = (objectType, cb) ->
+  vals = []
+  for member in (objectType.sections or []) when member.type is 'member'
+    for val in member.content when val.type is 'value'
+      vals.push val
+  cb null, vals
+
+
+# Turns value node into a 'resolved value' object with both
+# representation in JSON Schema and also possible additional info.
+resolveValue = (val, options, cb) ->
+  async.waterfall [
+    (next) ->
+      async.parallel
+        resolvedType: (done) -> resolveType val, done
+        schema: (done) -> handleType val.content, options, done
+      , next
+    ({resolvedType, schema}, next) ->
+      next null,
+        typeName: resolvedType.name
+        schema: schema
+  ], cb
+
+
+# Turns multiple property nodes into 'resolved values', i.e. objects
+# carrying both representations of those values in JSON Schema
+# and also possible additional info.
+resolveValues = (vals, options, cb) ->
+  async.map vals, (val, next) ->
+    resolveValue val, options, next
+  , cb
+
+
+# Takes 'resolved values' and generates JSON Schema
+# for their wrapper array type node.
+buildArraySchema = (resolvedVals, resolvedType, options, cb) ->
+  cb null,
+    type: 'array'
+    # TODO, WIP - will I'll continue in subsequent PRs
+    # items: (rv.schema for rv in resolvedVals)
+
+
+# Generates JSON Schema representation for given array type node.
+handleArray = (arrayType, resolvedType, options, cb) ->
+  async.waterfall [
+    (next) -> listValues arrayType, next
+    (vals, next) -> resolveValues vals, options, next
+    (resolvedVals, next) -> buildArraySchema resolvedVals, resolvedType, options, next
+  ], cb
+
+
+# Generates JSON Schema representation for given base
+# type node (string, number, etc.).
+handlePrimitiveType = (baseType, resolvedType, options, cb) ->
+  cb null, type: resolvedType.name
+
+
+# Generates JSON Schema representation for given type node.
+handleType = (type, options, cb) ->
+  resolveType type, (err, resolvedType) ->
     return cb err if err
-
-    # prepare containers for the final representation of the object
-    propsRepr = {}
-    requiredRepr = []
-
-    # unwrap info for each property and render what needs to be rendered
-    for {name, repr, required} in reprWrappers
-      propsRepr[name] = repr
-      requiredRepr.push name if required
-
-    # build the final object representation and send it to callback
-    repr =
-      type: 'object'
-      properties: propsRepr
-    repr.required = requiredRepr if requiredRepr.length > 0
-    cb null, repr
+    switch resolvedType.name
+      when 'object'
+        handleObject type, resolvedType, options, cb
+      when 'array'
+        handleArray type, resolvedType, options, cb
+      else
+        handlePrimitiveType type, resolvedType, options, cb
 
 
-transform = (type, options, cb) ->
-  handleObject type, options, (err, repr) ->
-    return cb err if err
-    repr["$schema"] = "http://json-schema.org/draft-04/schema#"
-    cb null, repr
+# Adds JSON Schema declaration to given schema object.
+addSchemaDeclaration = (schema, cb) ->
+  schema["$schema"] = "http://json-schema.org/draft-04/schema#"
+  cb null, schema
+
+
+# Transforms given MSON AST into JSON Schema.
+transform = (ast, options, cb) ->
+  async.waterfall [
+    (next) -> handleType ast, options, next
+    addSchemaDeclaration
+  ], cb
 
 
 module.exports = {

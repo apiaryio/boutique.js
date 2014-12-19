@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "array-of-arrays.mson",
+    "literal": "enum-containing-enum.mson",
     "variable": false
   },
   "sections": [
@@ -10,14 +10,11 @@
         {
           "type": "property",
           "content": {
-            "name": {
-              "literal": "tags"
-            },
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
                   "name": {
-                    "name": "array"
+                    "name": "enum"
                   }
                 }
               }
@@ -51,7 +48,7 @@
                         "typeDefinition": {
                           "typeSpecification": {
                             "name": {
-                              "name": "array"
+                              "name": "enum"
                             },
                             "nestedTypes": [
                               {
@@ -62,10 +59,53 @@
                         }
                       }
                     }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "something",
+                            "variable": false
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "anything",
+                            "variable": false
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
                 ]
               }
-            ]
+            ],
+            "name": {
+              "variable": {}
+            }
           }
         }
       ]

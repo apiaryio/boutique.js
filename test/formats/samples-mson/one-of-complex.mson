@@ -1,0 +1,10 @@
+- name
+- One Of
+    - city
+    - town
+- One Of
+    - state
+    - One Of
+        - province
+        - territory
+- country
