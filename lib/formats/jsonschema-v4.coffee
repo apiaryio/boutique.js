@@ -1,15 +1,7 @@
 
 async = require 'async'
+inspect = require '../inspect'
 {resolveType} = require '../typeresolution'
-
-
-# Takes object type node and lists its property nodes.
-listProperties = (objectType, cb) ->
-  props = []
-  for member in (objectType.sections or []) when member.type is 'member'
-    for prop in member.content when prop.type is 'property'
-      props.push prop
-  cb null, props
 
 
 # Turns property node into a 'resolved property' object with both
@@ -22,7 +14,7 @@ resolveProperty = (prop, options, cb) ->
       next null,
         name: prop.content.name.literal
         schema: schema
-        required: 'required' in (prop.content?.valueDefinition?.typeDefinition?.attributes or [])
+        required: 'required' in inspect.listTypeAttributes prop.content
   ], cb
 
 
@@ -55,20 +47,11 @@ buildObjectSchema = (resolvedProps, options, cb) ->
 
 # Generates JSON Schema representation for given object type node.
 handleObject = (objectType, resolvedType, options, cb) ->
+  props = inspect.listProperties objectType
   async.waterfall [
-    (next) -> listProperties objectType, next
-    (props, next) -> resolveProperties props, options, next
+    (next) -> resolveProperties props, options, next
     (resolvedProps, next) -> buildObjectSchema resolvedProps, options, next
   ], cb
-
-
-# Takes object type node and lists its value nodes.
-listValues = (objectType, cb) ->
-  vals = []
-  for member in (objectType.sections or []) when member.type is 'member'
-    for val in member.content when val.type is 'value'
-      vals.push val
-  cb null, vals
 
 
 # Turns value node into a 'resolved value' object with both
@@ -101,15 +84,14 @@ resolveValues = (vals, options, cb) ->
 buildArraySchema = (resolvedVals, resolvedType, options, cb) ->
   cb null,
     type: 'array'
-    # TODO, WIP - will I'll continue in subsequent PRs
     # items: (rv.schema for rv in resolvedVals)
 
 
 # Generates JSON Schema representation for given array type node.
 handleArray = (arrayType, resolvedType, options, cb) ->
+  vals = inspect.listValues arrayType
   async.waterfall [
-    (next) -> listValues arrayType, next
-    (vals, next) -> resolveValues vals, options, next
+    (next) -> resolveValues vals, options, next
     (resolvedVals, next) -> buildArraySchema resolvedVals, resolvedType, options, next
   ], cb
 
