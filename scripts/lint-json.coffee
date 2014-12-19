@@ -35,7 +35,7 @@ checkJsonDir = (jsonDir, cb) ->
 main = ->
   async.forEach jsonDirs, checkJsonDir, (err) ->
     if err
-      console.error "[JSON Lint] #{err.message}"
+      console.error "[JSON Lint] #{err.message}", err
       process.exit 1
 
 

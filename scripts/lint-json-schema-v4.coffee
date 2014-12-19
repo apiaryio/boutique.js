@@ -21,7 +21,7 @@ schemaDirs = [
 # as a JavaScript object.
 readSchemaFile = (schemaPath, cb) ->
   fs.readFile schemaPath, (err, data) ->
-    cb err if err
+    return cb err if err
     try
       schema = JSON.parse data.toString()
       cb null, schema
@@ -35,7 +35,7 @@ checkSchema = (schema, metaSchema, cb) ->
   result = tv4.validateResult schema, metaSchema
   if result.missing?.length
     cb new Error "Missing schemas: #{result.missing}"
-  unless result.valid
+  if not result.valid
     cb result.error
   else
     cb()
@@ -47,7 +47,7 @@ checkSchemaFile = (schemaPath, metaSchema, cb) ->
   async.waterfall [
     (next) -> readSchemaFile schemaPath, next
     (schema, next) -> checkSchema schema, metaSchema, (err) ->
-      next new Error "#{schemaPath}: #{err.message}" if err
+      next (new Error "#{schemaPath}: #{err.message}" if err)
   ], cb
 
 
@@ -79,7 +79,7 @@ main = ->
     checkSchemaDirs
   ], (err) ->
     if err
-      console.error "[JSON Schema Lint] #{err.message}"
+      console.error "[JSON Schema Lint] #{err.message}", err
       process.exit 1
 
 

@@ -9,7 +9,7 @@ boutique = require '../../index'
 readAstSample = (sampleName, cb) ->
   filename = path.resolve __dirname, 'samples-ast', "#{sampleName}.json"
   fs.readFile filename, 'utf8', (err, data) ->
-    cb err, JSON.parse data unless err
+    cb err, (JSON.parse data unless err)
 
 
 testFormat = ({name, contentType, dir, ext, parse, samples}) ->
