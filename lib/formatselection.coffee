@@ -45,10 +45,10 @@ selectFormat = (needle, haystack, cb) ->
   # shortcut for simple cases
   return (cb null, needle) if needle in haystack
 
-  async.parallel [
-    (next) -> parse needle, next  # parse the needle Content-Type
-    (next) -> async.map haystack, parse, next  # parse each of haystack Content-Types
-  ], (err, [needle, haystack]) ->
+  async.parallel
+    needle: (next) -> parse needle, next  # parse the needle Content-Type
+    haystack: (next) -> async.map haystack, parse, next  # parse each of haystack Content-Types
+  , (err, {needle, haystack}) ->
     return cb err if err
 
     # both needle and haystack are now transformed
