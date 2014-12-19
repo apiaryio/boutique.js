@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "tag": {
-      "oneOf": [
+      "anyOf": [
         {
           "type": "string",
           "enum": ["green"]
