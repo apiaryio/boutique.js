@@ -3,22 +3,7 @@
   "type": "object",
   "properties": {
     "tags": {
-      "items": [
-        {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "type": "number"
-        }
-      ]
+      "type": "array"
     }
   }
 }
