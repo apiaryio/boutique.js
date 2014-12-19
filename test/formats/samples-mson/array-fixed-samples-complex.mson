@@ -5,3 +5,4 @@
         - name: *snow* (string)
         - color: white
         - description (string)
+    - world

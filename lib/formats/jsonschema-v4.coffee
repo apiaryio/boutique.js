@@ -29,7 +29,7 @@ resolveProperties = (props, options, cb) ->
 
 # Takes 'resolved properties' and generates JSON Schema
 # for their wrapper object type node.
-buildObjectSchema = (resolvedProps, options, cb) ->
+buildObjectSchema = (objectType, resolvedProps, options, cb) ->
   schemaProps = {}
   schemaRequired = []
 
@@ -50,7 +50,7 @@ handleObject = (objectType, resolvedType, options, cb) ->
   props = inspect.listProperties objectType
   async.waterfall [
     (next) -> resolveProperties props, options, next
-    (resolvedProps, next) -> buildObjectSchema resolvedProps, options, next
+    (resolvedProps, next) -> buildObjectSchema objectType, resolvedProps, options, next
   ], cb
 
 
@@ -81,10 +81,13 @@ resolveValues = (vals, options, cb) ->
 
 # Takes 'resolved values' and generates JSON Schema
 # for their wrapper array type node.
-buildArraySchema = (resolvedVals, resolvedType, options, cb) ->
-  cb null,
-    type: 'array'
-    # items: (rv.schema for rv in resolvedVals)
+buildArraySchema = (arrayType, resolvedVals, resolvedType, options, cb) ->
+  schema = type: 'array'
+
+  if 'fixed' in inspect.listTypeAttributes arrayType
+    schema.items = (rv.schema for rv in resolvedVals)
+
+  cb null, schema
 
 
 # Generates JSON Schema representation for given array type node.
@@ -92,7 +95,7 @@ handleArray = (arrayType, resolvedType, options, cb) ->
   vals = inspect.listValues arrayType
   async.waterfall [
     (next) -> resolveValues vals, options, next
-    (resolvedVals, next) -> buildArraySchema resolvedVals, resolvedType, options, next
+    (resolvedVals, next) -> buildArraySchema arrayType, resolvedVals, resolvedType, options, next
   ], cb
 
 

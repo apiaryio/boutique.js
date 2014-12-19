@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "tags": {
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "enum": ["hello"]
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "color": {
+              "type": "string",
+              "enum": ["white"]
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "string",
+          "enum": ["world"]
+        }
+      ]
+    }
+  }
+}

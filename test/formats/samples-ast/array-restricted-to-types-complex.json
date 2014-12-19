@@ -1,0 +1,83 @@
+{
+  "name": {
+    "literal": "array-restricted-to-types-complex.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "tags"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "array"
+                  }
+                }
+              }
+            },
+            "sections": [
+              {
+                "type": "member",
+                "content": [
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "hello",
+                            "variable": true
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          },
+                          "attributes": [
+                            "fixed"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "42",
+                            "variable": false
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
+                            }
+                          },
+                          "attributes": [
+                            "fixed"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

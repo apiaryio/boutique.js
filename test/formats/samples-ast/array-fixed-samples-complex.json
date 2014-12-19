@@ -145,6 +145,19 @@
                         }
                       ]
                     }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "world",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
                   }
                 ]
               }
