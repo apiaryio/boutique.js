@@ -2,16 +2,20 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "tags": {
+    "address": {
       "type": "array",
       "items": [
         {
           "type": "string",
-          "enum": ["hello"]
+          "enum": ["street"]
         },
         {
-          "type": "number",
-          "enum": [42]
+          "type": "string",
+          "enum": ["city"]
+        },
+        {
+          "type": "string",
+          "enum": ["state"]
         }
       ]
     }

@@ -50,10 +50,10 @@ testFormat
   ext: 'json'
   parse: JSON.parse
   samples: [
-    # 'array-fixed'
-    # 'array-fixed-samples'
-    # 'array-fixed-samples-complex'
-    # 'array-fixed-types-only'
+    'array-fixed'
+    'array-fixed-samples'
+    'array-fixed-samples-complex'
+    'array-fixed-types-only'
     'array-inline'
     'array-of-arrays'
     'array-of-types'
