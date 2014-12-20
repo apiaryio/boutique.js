@@ -111,19 +111,35 @@ resolveItems = (vals, inheritsFixed, options, cb) ->
 # for their wrapper array type node.
 buildArraySchema = (arrayType, resolvedItems, resolvedType, isFixed, options, cb) ->
   schema = type: 'array'
-  if inspect.isFixed arrayType
-    schema.items = (ri.schema for ri in resolvedItems)
-  else
-    fixedResolvedItems = (ri for ri in resolvedItems when ri.fixed)
-    fixedCount = fixedResolvedItems.length
+  if isFixed
+    if resolvedItems.length
+      schema.items = (ri.schema for ri in resolvedItems)
+    else
+      vals = inspect.listValues arrayType
+      if vals.length
+        if resolvedType.nested?.length > 1  # FIXME: whoa, type resolution!
+          return cb new Error "Unsupported usage of multiple nested types for array."
+        else
+          nestedType = resolvedType.nested?[0] or 'string'  # FIXME: whoa, type resolution!
+          return async.map vals, (val, next) ->
+            coerceValue val, nestedType, (err, value) ->
+              next err,
+                type: nestedType
+                enum: [value]
+          , (err, subSchemas) ->
+            schema.items = subSchemas
+            return cb null, schema
 
-    if fixedCount
-      if fixedCount isnt resolvedItems.length
-        return new Error "Array can't have fixed values alongside with non-fixed ones."
-      else if fixedCount is 1
-        schema.items = fixedResolvedItems[0].schema
-      else
-        schema.items = anyOf: (ri.schema for ri in fixedResolvedItems)
+
+  fixedResolvedItems = (ri for ri in resolvedItems when ri.fixed)
+  fixedCount = fixedResolvedItems.length
+  if fixedCount
+    if fixedCount isnt resolvedItems.length
+      return cb new Error "Array can't have fixed values alongside with non-fixed ones."
+    else if fixedCount is 1
+      schema.items = fixedResolvedItems[0].schema
+    else
+      schema.items = anyOf: (ri.schema for ri in fixedResolvedItems)
   cb null, schema
 
 
@@ -150,7 +166,7 @@ handlePrimitiveType = (primitiveType, resolvedType, inheritsFixed, options, cb) 
     if vals.length > 1
       return cb new Error "Primitive type can't have multiple values."
     else if vals.length > 0
-      coerceValue vals[0].literal, resolvedType.name, (err, value) ->
+      coerceValue vals[0], resolvedType.name, (err, value) ->
         return cb err if err
         schema.enum = [value]
         cb null, schema

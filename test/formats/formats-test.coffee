@@ -51,6 +51,7 @@ testFormat
   parse: JSON.parse
   samples: [
     'array-fixed'
+    'array-fixed-inline'
     'array-fixed-samples'
     'array-fixed-samples-complex'
     'array-fixed-types-only'

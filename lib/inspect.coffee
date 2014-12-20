@@ -4,7 +4,7 @@
 
 # Lists all defined non-sample values.
 listValues = (type) ->
-  (val for val in (type.valueDefinition?.values or []) when not val.variable)
+  (val.literal for val in (type.valueDefinition?.values or []) when not val.variable)
 
 
 # Takes type node and lists its attributes, such as `required`, `fixed`, etc.
