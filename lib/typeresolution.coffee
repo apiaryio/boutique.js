@@ -1,5 +1,6 @@
 
 async = require 'async'
+inspect = require './inspect'
 
 
 # Listing of all base types as defined in MSON AST spec.
@@ -15,6 +16,29 @@ ensureBaseType = (type, cb) ->
     cb null
 
 
+# TODO: should be moved to inspect
+#
+# Finds type name within *typeSpecification* object.
+findTypeName = (typeSpec) ->
+  typeSpec?.name?.name
+
+
+# Provides nested types as array of type names
+# for given *typeSpecification* object.
+simplifyNestedTypes = (typeSpec, cb) ->
+  return cb null, [] if (typeSpec?.nestedTypes?.length or 0) < 1  # no nested types
+  name = findTypeName typeSpec
+
+  # just playing safe, this should be already ensured by MSON parser
+  if name not in ['array', 'enum']
+    return cb new Error "Nested types are allowed only for array and enum types."
+
+  nested = (typeName.name for typeName in typeSpec.nestedTypes)
+  async.map nested, ensureBaseType, (err) ->
+    return cb err if err  # non-base types result in error
+    cb null, nested
+
+
 # Turns *typeSpecification* object as described in
 # https://github.com/apiaryio/mson-ast#type-definition into something simpler:
 #
@@ -25,21 +49,14 @@ ensureBaseType = (type, cb) ->
 # base types only, ends with an error (Boutique builds no symbol table,
 # so it can't resolve any possible inheritance).
 simplifyTypeSpecification = (typeSpec, cb) ->
-  type = typeSpec?.name?.name
-  return cb null, null if not type  # no type? return null...
+  name = findTypeName typeSpec
+  return cb null, null if not name  # no type name? return null...
 
-  ensureBaseType type, (err) ->
-    return cb err if err  # non-base type results in error
-    return cb null, {name: type} if (typeSpec?.nestedTypes?.length or 0) < 1  # no nested types
-
-    # just playing safe, this should be already ensured by MSON parser
-    if type not in ['array', 'enum']
-      return cb new Error "Nested types are allowed only for array and enum types."
-
-    nested = (typeName.name for typeName in typeSpec.nestedTypes)
-    async.map nested, ensureBaseType, (err) ->
-      return cb err if err  # again, non-base types result in error
-      cb null, {name: type, nested}
+  async.waterfall [
+    (next) -> ensureBaseType name, next
+    (next) -> simplifyNestedTypes typeSpec, next
+  ], (err, nested) ->
+    cb err, ({name, nested} unless err)
 
 
 # Helps to identify whether given node is an implicit array.
@@ -60,14 +77,26 @@ isArray = (node) ->
 # However, this 'race condition' probably can't happen anyway, so these
 # approaches shouldn't(tm) make a difference.
 isObject = (node) ->
-  sections = node.sections or []
-  memberSections = sections.filter (section) ->
-    section.type is 'member'
-  memberSections.length > 0
+  (s for s in (node.sections or []) when s.type is 'member').length  # has any member sections?
 
 
-# Resolves implicit type for given *Named Type* or *Property Member*
-# or *Value Member* tree node.
+# TODO: should be tested
+#
+# Resolves array of implicit nested types for given *Named Type*
+# or *Property Member* or *Value Member* tree node.
+resolveImplicitNestedTypes = (typeName, node, cb) ->
+  if typeName is 'array' and (inspect.listValues node).length
+    cb null, ['string']
+  else
+    cb null, []
+
+
+# Resolves implicit 'simple type specification object'
+#
+#     name: ...
+#     nested: [...]
+#
+# for given *Named Type* or *Property Member* or *Value Member* tree node.
 resolveImplicitType = (node, cb) ->
   isArr = isArray node
   isObj = isObject node
@@ -76,10 +105,14 @@ resolveImplicitType = (node, cb) ->
     # just playing safe, this should be already ensured by MSON parser
     cb new Error "Unable to resolve type. Ambiguous implicit type (seems to be both object and inline array)."
   else
-    type = ('array' if isArr) or ('object' if isObj) or 'string'
-    cb null, type
+    name = ('array' if isArr) or ('object' if isObj) or 'string'
+
+    resolveImplicitNestedTypes name, node, (err, nested) ->
+      cb err, ({name, nested} unless err)
 
 
+# TODO: should be moved to inspect
+#
 # Finds *typeSpecification* object for given *Named Type* or *Property Member*
 # or *Value Member* tree node.
 findTypeSpecification = (node) ->
@@ -103,13 +136,15 @@ findTypeSpecification = (node) ->
 resolveType = (node, cb) ->
   typeSpec = findTypeSpecification node
   simplifyTypeSpecification typeSpec, (err, simpleTypeSpec) ->
-    if err
-      cb err
-    else if not simpleTypeSpec
-      resolveImplicitType node, (err, implicitType) ->
-        cb err, name: implicitType
-    else
+    return cb err if err
+    return resolveImplicitType node, cb unless simpleTypeSpec
+
+    if simpleTypeSpec.nested?.length
       cb null, simpleTypeSpec
+    else
+      name = simpleTypeSpec.name
+      resolveImplicitNestedTypes name, node, (err, nested) ->
+        cb err, ({name, nested} unless err)
 
 
 module.exports = {
