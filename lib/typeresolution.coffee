@@ -104,6 +104,16 @@ resolveImplicitType = (node, cb) ->
       cb err, ({name, nested} unless err)
 
 
+# TODO: should be tested
+resolveInheritedType = (node, inheritedTypeName, cb) ->
+  # This can happen only to primitive types, so we don't care about 'nested'
+  # and also, in this particular case we're not 'playing safe' by raising
+  # errors in case there's type mismatch or in case we've got some nonsense
+  # instead of 'typeName'. For simplicity of code here we just take what's
+  # inherited (with higher priority).
+  cb null, {name: inheritedTypeName, nested: []}
+
+
 # Takes top-level *Named Type* or *Property Member* or *Value Member* tree node.
 # Provides a sort of 'simple type specification object':
 #
@@ -113,7 +123,13 @@ resolveImplicitType = (node, cb) ->
 # In case it isn't able to resolve this *typeSpecification* object with
 # base types only, ends with an error (Boutique builds no symbol table,
 # so it can't resolve any possible inheritance).
-resolveType = (node, cb) ->
+resolveType = (node, inheritedTypeName, cb) ->
+  if inheritedTypeName
+    if typeof inheritedTypeName is 'function'
+      cb = inheritedTypeName
+    else
+      return resolveInheritedType node, inheritedTypeName, cb
+
   typeSpec = inspect.findTypeSpecification node
   simplifyTypeSpecification typeSpec, (err, simpleTypeSpec) ->
     return cb err if err

@@ -69,6 +69,7 @@ testFormat
     'array-restricted-to-types'
     'array-restricted-to-types-complex'
     'boolean'
+    'boolean-literal'
     # 'description'
     # 'enum-containing-enum'
     # 'enum-containing-object'
@@ -77,6 +78,7 @@ testFormat
     # 'enum-with-type'
     # 'escaping'
     'number'
+    'number-literal'
     'object-complex'
     'object-simple'
     # 'object-very-complex'
@@ -87,6 +89,7 @@ testFormat
     # 'required-array'
     # 'required-object'
     'string'
+    'string-literal'
     # 'variable-property'
   ]
 

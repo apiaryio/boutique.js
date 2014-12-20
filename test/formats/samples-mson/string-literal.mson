@@ -1,0 +1,3 @@
+- street (array[string], fixed)
+    - bye bye
+    - san francisco

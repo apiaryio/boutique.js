@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "street": {
+      "type": "array",
+      "items": [
+        {
+          "type": "number",
+          "enum": [0]
+        },
+        {
+          "type": "number",
+          "enum": [1.5]
+        },
+        {
+          "type": "number",
+          "enum": [340]
+        }
+      ]
+    }
+  }
+}
