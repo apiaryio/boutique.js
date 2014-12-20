@@ -32,6 +32,7 @@ resolveProperty = (prop, inheritsFixed, options, cb) ->
         name: prop.content.name.literal
         schema: schema
         required: inspect.isRequired prop.content
+        fixed: inspect.isFixed prop.content
   ], cb
 
 
@@ -89,6 +90,7 @@ resolveValue = (val, inheritsFixed, options, cb) ->
       next null,
         typeName: resolvedType.name
         schema: schema
+        fixed: inspect.isFixed val.content
   ], cb
 
 
@@ -111,6 +113,18 @@ buildArraySchema = (arrayType, resolvedVals, resolvedType, isFixed, options, cb)
   schema = type: 'array'
   if inspect.isFixed arrayType
     schema.items = (rv.schema for rv in resolvedVals)
+  else
+    fixedResolvedVals = (rv for rv in resolvedVals when rv.fixed)
+    fixedCount = fixedResolvedVals.length
+
+    if fixedCount
+      if fixedCount isnt resolvedVals.length
+        return new Error "Array can't have fixed values alongside with non-fixed ones."
+      else if fixedCount is 1
+        schema.items = fixedResolvedVals[0].schema
+      else
+        schema.items = anyOf: (rv.schema for rv in fixedResolvedVals)
+
   cb null, schema
 
 
