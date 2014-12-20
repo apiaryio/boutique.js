@@ -79,7 +79,7 @@ handleObject = (objectType, resolvedType, inheritsFixed, options, cb) ->
 #
 # Turns value node into a 'resolved value' object with both
 # representation in JSON Schema and also possible additional info.
-resolveValue = (val, inheritsFixed, options, cb) ->
+resolveItem = (val, inheritsFixed, options, cb) ->
   async.waterfall [
     (next) ->
       async.parallel
@@ -99,9 +99,9 @@ resolveValue = (val, inheritsFixed, options, cb) ->
 # Turns multiple property nodes into 'resolved values', i.e. objects
 # carrying both representations of those values in JSON Schema
 # and also possible additional info.
-resolveValues = (vals, inheritsFixed, options, cb) ->
+resolveItems = (vals, inheritsFixed, options, cb) ->
   async.map vals, (val, next) ->
-    resolveValue val, inheritsFixed, options, next
+    resolveItem val, inheritsFixed, options, next
   , cb
 
 
@@ -109,22 +109,21 @@ resolveValues = (vals, inheritsFixed, options, cb) ->
 #
 # Takes 'resolved values' and generates JSON Schema
 # for their wrapper array type node.
-buildArraySchema = (arrayType, resolvedVals, resolvedType, isFixed, options, cb) ->
+buildArraySchema = (arrayType, resolvedItems, resolvedType, isFixed, options, cb) ->
   schema = type: 'array'
   if inspect.isFixed arrayType
-    schema.items = (rv.schema for rv in resolvedVals)
+    schema.items = (ri.schema for ri in resolvedItems)
   else
-    fixedResolvedVals = (rv for rv in resolvedVals when rv.fixed)
-    fixedCount = fixedResolvedVals.length
+    fixedResolvedItems = (ri for ri in resolvedItems when ri.fixed)
+    fixedCount = fixedResolvedItems.length
 
     if fixedCount
-      if fixedCount isnt resolvedVals.length
+      if fixedCount isnt resolvedItems.length
         return new Error "Array can't have fixed values alongside with non-fixed ones."
       else if fixedCount is 1
-        schema.items = fixedResolvedVals[0].schema
+        schema.items = fixedResolvedItems[0].schema
       else
-        schema.items = anyOf: (rv.schema for rv in fixedResolvedVals)
-
+        schema.items = anyOf: (ri.schema for ri in fixedResolvedItems)
   cb null, schema
 
 
@@ -133,10 +132,10 @@ buildArraySchema = (arrayType, resolvedVals, resolvedType, isFixed, options, cb)
 # Generates JSON Schema representation for given array type node.
 handleArray = (arrayType, resolvedType, inheritsFixed, options, cb) ->
   isFixed = inheritsFixed or inspect.isFixed arrayType
-  vals = inspect.listValueTypes arrayType  # such a mess! https://github.com/apiaryio/mson-ast/pull/9#discussion_r22136108
+  items = inspect.listItemTypes arrayType
   async.waterfall [
-    (next) -> resolveValues vals, isFixed, options, next
-    (resolvedVals, next) -> buildArraySchema arrayType, resolvedVals, resolvedType, isFixed, options, next
+    (next) -> resolveItems items, isFixed, options, next
+    (resolvedItems, next) -> buildArraySchema arrayType, resolvedItems, resolvedType, isFixed, options, next
   ], cb
 
 
@@ -147,7 +146,7 @@ handleArray = (arrayType, resolvedType, inheritsFixed, options, cb) ->
 handlePrimitiveType = (primitiveType, resolvedType, inheritsFixed, options, cb) ->
   schema = type: resolvedType.name
   if inheritsFixed or inspect.isFixed primitiveType
-    vals = inspect.listValues primitiveType  # such a mess! https://github.com/apiaryio/mson-ast/pull/9#discussion_r22136108
+    vals = inspect.listValues primitiveType
     if vals.length > 1
       return cb new Error "Primitive type can't have multiple values."
     else if vals.length > 0

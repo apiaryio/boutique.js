@@ -31,18 +31,18 @@ listPropertyTypes = (objectType) ->
   props
 
 
-# Takes array type node and lists its value nodes.
-listValueTypes = (arrayType) ->
-  vals = []
+# Takes array type node and lists its item nodes.
+listItemTypes = (arrayType) ->
+  items = []
   for member in (arrayType.sections or []) when member.type is 'member'
-    vals.push val for val in member.content when val.type is 'value'
-  vals
+    items.push item for item in member.content when item.type is 'value'
+  items
 
 
 module.exports = {
   listTypeAttributes
   listPropertyTypes
-  listValueTypes
+  listItemTypes
   listValues
   isRequired
   isFixed
