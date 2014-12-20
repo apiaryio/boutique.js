@@ -2,9 +2,14 @@
 # TODO this module should be tested properly
 
 
-# Lists all defined non-sample values.
-listValues = (type) ->
-  (val.literal for val in (type.valueDefinition?.values or []) when not val.variable)
+# Lists all defined values.
+listValues = (type, excludeVariables = false) ->
+  if excludeVariables
+    filter = (val) -> not val.variable
+  else
+    filter = (val) -> true
+
+  (type.valueDefinition?.values or []).filter filter
 
 
 # Takes type node and lists its attributes, such as `required`, `fixed`, etc.
