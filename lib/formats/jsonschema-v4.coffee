@@ -35,7 +35,7 @@ resolveMembers = (members, resolveMember, inheritsFixed, options, cb) ->
 # name, attributes, etc.
 resolveProperty = (prop, inheritsFixed, options, cb) ->
   async.waterfall [
-    (next) -> handleType prop.content, inheritsFixed, options, next
+    (next) -> handleTypeNode prop.content, inheritsFixed, options, next
     (schema, next) ->
       next null,
         name: prop.content.name.literal
@@ -78,16 +78,16 @@ buildObjectSchema = (context, cb) ->
 
 
 # Generates JSON Schema representation for given object type node.
-handleObject = (objectType, resolvedType, inheritsFixed, options, cb) ->
-  isFixed = inheritsFixed or inspect.isFixed objectType
-  props = inspect.listPropertyTypes objectType
+handleObjectNode = (objectNode, resolvedType, inheritsFixed, options, cb) ->
+  isFixed = inheritsFixed or inspect.isFixed objectNode
+  props = inspect.listPropertyNodes objectNode
 
   async.waterfall [
     (next) -> resolveMembers props, resolveProperty, isFixed, options, next
     (resolvedProps, next) ->
       buildObjectSchema {
 
-        objectType
+        objectNode
         resolvedType
         isFixed
         props
@@ -105,7 +105,7 @@ resolveItem = (val, inheritsFixed, options, cb) ->
     (next) ->
       async.parallel
         resolvedType: (done) -> resolveType val, done
-        schema: (done) -> handleType val.content, inheritsFixed, options, done
+        schema: (done) -> handleTypeNode val.content, inheritsFixed, options, done
       , next
     ({resolvedType, schema}, next) ->
       next null,
@@ -127,17 +127,17 @@ buildSchemaForValue = (val, typeName, cb) ->
       cb null, schema
 
 
-buildSchemaForTupleItems = (arrayType, resolvedItems, resolvedType, cb) ->
+buildSchemaForTupleItems = (arrayNode, resolvedItems, resolvedType, cb) ->
   # ordinary arrays
   return cb null, (ri.schema for ri in resolvedItems) if resolvedItems.length
 
   # inline arrays
   return cb new Error "Multiple nested types for fixed array." if resolvedType.nested.length > 1
-  nestedType = resolvedType.nested[0]
+  nestedTypeName = resolvedType.nested[0]
 
-  vals = inspect.listValues arrayType
+  vals = inspect.listValues arrayNode
   async.map vals, (val, next) ->
-    buildSchemaForValue val, nestedType, next
+    buildSchemaForValue val, nestedTypeName, next
   , cb
 
 
@@ -153,7 +153,7 @@ buildSchemaForFixedItems = (resolvedItems, cb) ->
 
 buildSchemaForItems = (context, cb) ->
   {
-    arrayType
+    arrayNode
     resolvedItems
     resolvedType
     isFixed
@@ -162,7 +162,7 @@ buildSchemaForItems = (context, cb) ->
 
   # choosing strategy
   if isFixed
-    buildSchemaForTupleItems arrayType, resolvedItems, resolvedType, cb
+    buildSchemaForTupleItems arrayNode, resolvedItems, resolvedType, cb
 
   else if (ri for ri in resolvedItems when ri.fixed).length  # containsFixed
     buildSchemaForFixedItems resolvedItems, cb
@@ -184,16 +184,16 @@ buildArraySchema = (context, cb) ->
 
 
 # Generates JSON Schema representation for given array type node.
-handleArray = (arrayType, resolvedType, inheritsFixed, options, cb) ->
-  isFixed = inheritsFixed or inspect.isFixed arrayType
-  items = inspect.listItemTypes arrayType
+handleArrayNode = (arrayNode, resolvedType, inheritsFixed, options, cb) ->
+  isFixed = inheritsFixed or inspect.isFixed arrayNode
+  items = inspect.listItemNodes arrayNode
 
   async.waterfall [
     (next) -> resolveMembers items, resolveItem, isFixed, options, next
     (resolvedItems, next) ->
       buildArraySchema {
 
-        arrayType
+        arrayNode
         resolvedType
         isFixed
         items
@@ -206,11 +206,11 @@ handleArray = (arrayType, resolvedType, inheritsFixed, options, cb) ->
 
 # Generates JSON Schema representation for given primitive
 # type node (string, number, etc.).
-handlePrimitiveType = (primitiveType, resolvedType, inheritsFixed, options, cb) ->
-  isFixed = inheritsFixed or inspect.isFixed primitiveType
+handlePrimitiveNode = (primitiveNode, resolvedType, inheritsFixed, options, cb) ->
+  isFixed = inheritsFixed or inspect.isFixed primitiveNode
 
   if isFixed
-    vals = inspect.listValues primitiveType, true
+    vals = inspect.listValues primitiveNode, true
     if vals.length
       return cb new Error "Primitive type can't have multiple values." if vals.length > 1
       return buildSchemaForValue vals[0], resolvedType.name, cb
@@ -219,16 +219,16 @@ handlePrimitiveType = (primitiveType, resolvedType, inheritsFixed, options, cb) 
 
 
 # Generates JSON Schema representation for given type node.
-handleType = (type, inheritsFixed, options, cb) ->
-  resolveType type, (err, resolvedType) ->
+handleTypeNode = (typeNode, inheritsFixed, options, cb) ->
+  resolveType typeNode, (err, resolvedType) ->
     return cb err if err
     switch resolvedType.name
       when 'object'
-        handleObject type, resolvedType, inheritsFixed, options, cb
+        handleObjectNode typeNode, resolvedType, inheritsFixed, options, cb
       when 'array'
-        handleArray type, resolvedType, inheritsFixed, options, cb
+        handleArrayNode typeNode, resolvedType, inheritsFixed, options, cb
       else
-        handlePrimitiveType type, resolvedType, inheritsFixed, options, cb
+        handlePrimitiveNode typeNode, resolvedType, inheritsFixed, options, cb
 
 
 # Adds JSON Schema declaration to given schema object.
@@ -240,7 +240,7 @@ addSchemaDeclaration = (schema, cb) ->
 # Transforms given MSON AST into JSON Schema.
 transform = (ast, options, cb) ->
   async.waterfall [
-    (next) -> handleType ast, false, options, next
+    (next) -> handleTypeNode ast, false, options, next
     addSchemaDeclaration
   ], cb
 

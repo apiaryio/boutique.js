@@ -16,18 +16,11 @@ ensureBaseType = (type, cb) ->
     cb null
 
 
-# TODO: should be moved to inspect
-#
-# Finds type name within *typeSpecification* object.
-findTypeName = (typeSpec) ->
-  typeSpec?.name?.name
-
-
 # Provides nested types as array of type names
 # for given *typeSpecification* object.
 simplifyNestedTypes = (typeSpec, cb) ->
   return cb null, [] if (typeSpec?.nestedTypes?.length or 0) < 1  # no nested types
-  name = findTypeName typeSpec
+  name = inspect.findTypeName typeSpec
 
   # just playing safe, this should be already ensured by MSON parser
   if name not in ['array', 'enum']
@@ -49,7 +42,7 @@ simplifyNestedTypes = (typeSpec, cb) ->
 # base types only, ends with an error (Boutique builds no symbol table,
 # so it can't resolve any possible inheritance).
 simplifyTypeSpecification = (typeSpec, cb) ->
-  name = findTypeName typeSpec
+  name = inspect.findTypeName typeSpec
   return cb null, null if not name  # no type name? return null...
 
   async.waterfall [
@@ -111,19 +104,6 @@ resolveImplicitType = (node, cb) ->
       cb err, ({name, nested} unless err)
 
 
-# TODO: should be moved to inspect
-#
-# Finds *typeSpecification* object for given *Named Type* or *Property Member*
-# or *Value Member* tree node.
-findTypeSpecification = (node) ->
-  if node.base?.typeSpecification?
-    # Top-level *Named Type* node.
-    node.base.typeSpecification
-  else
-    # *Property Member* or *Value Member* node
-    node.valueDefinition?.typeDefinition?.typeSpecification
-
-
 # Takes top-level *Named Type* or *Property Member* or *Value Member* tree node.
 # Provides a sort of 'simple type specification object':
 #
@@ -134,7 +114,7 @@ findTypeSpecification = (node) ->
 # base types only, ends with an error (Boutique builds no symbol table,
 # so it can't resolve any possible inheritance).
 resolveType = (node, cb) ->
-  typeSpec = findTypeSpecification node
+  typeSpec = inspect.findTypeSpecification node
   simplifyTypeSpecification typeSpec, (err, simpleTypeSpec) ->
     return cb err if err
     return resolveImplicitType node, cb unless simpleTypeSpec
