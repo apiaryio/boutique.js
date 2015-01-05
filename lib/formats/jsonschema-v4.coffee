@@ -5,18 +5,18 @@ inspect = require '../inspect'
 
 
 # Takes literal and MSON type and provides JSON Schema value in corresponding type.
-coerceLiteral = (lit, typeName, cb) ->
+coerceLiteral = (literal, typeName, cb) ->
   switch typeName
     when 'string'
-      return cb null, lit
+      return cb null, literal
     when 'number'
-      return cb new Error "Literal '#{lit}' is not a number." if isNaN lit
-      return cb null, parseFloat lit
+      return cb new Error "Literal '#{literal}' is not a number." if isNaN literal
+      return cb null, parseFloat literal
     when 'boolean'
-      return cb new Error "Literal '#{lit}' is not 'true' or 'false'." if lit not in ['true', 'false']
-      return cb null, lit is 'true'
+      return cb new Error "Literal '#{literal}' is not 'true' or 'false'." if literal not in ['true', 'false']
+      return cb null, literal is 'true'
     else
-      return cb new Error "Literal '#{lit}' can't have type '#{typeName}'."
+      return cb new Error "Literal '#{literal}' can't have type '#{typeName}'."
 
 
 # Turns multiple member nodes into 'resolved members', i.e. objects
