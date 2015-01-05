@@ -114,7 +114,24 @@ resolveInheritedType = (node, inheritedTypeName, cb) ->
   cb null, {name: inheritedTypeName, nested: []}
 
 
+# Ensures implicit nested types are added to given
+# 'simple type specification object' in case such option is applicable.
+ensureImplicitNestedTypes = (node, simpleTypeSpec, cb) ->
+  if simpleTypeSpec.nested?.length
+    # we already got some nested types
+    cb null, simpleTypeSpec
+  else
+    # no nested types, so we check whether it's not a situation where we can
+    # resolve implicit nested types - in that case we add them to the
+    # *simpleTypeSpec* object
+    name = simpleTypeSpec.name
+    resolveImplicitNestedTypes name, node, (err, nested) ->
+      cb err, ({name, nested} unless err)
+
+
 # Takes top-level *Named Type* or *Property Member* or *Value Member* tree node.
+# The *inheritedTypeName* argument is optional.
+#
 # Provides a sort of 'simple type specification object':
 #
 #     name: ...
@@ -124,23 +141,20 @@ resolveInheritedType = (node, inheritedTypeName, cb) ->
 # base types only, ends with an error (Boutique builds no symbol table,
 # so it can't resolve any possible inheritance).
 resolveType = (node, inheritedTypeName, cb) ->
+  # process arguments
   if inheritedTypeName
     if typeof inheritedTypeName is 'function'
       cb = inheritedTypeName
     else
+      # we've got inherited type
       return resolveInheritedType node, inheritedTypeName, cb
 
+  # no inherited type, let's start regular type resolution
   typeSpec = inspect.findTypeSpecification node
   simplifyTypeSpecification typeSpec, (err, simpleTypeSpec) ->
     return cb err if err
     return resolveImplicitType node, cb unless simpleTypeSpec
-
-    if simpleTypeSpec.nested?.length
-      cb null, simpleTypeSpec
-    else
-      name = simpleTypeSpec.name
-      resolveImplicitNestedTypes name, node, (err, nested) ->
-        cb err, ({name, nested} unless err)
+    ensureImplicitNestedTypes node, simpleTypeSpec, cb
 
 
 module.exports = {
