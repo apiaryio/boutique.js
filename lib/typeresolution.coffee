@@ -26,7 +26,7 @@ simplifyNestedTypes = (typeSpec, cb) ->
   if name not in ['array', 'enum']
     return cb new Error "Nested types are allowed only for array and enum types."
 
-  nested = (typeName.name for typeName in typeSpec.nestedTypes)
+  nested = typeSpec.nestedTypes
   async.map nested, ensureBaseType, (err) ->
     return cb err if err  # non-base types result in error
     cb null, nested
@@ -54,7 +54,7 @@ simplifyTypeSpecification = (typeSpec, cb) ->
 
 # Helps to identify whether given node is an implicit array.
 isArray = (node) ->
-  (node.valueDefinition?.values?.length or 0) > 1  # has multiple values?
+  inspect.hasMultipleValues node
 
 
 # Helps to identify whether given node is an implicit object.
@@ -70,7 +70,7 @@ isArray = (node) ->
 # However, this 'race condition' probably can't happen anyway, so these
 # approaches shouldn't(tm) make a difference.
 isObject = (node) ->
-  (s for s in (node.sections or []) when s.type is 'member').length  # has any member sections?
+  inspect.hasAnyMemberSections node
 
 
 # TODO: should be tested
