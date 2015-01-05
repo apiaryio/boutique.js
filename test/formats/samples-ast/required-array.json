@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "digits"
@@ -16,13 +16,9 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "array"
-                  },
+                  "name": "array",
                   "nestedTypes": [
-                    {
-                      "name": "number"
-                    }
+                    "number"
                   ]
                 },
                 "attributes": [

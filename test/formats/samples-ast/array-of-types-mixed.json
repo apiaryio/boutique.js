@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "tags"
@@ -16,18 +16,16 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "array"
-                  }
+                  "name": "array"
                 }
               }
             },
             "sections": [
               {
-                "type": "member",
+                "class": "memberType",
                 "content": [
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -38,16 +36,14 @@
                         ],
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": {
-                              "name": "string"
-                            }
+                            "name": "string"
                           }
                         }
                       }
                     }
                   },
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -58,9 +54,7 @@
                         ],
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": {
-                              "name": "number"
-                            }
+                            "name": "number"
                           }
                         }
                       }

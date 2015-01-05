@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "listing"
@@ -16,22 +16,20 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "object"
-                  }
+                  "name": "object"
                 }
               }
             },
             "sections": [
               {
-                "type": "blockDescription",
+                "class": "blockDescription",
                 "content": "Our real estate listing has different properties available.\n\n- `Properties`\n    - This one.\n    - That one. \n"
               },
               {
-                "type": "member",
+                "class": "memberType",
                 "content": [
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "description"
@@ -39,16 +37,14 @@
                       "valueDefinition": {
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": {
-                              "name": "string"
-                            }
+                            "name": "string"
                           }
                         }
                       }
                     }
                   },
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "date_listed"
@@ -56,16 +52,14 @@
                       "valueDefinition": {
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": {
-                              "name": "string"
-                            }
+                            "name": "string"
                           }
                         }
                       }
                     }
                   },
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "some:location"
@@ -79,9 +73,7 @@
                         ],
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": {
-                              "name": "string"
-                            }
+                            "name": "string"
                           }
                         }
                       }

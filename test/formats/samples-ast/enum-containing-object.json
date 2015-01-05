@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "tag"
@@ -16,18 +16,16 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "enum"
-                  }
+                  "name": "enum"
                 }
               }
             },
             "sections": [
               {
-                "type": "member",
+                "class": "memberType",
                 "content": [
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -38,32 +36,28 @@
                         ],
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": {
-                              "name": "string"
-                            }
+                            "name": "string"
                           }
                         }
                       }
                     }
                   },
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": {
-                              "name": "object"
-                            }
+                            "name": "object"
                           }
                         }
                       },
                       "sections": [
                         {
-                          "type": "member",
+                          "class": "memberType",
                           "content": [
                             {
-                              "type": "property",
+                              "class": "property",
                               "content": {
                                 "name": {
                                   "literal": "tag_id"
@@ -79,7 +73,7 @@
                               }
                             },
                             {
-                              "type": "property",
+                              "class": "property",
                               "content": {
                                 "name": {
                                   "literal": "label"

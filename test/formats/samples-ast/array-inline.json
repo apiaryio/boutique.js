@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "address"
@@ -30,9 +30,7 @@
               ],
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "array"
-                  }
+                  "name": "array"
                 }
               }
             }

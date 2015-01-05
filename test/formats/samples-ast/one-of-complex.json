@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "name"
@@ -16,68 +16,62 @@
           }
         },
         {
-          "type": "oneOf",
-          "content": {
-            "members": [
-              {
-                "type": "property",
-                "content": {
-                  "name": {
-                    "literal": "city"
-                  }
-                }
-              },
-              {
-                "type": "property",
-                "content": {
-                  "name": {
-                    "literal": "town"
-                  }
+          "class": "oneOf",
+          "content": [
+            {
+              "class": "property",
+              "content": {
+                "name": {
+                  "literal": "city"
                 }
               }
-            ]
-          }
+            },
+            {
+              "class": "property",
+              "content": {
+                "name": {
+                  "literal": "town"
+                }
+              }
+            }
+          ]
         },
         {
-          "type": "oneOf",
-          "content": {
-            "members": [
-              {
-                "type": "property",
-                "content": {
-                  "name": {
-                    "literal": "state"
-                  }
+          "class": "oneOf",
+          "content": [
+            {
+              "class": "property",
+              "content": {
+                "name": {
+                  "literal": "state"
                 }
-              },
-              {
-                "type": "oneOf",
-                "content": {
-                  "members": [
-                    {
-                      "type": "property",
-                      "content": {
-                        "name": {
-                          "literal": "province"
-                        }
-                      }
-                    },
-                    {
-                      "type": "property",
-                      "content": {
-                        "name": {
-                          "literal": "territory"
-                        }
-                      }
+              }
+            },
+            {
+              "class": "oneOf",
+              "content": [
+                {
+                  "class": "property",
+                  "content": {
+                    "name": {
+                      "literal": "province"
                     }
-                  ]
+                  }
+                },
+                {
+                  "class": "property",
+                  "content": {
+                    "name": {
+                      "literal": "territory"
+                    }
+                  }
                 }
-              }
-            ]
-          }
+              ]
+            }
+          ]
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "country"

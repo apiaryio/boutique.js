@@ -5,7 +5,7 @@
   },
   "sections": [
     {
-      "type": "blockDescription",
+      "class": "blockDescription",
       "content": "0 info it worked if it ends with ok\n1 verbose cli [ 'node', '/usr/local/bin/npm', 'test' ]\n2 info using npm@1.4.10\n3 info using node@v0.10.25\n4 verbose node symlink /usr/bin/node\n5 error Error: ENOENT, open '/home/honza/Work/boutique/test/formats/samples-mson/package.json'\n6 error If you need help, you may report this *entire* log,\n6 error including the npm and node versions, at:\n6 error     <http://github.com/npm/npm/issues>\n7 error System Linux 3.13.0-43-generic\n8 error command \"node\" \"/usr/local/bin/npm\" \"test\"\n9 error cwd /home/honza/Work/boutique/test/formats/samples-mson\n10 error node -v v0.10.25\n11 error npm -v 1.4.10\n12 error path /home/honza/Work/boutique/test/formats/samples-mson/package.json\n13 error code ENOENT\n14 error errno 34\n15 verbose exit [ 34, true ]\n"
     }
   ]

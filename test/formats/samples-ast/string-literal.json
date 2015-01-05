@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "street"
@@ -16,13 +16,9 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "array"
-                  },
+                  "name": "array",
                   "nestedTypes": [
-                    {
-                      "name": "string"
-                    }
+                    "string"
                   ]
                 },
                 "attributes": [
@@ -32,10 +28,10 @@
             },
             "sections": [
               {
-                "type": "member",
+                "class": "memberType",
                 "content": [
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -48,7 +44,7 @@
                     }
                   },
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
