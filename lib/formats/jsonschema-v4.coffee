@@ -57,7 +57,6 @@ buildObjectSchema = (context, cb) ->
   {
     resolvedProps
     fixed
-
   } = context
 
   schema = type: 'object'
@@ -69,7 +68,7 @@ buildObjectSchema = (context, cb) ->
       reqSchema: (next) -> buildSchemaForRequired resolvedProps, next
     , (err, {propsSchema, reqSchema}) ->
       schema.properties = propsSchema
-      schema.required = reqSchema if reqSchema.length
+      schema.required = reqSchema if reqSchema?.length
       cb null, schema
   else
     cb null, schema
@@ -84,14 +83,12 @@ handleObjectNode = (objectNode, resolvedType, inherited, options, cb) ->
     (next) -> resolveMembers props, resolveProperty, {fixed}, options, next
     (resolvedProps, next) ->
       buildObjectSchema {
-
         objectNode
         resolvedType
         fixed
         props
         resolvedProps
         options
-
       }, next
   ], cb
 
@@ -150,16 +147,13 @@ buildSchemaForItems = (context, cb) ->
     resolvedItems
     resolvedType
     fixed
-
   } = context
 
   # choosing strategy
   if fixed
     buildSchemaForTupleItems arrayNode, resolvedItems, resolvedType, cb
-
   else if (ri for ri in resolvedItems when ri.fixed).length  # containsFixed
     buildSchemaForFixedItems resolvedItems, cb
-
   else
     cb()  # returned itemsSchema will be "falsy"
 
@@ -189,14 +183,12 @@ handleArrayNode = (arrayNode, resolvedType, inherited, options, cb) ->
     (next) -> resolveMembers items, resolveItem, heritage, options, next
     (resolvedItems, next) ->
       buildArraySchema {
-
         arrayNode
         resolvedType
         fixed
         items
         resolvedItems
         options
-
       }, next
   ], cb
 
