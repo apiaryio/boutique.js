@@ -139,7 +139,7 @@ handleArrayNode = (arrayNode, resolvedType, inherited, cb) ->
 # Generates JSON representation for given primitive
 # type node (string, number, etc.).
 handlePrimitiveNode = (primitiveNode, resolvedType, inherited, cb) ->
-  vals = inspect.listValues primitiveNode, true
+  vals = inspect.listValues primitiveNode
   if vals.length
     return cb new Error "Primitive type can't have multiple values." if vals.length > 1
     return coerceLiteral vals[0].literal, resolvedType.name, cb
