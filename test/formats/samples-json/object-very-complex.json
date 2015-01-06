@@ -1,0 +1,17 @@
+{
+  "id": 1,
+  "name": "A green door",
+  "price": 12.50,
+  "tags": ["home", "green"],
+  "vector": [1, 2, 3],
+  "address": {
+    "street": null,
+    "number": null,
+    "zip_code": null,
+    "state": {
+      "name": null,
+      "code": null
+    },
+    "country": "Czech Republic"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "tags": [
+    "hello",
+    42,
+    {
+      "name": "snow",
+      "color": "white",
+      "description": null
+    },
+    "world"
+  ]
+}
