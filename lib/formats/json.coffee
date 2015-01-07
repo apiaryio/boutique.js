@@ -4,6 +4,23 @@ inspect = require '../inspect'
 {resolveType} = require '../typeresolution'
 
 
+detectSuccessful = (arr, fn, cb) ->
+  # Here we're trying each item of given array and result of the first
+  # one on which the given function doesn't produce error is taken as the
+  # result of this whole function. If none of given items pass the function
+  # without error, the error of the one which was tried as the last one
+  # is passed.
+  error = null
+  result = null
+
+  async.detectSeries arr, (item, next) ->
+    fn item, (err, res) ->
+      [error, result] = if err then [err, null] else [null, res]
+      next not err
+  , ->
+    cb error, result
+
+
 # Takes literal and MSON type and provides JSON value in corresponding type.
 coerceLiteral = (literal, typeName, cb) ->
   switch typeName
@@ -17,6 +34,18 @@ coerceLiteral = (literal, typeName, cb) ->
       return cb null, literal is 'true'
     else
       return cb new Error "Literal '#{literal}' can't have type '#{typeName}'."
+
+
+# Takes literal and MSON types and provides JSON value in
+# the corresponding type, which is the first to be able to successfully
+# perfom the coercion.
+coerceNestedLiteral = (literal, typeNames, cb) ->
+  # This allows to correctly coerce in situations like `array[number, string]`
+  # with items `hello, 1, 2, world`, where coercion to `number` throws errors,
+  # but coercion to `string` is perfectly valid result.
+  detectSuccessful typeNames, (typeName, next) ->
+    coerceLiteral literal, typeName, next
+  , cb
 
 
 # Turns multiple member nodes into 'resolved members', i.e. objects
@@ -79,24 +108,6 @@ resolveItem = (val, inherited, cb) ->
   ], cb
 
 
-buildReprForTupleItems = (arrayNode, resolvedItems, resolvedType, cb) ->
-  # ordinary arrays
-  return cb null, (ri.repr for ri in resolvedItems) if resolvedItems.length
-
-  # inline arrays
-  return cb new Error "Multiple nested types for fixed array." if resolvedType.nested.length > 1
-  nestedTypeName = resolvedType.nested[0]
-
-  vals = inspect.listValues arrayNode
-  async.map vals, (val, next) ->
-    coerceLiteral val.literal, nestedTypeName, next
-  , cb
-
-
-buildReprForItems = (resolvedItems, cb) ->
-  cb null, (ri.repr for ri in resolvedItems)
-
-
 # Takes 'resolved values' and generates JSON
 # for their wrapper array type node.
 buildArrayRepr = (context, cb) ->
@@ -107,11 +118,21 @@ buildArrayRepr = (context, cb) ->
     fixed
   } = context
 
-  # choosing strategy
-  if fixed
-    buildReprForTupleItems arrayNode, resolvedItems, resolvedType, cb
-  else
-    buildReprForItems resolvedItems, cb
+  # ordinary arrays
+  if resolvedItems.length
+    if fixed
+      repr = (ri.repr for ri in resolvedItems)
+    else
+      repr = (ri.repr for ri in resolvedItems when ri.repr isnt null)
+    return cb null, repr
+
+  # inline arrays
+  return cb new Error "Multiple nested types for fixed array." if fixed and resolvedType.nested.length > 1
+
+  vals = inspect.listValues arrayNode
+  async.map vals, (val, next) ->
+    coerceNestedLiteral val.literal, resolvedType.nested, next
+  , cb
 
 
 # Generates JSON representation for given array type node.
@@ -119,12 +140,16 @@ handleArrayNode = (arrayNode, resolvedType, inherited, cb) ->
   fixed = inherited.fixed or inspect.isFixed arrayNode
   items = inspect.listItemNodes arrayNode
 
-  heritage =
-    fixed: fixed
-    typeName: resolvedType.nested?[0]
-
   async.waterfall [
-    (next) -> resolveMembers items, resolveItem, heritage, next
+    (next) ->
+      async.map items, (item, n) ->
+        if resolvedType.nested.length > 1
+          detectSuccessful resolvedType.nested, (typeName, done) ->
+            resolveItem item, {fixed, typeName}, done
+          , n
+        else
+          resolveItem item, {fixed, typeName: resolvedType.nested?[0]}, n
+      , next
     (resolvedItems, next) ->
       buildArrayRepr {
         arrayNode
