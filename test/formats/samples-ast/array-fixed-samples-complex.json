@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "enum-types.mson",
+    "literal": "array-fixed-samples-complex.mson",
     "variable": false
   },
   "sections": [
@@ -11,15 +11,18 @@
           "type": "property",
           "content": {
             "name": {
-              "literal": "tag"
+              "literal": "tags"
             },
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
                   "name": {
-                    "name": "enum"
+                    "name": "array"
                   }
-                }
+                },
+                "attributes": [
+                  "fixed"
+                ]
               }
             },
             "sections": [
@@ -32,7 +35,7 @@
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "green",
+                            "literal": "hello",
                             "variable": false
                           }
                         ],
@@ -40,6 +43,26 @@
                           "typeSpecification": {
                             "name": {
                               "name": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "42",
+                            "variable": true
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
                             }
                           }
                         }
@@ -66,12 +89,35 @@
                               "type": "property",
                               "content": {
                                 "name": {
-                                  "literal": "tag_id"
+                                  "literal": "name"
                                 },
                                 "valueDefinition": {
                                   "values": [
                                     {
-                                      "literal": "1",
+                                      "literal": "snow",
+                                      "variable": true
+                                    }
+                                  ],
+                                  "typeDefinition": {
+                                    "typeSpecification": {
+                                      "name": {
+                                        "name": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "property",
+                              "content": {
+                                "name": {
+                                  "literal": "color"
+                                },
+                                "valueDefinition": {
+                                  "values": [
+                                    {
+                                      "literal": "white",
                                       "variable": false
                                     }
                                   ]
@@ -82,21 +128,35 @@
                               "type": "property",
                               "content": {
                                 "name": {
-                                  "literal": "label"
+                                  "literal": "description"
                                 },
                                 "valueDefinition": {
-                                  "values": [
-                                    {
-                                      "literal": "green",
-                                      "variable": false
+                                  "typeDefinition": {
+                                    "typeSpecification": {
+                                      "name": {
+                                        "name": "string"
+                                      }
                                     }
-                                  ]
+                                  }
                                 }
                               }
                             }
                           ]
                         }
                       ]
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "world",
+                            "variable": false
+                          }
+                        ]
+                      }
                     }
                   }
                 ]

@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "simple-object.mson",
+    "literal": "array-restricted-to-types.mson",
     "variable": false
   },
   "sections": [
@@ -11,43 +11,24 @@
           "type": "property",
           "content": {
             "name": {
-              "literal": "address"
+              "literal": "tags"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "array"
+                  }
+                }
+              }
             },
             "sections": [
               {
                 "type": "member",
                 "content": [
                   {
-                    "type": "property",
+                    "type": "value",
                     "content": {
-                      "name": {
-                        "literal": "street"
-                      }
-                    }
-                  },
-                  {
-                    "type": "property",
-                    "content": {
-                      "name": {
-                        "literal": "city"
-                      },
-                      "valueDefinition": {
-                        "typeDefinition": {
-                          "typeSpecification": {
-                            "name": {
-                              "name": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "type": "property",
-                    "content": {
-                      "name": {
-                        "literal": "state"
-                      },
                       "valueDefinition": {
                         "typeDefinition": {
                           "typeSpecification": {
@@ -56,7 +37,24 @@
                             }
                           },
                           "attributes": [
-                            "required"
+                            "fixed"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
+                            }
+                          },
+                          "attributes": [
+                            "fixed"
                           ]
                         }
                       }

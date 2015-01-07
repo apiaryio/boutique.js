@@ -1,0 +1,56 @@
+{
+  "name": {
+    "literal": "required-object.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "items"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "object"
+                  }
+                },
+                "attributes": [
+                  "required"
+                ]
+              }
+            },
+            "sections": [
+              {
+                "type": "member",
+                "content": [
+                  {
+                    "type": "property",
+                    "content": {
+                      "name": {
+                        "literal": "count"
+                      },
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "1",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

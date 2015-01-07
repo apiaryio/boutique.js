@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "oneOf": [
+  "anyOf": [
     {
-      "oneOf": [
+      "anyOf": [
         {
           "type": "number",
           "enum": [1, 2, 3, 4]

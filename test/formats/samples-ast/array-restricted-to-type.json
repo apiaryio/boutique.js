@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "multiline-description-keyword.mson",
+    "literal": "array-restricted-to-type.mson",
     "variable": false
   },
   "sections": [
@@ -24,10 +24,6 @@
             },
             "sections": [
               {
-                "type": "blockDescription",
-                "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n \n\nSed sed lacus a arcu vehicula ultricies sed vel nibh. Mauris id cursus felis.\n \n\nInterdum et malesuada fames ac ante ipsum primis in faucibus.\n\n- unus\n\n- duo\n\n- tres\n\n- quattuor\n"
-              },
-              {
                 "type": "member",
                 "content": [
                   {
@@ -36,23 +32,20 @@
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "home",
-                            "variable": false
+                            "literal": "5",
+                            "variable": true
                           }
-                        ]
-                      }
-                    }
-                  },
-                  {
-                    "type": "value",
-                    "content": {
-                      "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "green",
-                            "variable": false
-                          }
-                        ]
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
+                            }
+                          },
+                          "attributes": [
+                            "fixed"
+                          ]
+                        }
                       }
                     }
                   }

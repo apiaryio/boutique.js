@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "mixed-array.mson",
+    "literal": "array-fixed-samples.mson",
     "variable": false
   },
   "sections": [
@@ -19,7 +19,10 @@
                   "name": {
                     "name": "array"
                   }
-                }
+                },
+                "attributes": [
+                  "fixed"
+                ]
               }
             },
             "sections": [
@@ -33,7 +36,7 @@
                         "values": [
                           {
                             "literal": "hello",
-                            "variable": false
+                            "variable": true
                           }
                         ],
                         "typeDefinition": {
@@ -53,7 +56,7 @@
                         "values": [
                           {
                             "literal": "42",
-                            "variable": false
+                            "variable": true
                           }
                         ],
                         "typeDefinition": {

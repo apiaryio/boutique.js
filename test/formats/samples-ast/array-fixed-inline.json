@@ -1,0 +1,47 @@
+{
+  "name": {
+    "literal": "array-fixed-inline.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "address"
+            },
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "street",
+                  "variable": false
+                },
+                {
+                  "literal": "city",
+                  "variable": false
+                },
+                {
+                  "literal": "state",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "array"
+                  }
+                },
+                "attributes": [
+                  "fixed"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

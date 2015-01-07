@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "enum-values.mson",
+    "literal": "array-restricted-to-types-complex.mson",
     "variable": false
   },
   "sections": [
@@ -11,13 +11,13 @@
           "type": "property",
           "content": {
             "name": {
-              "literal": "gender"
+              "literal": "tags"
             },
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
                   "name": {
-                    "name": "enum"
+                    "name": "array"
                   }
                 }
               }
@@ -32,10 +32,20 @@
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "male",
-                            "variable": false
+                            "literal": "hello",
+                            "variable": true
                           }
-                        ]
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
+                          },
+                          "attributes": [
+                            "fixed"
+                          ]
+                        }
                       }
                     }
                   },
@@ -45,10 +55,20 @@
                       "valueDefinition": {
                         "values": [
                           {
-                            "literal": "female",
+                            "literal": "42",
                             "variable": false
                           }
-                        ]
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
+                            }
+                          },
+                          "attributes": [
+                            "fixed"
+                          ]
+                        }
                       }
                     }
                   }

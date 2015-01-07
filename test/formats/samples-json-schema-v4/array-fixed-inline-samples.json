@@ -2,14 +2,18 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "tag": {
-      "anyOf": [
+    "address": {
+      "type": "array",
+      "items": [
         {
-          "type": "string",
-          "enum": ["green"]
+          "type": "string"
         },
         {
-          "type": "number"
+          "type": "string",
+          "enum": ["city"]
+        },
+        {
+          "type": "string"
         }
       ]
     }

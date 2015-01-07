@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "array-with-type.mson",
+    "literal": "array-of-types-only.mson",
     "variable": false
   },
   "sections": [
@@ -11,19 +11,14 @@
           "type": "property",
           "content": {
             "name": {
-              "literal": "address"
+              "literal": "tags"
             },
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
                   "name": {
                     "name": "array"
-                  },
-                  "nestedTypes": [
-                    {
-                      "name": "number"
-                    }
-                  ]
+                  }
                 }
               }
             },
@@ -35,12 +30,13 @@
                     "type": "value",
                     "content": {
                       "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "4",
-                            "variable": false
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
                           }
-                        ]
+                        }
                       }
                     }
                   },
@@ -48,25 +44,13 @@
                     "type": "value",
                     "content": {
                       "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "2",
-                            "variable": false
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
+                            }
                           }
-                        ]
-                      }
-                    }
-                  },
-                  {
-                    "type": "value",
-                    "content": {
-                      "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "42",
-                            "variable": false
-                          }
-                        ]
+                        }
                       }
                     }
                   }

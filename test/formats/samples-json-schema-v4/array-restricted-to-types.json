@@ -2,10 +2,17 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "address": {
+    "tags": {
       "type": "array",
       "items": {
-        "type": "number"
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
       }
     }
   }

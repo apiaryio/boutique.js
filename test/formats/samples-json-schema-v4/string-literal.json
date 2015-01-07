@@ -2,14 +2,16 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "tag": {
-      "anyOf": [
+    "street": {
+      "type": "array",
+      "items": [
         {
           "type": "string",
-          "enum": ["green"]
+          "enum": ["bye bye"]
         },
         {
-          "type": "number"
+          "type": "string",
+          "enum": ["san francisco"]
         }
       ]
     }

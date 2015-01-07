@@ -1,0 +1,81 @@
+{
+  "name": {
+    "literal": "array-with-nested-type.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "type": "member",
+      "content": [
+        {
+          "type": "property",
+          "content": {
+            "name": {
+              "literal": "address"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": {
+                    "name": "array"
+                  },
+                  "nestedTypes": [
+                    {
+                      "name": "number"
+                    }
+                  ]
+                }
+              }
+            },
+            "sections": [
+              {
+                "type": "member",
+                "content": [
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "4",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "2",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "42",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

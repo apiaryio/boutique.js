@@ -1,136 +1,224 @@
 
 async = require 'async'
+inspect = require '../inspect'
 {resolveType} = require '../typeresolution'
 
 
-# Takes object type node and lists its property nodes.
-listProperties = (objectType, cb) ->
-  props = []
-  for member in (objectType.sections or []) when member.type is 'member'
-    for prop in member.content when prop.type is 'property'
-      props.push prop
-  cb null, props
+# Takes literal and MSON type and provides JSON Schema value in corresponding type.
+coerceLiteral = (literal, typeName, cb) ->
+  switch typeName
+    when 'string'
+      return cb null, literal
+    when 'number'
+      return cb new Error "Literal '#{literal}' is not a number." if isNaN literal
+      return cb null, parseFloat literal
+    when 'boolean'
+      return cb new Error "Literal '#{literal}' is not 'true' or 'false'." if literal not in ['true', 'false']
+      return cb null, literal is 'true'
+    else
+      return cb new Error "Literal '#{literal}' can't have type '#{typeName}'."
+
+
+# Turns multiple member nodes into 'resolved members', i.e. objects
+# carrying both representations of those members in JSON Schema
+# and also additional info, such as property names, attributes, etc.
+resolveMembers = (members, resolveMember, inherited, options, cb) ->
+  async.map members, (member, next) ->
+    resolveMember member, inherited, options, next
+  , cb
 
 
 # Turns property node into a 'resolved property' object with both
 # representation in JSON Schema and also additional info, such as property
 # name, attributes, etc.
-resolveProperty = (prop, options, cb) ->
+resolveProperty = (prop, inherited, options, cb) ->
   async.waterfall [
-    (next) -> handleType prop.content, options, next
+    (next) -> handleTypeNode prop.content, inherited, options, next
     (schema, next) ->
       next null,
         name: prop.content.name.literal
         schema: schema
-        required: 'required' in (prop.content?.valueDefinition?.typeDefinition?.attributes or [])
+        required: inspect.isRequired prop.content
+        fixed: inspect.isFixed prop.content
   ], cb
 
 
-# Turns multiple property nodes into 'resolved properties', i.e. objects
-# carrying both representations of those properties in JSON Schema
-# and also additional info, such as property names, attributes, etc.
-resolveProperties = (props, options, cb) ->
-  async.map props, (prop, next) ->
-    resolveProperty prop, options, next
-  , cb
-
-
-# Takes 'resolved properties' and generates JSON Schema
-# for their wrapper object type node.
-buildObjectSchema = (resolvedProps, options, cb) ->
-  schemaProps = {}
-  schemaRequired = []
-
-  for {name, schema, required} in resolvedProps
-    schemaProps[name] = schema
-    schemaRequired.push name if required
-
-  schema =
-    type: 'object'
-    properties: schemaProps
-  schema.required = schemaRequired if schemaRequired.length > 0
-
+buildSchemaForProperties = (resolvedProps, cb) ->
+  schema = {}
+  schema[rp.name] = rp.schema for rp in resolvedProps
   cb null, schema
 
 
+buildSchemaForRequired = (resolvedProps, cb) ->
+  cb null, (rp.name for rp in resolvedProps when rp.required)
+
+
+buildObjectSchema = (context, cb) ->
+  {
+    resolvedProps
+    fixed
+  } = context
+
+  schema = type: 'object'
+  schema.additionalProperties = false if fixed
+
+  if resolvedProps.length
+    async.parallel
+      propsSchema: (next) -> buildSchemaForProperties resolvedProps, next
+      reqSchema: (next) -> buildSchemaForRequired resolvedProps, next
+    , (err, {propsSchema, reqSchema}) ->
+      schema.properties = propsSchema
+      schema.required = reqSchema if reqSchema?.length
+      cb null, schema
+  else
+    cb null, schema
+
+
 # Generates JSON Schema representation for given object type node.
-handleObject = (objectType, resolvedType, options, cb) ->
+handleObjectNode = (objectNode, resolvedType, inherited, options, cb) ->
+  fixed = inherited.fixed or inspect.isFixed objectNode
+  props = inspect.listPropertyNodes objectNode
+
   async.waterfall [
-    (next) -> listProperties objectType, next
-    (props, next) -> resolveProperties props, options, next
-    (resolvedProps, next) -> buildObjectSchema resolvedProps, options, next
+    (next) -> resolveMembers props, resolveProperty, {fixed}, options, next
+    (resolvedProps, next) ->
+      buildObjectSchema {
+        objectNode
+        resolvedType
+        fixed
+        props
+        resolvedProps
+        options
+      }, next
   ], cb
 
 
-# Takes object type node and lists its value nodes.
-listValues = (objectType, cb) ->
-  vals = []
-  for member in (objectType.sections or []) when member.type is 'member'
-    for val in member.content when val.type is 'value'
-      vals.push val
-  cb null, vals
-
-
-# Turns value node into a 'resolved value' object with both
+# Turns value node into a 'resolved item' object with both
 # representation in JSON Schema and also possible additional info.
-resolveValue = (val, options, cb) ->
+resolveItem = (val, inherited, options, cb) ->
   async.waterfall [
-    (next) ->
-      async.parallel
-        resolvedType: (done) -> resolveType val, done
-        schema: (done) -> handleType val.content, options, done
-      , next
-    ({resolvedType, schema}, next) ->
+    (next) -> handleTypeNode val.content, inherited, options, next
+    (schema, next) ->
       next null,
-        typeName: resolvedType.name
         schema: schema
+        fixed: inspect.isFixed val.content
   ], cb
 
 
-# Turns multiple property nodes into 'resolved values', i.e. objects
-# carrying both representations of those values in JSON Schema
-# and also possible additional info.
-resolveValues = (vals, options, cb) ->
+buildSchemaForValue = (val, typeName, cb) ->
+  schema = type: typeName
+
+  if val.variable
+    cb null, schema
+  else
+    coerceLiteral val.literal, typeName, (err, coercedVal) ->
+      return cb err if err
+      schema.enum = [coercedVal]
+      cb null, schema
+
+
+buildSchemaForTupleItems = (arrayNode, resolvedItems, resolvedType, cb) ->
+  # ordinary arrays
+  return cb null, (ri.schema for ri in resolvedItems) if resolvedItems.length
+
+  # inline arrays
+  return cb new Error "Multiple nested types for fixed array." if resolvedType.nested.length > 1
+  nestedTypeName = resolvedType.nested[0]
+
+  vals = inspect.listValues arrayNode
   async.map vals, (val, next) ->
-    resolveValue val, options, next
+    buildSchemaForValue val, nestedTypeName, next
   , cb
+
+
+buildSchemaForFixedItems = (resolvedItems, cb) ->
+  schemas = (ri.schema for ri in resolvedItems when ri.fixed)
+
+  if schemas.length isnt resolvedItems.length
+    return cb new Error "Array can't contain fixed items alongside with non-fixed ones."
+
+  return cb null, schemas[0] if schemas.length is 1
+  cb null, anyOf: schemas
+
+
+buildSchemaForItems = (context, cb) ->
+  {
+    arrayNode
+    resolvedItems
+    resolvedType
+    fixed
+  } = context
+
+  # choosing strategy
+  if fixed
+    buildSchemaForTupleItems arrayNode, resolvedItems, resolvedType, cb
+  else if (ri for ri in resolvedItems when ri.fixed).length  # containsFixed
+    buildSchemaForFixedItems resolvedItems, cb
+  else
+    cb()  # returned itemsSchema will be "falsy"
 
 
 # Takes 'resolved values' and generates JSON Schema
 # for their wrapper array type node.
-buildArraySchema = (resolvedVals, resolvedType, options, cb) ->
-  cb null,
-    type: 'array'
-    # TODO, WIP - will I'll continue in subsequent PRs
-    # items: (rv.schema for rv in resolvedVals)
+buildArraySchema = (context, cb) ->
+  buildSchemaForItems context, (err, itemsSchema) ->
+    return cb err if err
+
+    schema = type: 'array'
+    schema.items = itemsSchema if itemsSchema
+
+    cb null, schema
 
 
 # Generates JSON Schema representation for given array type node.
-handleArray = (arrayType, resolvedType, options, cb) ->
+handleArrayNode = (arrayNode, resolvedType, inherited, options, cb) ->
+  fixed = inherited.fixed or inspect.isFixed arrayNode
+  items = inspect.listItemNodes arrayNode
+
+  heritage =
+    fixed: fixed
+    typeName: resolvedType.nested?[0]
+
   async.waterfall [
-    (next) -> listValues arrayType, next
-    (vals, next) -> resolveValues vals, options, next
-    (resolvedVals, next) -> buildArraySchema resolvedVals, resolvedType, options, next
+    (next) -> resolveMembers items, resolveItem, heritage, options, next
+    (resolvedItems, next) ->
+      buildArraySchema {
+        arrayNode
+        resolvedType
+        fixed
+        items
+        resolvedItems
+        options
+      }, next
   ], cb
 
 
-# Generates JSON Schema representation for given base
+# Generates JSON Schema representation for given primitive
 # type node (string, number, etc.).
-handlePrimitiveType = (baseType, resolvedType, options, cb) ->
+handlePrimitiveNode = (primitiveNode, resolvedType, inherited, options, cb) ->
+  fixed = inherited.fixed or inspect.isFixed primitiveNode
+
+  if fixed
+    vals = inspect.listValues primitiveNode, true
+    if vals.length
+      return cb new Error "Primitive type can't have multiple values." if vals.length > 1
+      return buildSchemaForValue vals[0], resolvedType.name, cb
+
   cb null, type: resolvedType.name
 
 
 # Generates JSON Schema representation for given type node.
-handleType = (type, options, cb) ->
-  resolveType type, (err, resolvedType) ->
+handleTypeNode = (typeNode, inherited, options, cb) ->
+  resolveType typeNode, inherited.typeName, (err, resolvedType) ->
     return cb err if err
+
     switch resolvedType.name
       when 'object'
-        handleObject type, resolvedType, options, cb
+        handleObjectNode typeNode, resolvedType, inherited, options, cb
       when 'array'
-        handleArray type, resolvedType, options, cb
+        handleArrayNode typeNode, resolvedType, inherited, options, cb
       else
-        handlePrimitiveType type, resolvedType, options, cb
+        handlePrimitiveNode typeNode, resolvedType, inherited, options, cb
 
 
 # Adds JSON Schema declaration to given schema object.
@@ -142,7 +230,7 @@ addSchemaDeclaration = (schema, cb) ->
 # Transforms given MSON AST into JSON Schema.
 transform = (ast, options, cb) ->
   async.waterfall [
-    (next) -> handleType ast, options, next
+    (next) -> handleTypeNode ast, {}, options, next
     addSchemaDeclaration
   ], cb
 

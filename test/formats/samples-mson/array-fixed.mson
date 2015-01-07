@@ -1,0 +1,3 @@
+- tags (array, fixed)
+    - hello (string)
+    - 42 (number)

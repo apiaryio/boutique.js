@@ -1,6 +1,6 @@
 {
   "name": {
-    "literal": "array.mson",
+    "literal": "array-fixed-types-only.mson",
     "variable": false
   },
   "sections": [
@@ -11,7 +11,7 @@
           "type": "property",
           "content": {
             "name": {
-              "literal": "address"
+              "literal": "tags"
             },
             "valueDefinition": {
               "typeDefinition": {
@@ -19,7 +19,10 @@
                   "name": {
                     "name": "array"
                   }
-                }
+                },
+                "attributes": [
+                  "fixed"
+                ]
               }
             },
             "sections": [
@@ -30,12 +33,13 @@
                     "type": "value",
                     "content": {
                       "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "street",
-                            "variable": false
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "string"
+                            }
                           }
-                        ]
+                        }
                       }
                     }
                   },
@@ -43,25 +47,13 @@
                     "type": "value",
                     "content": {
                       "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "city",
-                            "variable": false
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": {
+                              "name": "number"
+                            }
                           }
-                        ]
-                      }
-                    }
-                  },
-                  {
-                    "type": "value",
-                    "content": {
-                      "valueDefinition": {
-                        "values": [
-                          {
-                            "literal": "state",
-                            "variable": false
-                          }
-                        ]
+                        }
                       }
                     }
                   }

@@ -1,0 +1,8 @@
+- tags (array, fixed)
+    - hello (string)
+    - *42* (number)
+    - (object)
+        - name: *snow* (string)
+        - color: white
+        - description (string)
+    - world
