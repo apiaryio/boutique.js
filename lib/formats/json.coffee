@@ -66,6 +66,7 @@ resolveMembers = (members, resolveMember, inherited, cb) ->
 # representation in JSON and also additional info, such as property
 # name, attributes, etc.
 resolveProperty = (prop, inherited, cb) ->
+  prop = prop[0].content if Array.isArray prop
   async.waterfall [
     (next) -> handleTypeNode prop, inherited, next
     (repr, next) ->
