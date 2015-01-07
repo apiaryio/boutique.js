@@ -65,7 +65,7 @@ resolveProperty = (prop, inherited, cb) ->
     (next) -> handleTypeNode prop, inherited, next
     (repr, next) ->
       next null,
-        name: prop.name.literal
+        name: prop.name.literal or prop.name.variable?.values?[0].literal
         repr: repr
         fixed: inspect.isFixed prop
   ], cb

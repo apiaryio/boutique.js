@@ -141,5 +141,5 @@ testFormat
     'required-object'
     'string'
     'string-literal'
-    # 'variable-property'
+    'variable-property'
   ]
