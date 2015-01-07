@@ -4,6 +4,11 @@ inspect = require '../inspect'
 {resolveType} = require '../typeresolution'
 
 
+###############################################################################
+##     THIS IS WIP - BY NO MEANS DRY AND DID NOT UNDERGO ANY REFACTORING     ##
+###############################################################################
+
+
 detectSuccessful = (arr, fn, cb) ->
   # Here we're trying each item of given array and result of the first
   # one on which the given function doesn't produce error is taken as the
