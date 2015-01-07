@@ -15,10 +15,9 @@ formats =
   'application/schema+json; profile="http://json-schema.org/draft-04/schema"': jsonSchemaV4
 
 
-represent = ({ast, contentType, options}, cb) ->
+represent = ({ast, contentType}, cb) ->
   ast ?= {}
   contentType ?= 'application/schema+json'
-  options ?= {}
   availableContentTypes = Object.keys formats
 
   selectFormat contentType, availableContentTypes, (err, selectedContentType) ->
@@ -29,7 +28,7 @@ represent = ({ast, contentType, options}, cb) ->
 
     async.waterfall [
         (next) ->
-          lib.transform ast, options, next
+          lib.transform ast, next
       ,
         (obj, next) ->
           serialize obj, next
