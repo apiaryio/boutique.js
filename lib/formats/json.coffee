@@ -128,7 +128,6 @@ buildArrayRepr = (context, cb) ->
 
   # inline arrays
   return cb new Error "Multiple nested types for fixed array." if fixed and resolvedType.nested.length > 1
-
   vals = inspect.listValues arrayNode
   async.map vals, (val, next) ->
     coerceNestedLiteral val.literal, resolvedType.nested, next
@@ -161,6 +160,49 @@ handleArrayNode = (arrayNode, resolvedType, inherited, cb) ->
   ], cb
 
 
+# Takes 'resolved values' and generates JSON
+# for their wrapper enum type node.
+buildEnumRepr = (context, cb) ->
+  {
+    enumNode
+    resolvedItem
+    resolvedType
+    fixed
+  } = context
+
+  # ordinary enums
+  if resolvedItem
+    return cb null, resolvedItem.repr
+
+  # inline enums
+  return cb new Error "Multiple nested types for enum." if resolvedType.nested.length > 1
+  vals = inspect.listValues enumNode
+  if vals.length
+    coerceLiteral vals[0].literal, resolvedType.nested?[0], cb
+  else
+    cb null, null
+
+
+# Generates JSON representation for given enum type node.
+handleEnumNode = (enumNode, resolvedType, inherited, cb) ->
+  fixed = inherited.fixed or inspect.isFixed enumNode
+  item = inspect.listItemNodes(enumNode)?[0]
+
+  async.waterfall [
+    (next) ->
+      return next null, null unless item
+      resolveItem item, {fixed, typeName: resolvedType.nested?[0]}, next
+    (resolvedItem, next) ->
+      buildEnumRepr {
+        enumNode
+        resolvedType
+        fixed
+        item
+        resolvedItem
+      }, next
+  ], cb
+
+
 # Generates JSON representation for given primitive
 # type node (string, number, etc.).
 handlePrimitiveNode = (primitiveNode, resolvedType, inherited, cb) ->
@@ -181,6 +223,8 @@ handleTypeNode = (typeNode, inherited, cb) ->
         handleObjectNode typeNode, resolvedType, inherited, cb
       when 'array'
         handleArrayNode typeNode, resolvedType, inherited, cb
+      when 'enum'
+        handleEnumNode typeNode, resolvedType, inherited, cb
       else
         handlePrimitiveNode typeNode, resolvedType, inherited, cb
 
