@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "id"
@@ -32,7 +32,7 @@
           }
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "name"
@@ -48,7 +48,7 @@
           }
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "price"
@@ -62,9 +62,7 @@
               ],
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "number"
-                  }
+                  "name": "number"
                 },
                 "attributes": [
                   "optional"
@@ -74,7 +72,7 @@
           }
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "tags"
@@ -94,7 +92,7 @@
           }
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "vector"
@@ -102,18 +100,16 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "array"
-                  }
+                  "name": "array"
                 }
               }
             },
             "sections": [
               {
-                "type": "member",
+                "class": "memberType",
                 "content": [
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -126,7 +122,7 @@
                     }
                   },
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -139,7 +135,7 @@
                     }
                   },
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -157,7 +153,7 @@
           }
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "address"
@@ -165,18 +161,16 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "object"
-                  }
+                  "name": "object"
                 }
               }
             },
             "sections": [
               {
-                "type": "member",
+                "class": "memberType",
                 "content": [
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "street"
@@ -194,7 +188,7 @@
                     }
                   },
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "number"
@@ -202,9 +196,7 @@
                       "valueDefinition": {
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": {
-                              "name": "number"
-                            }
+                            "name": "number"
                           },
                           "attributes": [
                             "required"
@@ -214,7 +206,7 @@
                     }
                   },
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "zip_code"
@@ -232,17 +224,17 @@
                     }
                   },
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "state"
                       },
                       "sections": [
                         {
-                          "type": "member",
+                          "class": "memberType",
                           "content": [
                             {
-                              "type": "property",
+                              "class": "property",
                               "content": {
                                 "name": {
                                   "literal": "name"
@@ -250,7 +242,7 @@
                               }
                             },
                             {
-                              "type": "property",
+                              "class": "property",
                               "content": {
                                 "name": {
                                   "literal": "code"
@@ -263,7 +255,7 @@
                     }
                   },
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "country"
@@ -271,9 +263,7 @@
                       "valueDefinition": {
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": {
-                              "name": "enum"
-                            }
+                            "name": "enum"
                           },
                           "attributes": [
                             "required"
@@ -282,10 +272,10 @@
                       },
                       "sections": [
                         {
-                          "type": "member",
+                          "class": "memberType",
                           "content": [
                             {
-                              "type": "value",
+                              "class": "value",
                               "content": {
                                 "valueDefinition": {
                                   "values": [
@@ -298,7 +288,7 @@
                               }
                             },
                             {
-                              "type": "value",
+                              "class": "value",
                               "content": {
                                 "valueDefinition": {
                                   "values": [

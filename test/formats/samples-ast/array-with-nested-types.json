@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "address"
@@ -16,26 +16,20 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "array"
-                  },
+                  "name": "array",
                   "nestedTypes": [
-                    {
-                      "name": "number"
-                    },
-                    {
-                      "name": "string"
-                    }
+                    "number",
+                    "string"
                   ]
                 }
               }
             },
             "sections": [
               {
-                "type": "member",
+                "class": "memberType",
                 "content": [
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -48,7 +42,7 @@
                     }
                   },
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -61,7 +55,7 @@
                     }
                   },
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -74,7 +68,7 @@
                     }
                   },
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [

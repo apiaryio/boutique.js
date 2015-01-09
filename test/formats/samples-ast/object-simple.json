@@ -5,20 +5,20 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "address"
             },
             "sections": [
               {
-                "type": "member",
+                "class": "memberType",
                 "content": [
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "street"
@@ -26,7 +26,7 @@
                     }
                   },
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "city"
@@ -34,16 +34,14 @@
                       "valueDefinition": {
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": {
-                              "name": "string"
-                            }
+                            "name": "string"
                           }
                         }
                       }
                     }
                   },
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "state"
@@ -51,9 +49,7 @@
                       "valueDefinition": {
                         "typeDefinition": {
                           "typeSpecification": {
-                            "name": {
-                              "name": "string"
-                            }
+                            "name": "string"
                           },
                           "attributes": [
                             "required"

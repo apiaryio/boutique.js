@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "items"
@@ -16,9 +16,7 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "object"
-                  }
+                  "name": "object"
                 },
                 "attributes": [
                   "required"
@@ -27,10 +25,10 @@
             },
             "sections": [
               {
-                "type": "member",
+                "class": "memberType",
                 "content": [
                   {
-                    "type": "property",
+                    "class": "property",
                     "content": {
                       "name": {
                         "literal": "count"

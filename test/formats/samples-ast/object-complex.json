@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "id"
@@ -32,7 +32,7 @@
           }
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "name"
@@ -48,7 +48,7 @@
           }
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "price"
@@ -62,16 +62,14 @@
               ],
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "number"
-                  }
+                  "name": "number"
                 }
               }
             }
           }
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "tags"
@@ -91,7 +89,7 @@
           }
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "vector"
@@ -99,9 +97,7 @@
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "array"
-                  }
+                  "name": "array"
                 },
                 "attributes": [
                   "optional"
@@ -110,10 +106,10 @@
             },
             "sections": [
               {
-                "type": "member",
+                "class": "memberType",
                 "content": [
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -126,7 +122,7 @@
                     }
                   },
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -139,7 +135,7 @@
                     }
                   },
                   {
-                    "type": "value",
+                    "class": "value",
                     "content": {
                       "valueDefinition": {
                         "values": [
@@ -157,7 +153,7 @@
           }
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "available"
@@ -171,9 +167,7 @@
               ],
               "typeDefinition": {
                 "typeSpecification": {
-                  "name": {
-                    "name": "boolean"
-                  }
+                  "name": "boolean"
                 }
               }
             }

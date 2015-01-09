@@ -33,13 +33,13 @@ resolveMembers = (members, resolveMember, inherited, cb) ->
 # name, attributes, etc.
 resolveProperty = (prop, inherited, cb) ->
   async.waterfall [
-    (next) -> handleTypeNode prop.content, inherited, next
+    (next) -> handleTypeNode prop, inherited, next
     (schema, next) ->
       next null,
-        name: prop.content.name.literal
+        name: prop.name.literal
         schema: schema
-        required: inspect.isRequired prop.content
-        fixed: inspect.isFixed prop.content
+        required: inspect.isRequired prop
+        fixed: inspect.isFixed prop
   ], cb
 
 
@@ -96,11 +96,11 @@ handleObjectNode = (objectNode, resolvedType, inherited, cb) ->
 # representation in JSON Schema and also possible additional info.
 resolveItem = (val, inherited, cb) ->
   async.waterfall [
-    (next) -> handleTypeNode val.content, inherited, next
+    (next) -> handleTypeNode val, inherited, next
     (schema, next) ->
       next null,
         schema: schema
-        fixed: inspect.isFixed val.content
+        fixed: inspect.isFixed val
   ], cb
 
 

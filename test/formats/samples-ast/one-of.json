@@ -5,10 +5,10 @@
   },
   "sections": [
     {
-      "type": "member",
+      "class": "memberType",
       "content": [
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "city"
@@ -16,30 +16,28 @@
           }
         },
         {
-          "type": "oneOf",
-          "content": {
-            "members": [
-              {
-                "type": "property",
-                "content": {
-                  "name": {
-                    "literal": "state"
-                  }
-                }
-              },
-              {
-                "type": "property",
-                "content": {
-                  "name": {
-                    "literal": "province"
-                  }
+          "class": "oneOf",
+          "content": [
+            {
+              "class": "property",
+              "content": {
+                "name": {
+                  "literal": "state"
                 }
               }
-            ]
-          }
+            },
+            {
+              "class": "property",
+              "content": {
+                "name": {
+                  "literal": "province"
+                }
+              }
+            }
+          ]
         },
         {
-          "type": "property",
+          "class": "property",
           "content": {
             "name": {
               "literal": "country"
