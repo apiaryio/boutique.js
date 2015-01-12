@@ -1,53 +1,21 @@
+# JSON format
+
 
 async = require 'async'
 inspect = require '../inspect'
+{detectSuccessful} = require '../utils'
+{coerceLiteral} = require '../jsonutils'
 {resolveType} = require '../typeresolution'
-
-
-###############################################################################
-##     THIS IS WIP - BY NO MEANS DRY AND DID NOT UNDERGO ANY REFACTORING     ##
-###############################################################################
-
-
-detectSuccessful = (arr, fn, cb) ->
-  # Here we're trying each item of given array and result of the first
-  # one on which the given function doesn't produce error is taken as the
-  # result of this whole function. If none of given items pass the function
-  # without error, the error of the one which was tried as the last one
-  # is passed.
-  error = null
-  result = null
-
-  async.detectSeries arr, (item, next) ->
-    fn item, (err, res) ->
-      [error, result] = if err then [err, null] else [null, res]
-      next not err
-  , ->
-    cb error, result
-
-
-# Takes literal and MSON type and provides JSON value in corresponding type.
-coerceLiteral = (literal, typeName, cb) ->
-  switch typeName
-    when 'string'
-      return cb null, literal
-    when 'number'
-      return cb new Error "Literal '#{literal}' is not a number." if isNaN literal
-      return cb null, parseFloat literal
-    when 'boolean'
-      return cb new Error "Literal '#{literal}' is not 'true' or 'false'." if literal not in ['true', 'false']
-      return cb null, literal is 'true'
-    else
-      return cb new Error "Literal '#{literal}' can't have type '#{typeName}'."
 
 
 # Takes literal and MSON types and provides JSON value in
 # the corresponding type, which is the first to be able to successfully
 # perfom the coercion.
+#
+# This allows us to correctly coerce in situations like `array[number, string]`
+# with items `hello, 1, 2, world`, where coercion to `number` throws errors,
+# but coercion to `string` is perfectly valid result.
 coerceNestedLiteral = (literal, typeNames, cb) ->
-  # This allows to correctly coerce in situations like `array[number, string]`
-  # with items `hello, 1, 2, world`, where coercion to `number` throws errors,
-  # but coercion to `string` is perfectly valid result.
   detectSuccessful typeNames, (typeName, next) ->
     coerceLiteral literal, typeName, next
   , cb
@@ -58,12 +26,11 @@ coerceNestedLiteral = (literal, typeNames, cb) ->
 # name, attributes, etc.
 resolveProperty = (prop, inherited, cb) ->
   async.waterfall [
-    (next) -> handleTypeNode prop.content, inherited, next
+    (next) -> handleElement prop, inherited, next
     (repr, next) ->
       next null,
-        name: prop.content.name.literal or prop.content.name.variable?.values?[0].literal
+        name: inspect.findPropertyName prop
         repr: repr
-        fixed: inspect.isFixed prop.content
   ], cb
 
 
@@ -86,6 +53,7 @@ resolveProperties = (props, inherited, cb) ->
   results = []
   async.eachSeries props, (prop, next) ->
     if prop.class is 'oneOf'
+      # oneOf can result in multiple properties
       resolveOneOf prop, inherited, (err, resolvedProps) ->
         Array::push.apply results, resolvedProps
         next err
@@ -104,21 +72,15 @@ buildObjectRepr = ({resolvedProps}, cb) ->
   cb null, repr
 
 
-# Generates JSON representation for given object type node.
-handleObjectNode = (objectNode, resolvedType, inherited, cb) ->
-  fixed = inherited.fixed or inspect.isFixed objectNode
-  props = inspect.listPropertyNodes objectNode
+# Generates JSON representation for given object element.
+handleObjectElement = (objectElement, resolvedType, inherited, cb) ->
+  fixed = inspect.isOrInheritsFixed objectElement, inherited
+  heritage = inspect.getHeritage fixed, resolvedType
+  props = inspect.listProperties objectElement
 
   async.waterfall [
-    (next) -> resolveProperties props, {fixed}, next
-    (resolvedProps, next) ->
-      buildObjectRepr {
-        objectNode
-        resolvedType
-        fixed
-        props
-        resolvedProps
-      }, next
+    (next) -> resolveProperties props, heritage, next
+    (resolvedProps, next) -> buildObjectRepr {resolvedProps}, next
   ], cb
 
 
@@ -126,19 +88,38 @@ handleObjectNode = (objectNode, resolvedType, inherited, cb) ->
 # representation in JSON and also possible additional info.
 resolveItem = (item, inherited, cb) ->
   async.waterfall [
-    (next) -> handleTypeNode item.content, inherited, next
-    (repr, next) ->
-      next null,
-        repr: repr
-        fixed: inspect.isFixed item.content
+    (next) -> handleElement item, inherited, next
+    (repr, next) -> next null, {repr}  # no additional info needed in this case
   ], cb
 
 
+# Turns a list of array value nodes into an array of 'resolved item' objects
+# with both representation in JSON and also possible additional info.
+resolveArrayItems = (items, multipleInherited, cb) ->
+  if multipleInherited.length is 1
+    # single nested type definition, e.g. array[number]
+    inherited = multipleInherited[0]
+    async.mapSeries items, (item, next) ->
+      resolveItem item, inherited, next
+    , cb
+  else
+    # multiple nested type definitions, e.g. array[number,string]
+    async.mapSeries items, (item, next) ->
+      # we iterate over types and render the first one, which can be
+      # successfully applied to given value (e.g. for array[number,string],
+      # if coercing to `number` fails, this algorithm skips it and tries
+      # to coerce with `string`).
+      detectSuccessful multipleInherited, (inherited, done) ->
+        resolveItem item, inherited, done
+      , next
+    , cb
+
+
 # Takes 'resolved values' and generates JSON
-# for their wrapper array type node.
+# for their wrapper array element.
 buildArrayRepr = (context, cb) ->
   {
-    arrayNode
+    arrayElement
     resolvedItems
     resolvedType
     fixed
@@ -154,110 +135,103 @@ buildArrayRepr = (context, cb) ->
 
   # inline arrays
   return cb new Error "Multiple nested types for fixed array." if fixed and resolvedType.nested.length > 1
-  vals = inspect.listValues arrayNode
+  vals = inspect.listValues arrayElement
   async.mapSeries vals, (val, next) ->
     coerceNestedLiteral val.literal, resolvedType.nested, next
   , cb
 
 
-# Generates JSON representation for given array type node.
-handleArrayNode = (arrayNode, resolvedType, inherited, cb) ->
-  fixed = inherited.fixed or inspect.isFixed arrayNode
-  items = inspect.listItemNodes arrayNode
+# Generates JSON representation for given array element.
+handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
+  fixed = inspect.isOrInheritsFixed arrayElement, inherited
+  heritages = inspect.listPossibleHeritages fixed, resolvedType
+  items = inspect.listItems arrayElement
 
   async.waterfall [
-    (next) ->
-      async.mapSeries items, (item, n) ->
-        if resolvedType.nested.length > 1
-          detectSuccessful resolvedType.nested, (typeName, done) ->
-            resolveItem item, {fixed, typeName}, done
-          , n
-        else
-          resolveItem item, {fixed, typeName: resolvedType.nested?[0]}, n
-      , next
+    (next) -> resolveArrayItems items, heritages, next
     (resolvedItems, next) ->
       buildArrayRepr {
-        arrayNode
+        arrayElement
+        resolvedItems
         resolvedType
         fixed
-        items
-        resolvedItems
       }, next
   ], cb
 
 
+resolveEnumItems = (items, inherited, cb) ->
+  item = items?[0]
+  return cb null, null unless item  # "falsy" resolvedItem
+  resolveItem item, inherited, cb
+
+
 # Takes 'resolved values' and generates JSON
-# for their wrapper enum type node.
+# for their wrapper enum element.
 buildEnumRepr = (context, cb) ->
   {
-    enumNode
+    enumElement
     resolvedItem
     resolvedType
-    fixed
   } = context
 
   # ordinary enums
-  if resolvedItem
-    return cb null, resolvedItem.repr
+  return cb null, resolvedItem.repr if resolvedItem
 
   # inline enums
   return cb new Error "Multiple nested types for enum." if resolvedType.nested.length > 1
-  vals = inspect.listValues enumNode
+  vals = inspect.listValues enumElement
   if vals.length
-    coerceLiteral vals[0].literal, resolvedType.nested?[0], cb
+    coerceLiteral vals[0].literal, resolvedType.nested[0], cb
   else
-    cb null, null
+    cb null, null  # empty representation is null
 
 
-# Generates JSON representation for given enum type node.
-handleEnumNode = (enumNode, resolvedType, inherited, cb) ->
-  fixed = inherited.fixed or inspect.isFixed enumNode
-  item = inspect.listItemNodes(enumNode)?[0]
+# Generates JSON representation for given enum element.
+handleEnumElement = (enumElement, resolvedType, inherited, cb) ->
+  fixed = inspect.isOrInheritsFixed enumElement, inherited
+  heritage = inspect.getHeritage fixed, resolvedType
+  items = inspect.listItems enumElement
 
   async.waterfall [
-    (next) ->
-      return next null, null unless item
-      resolveItem item, {fixed, typeName: resolvedType.nested?[0]}, next
+    (next) -> resolveEnumItems items, heritage, next
     (resolvedItem, next) ->
       buildEnumRepr {
-        enumNode
-        resolvedType
-        fixed
-        item
+        enumElement
         resolvedItem
+        resolvedType
       }, next
   ], cb
 
 
 # Generates JSON representation for given primitive
-# type node (string, number, etc.).
-handlePrimitiveNode = (primitiveNode, resolvedType, inherited, cb) ->
-  vals = inspect.listValues primitiveNode
+# element (string, number, etc.).
+handlePrimitiveElement = (primitiveElement, resolvedType, inherited, cb) ->
+  vals = inspect.listValues primitiveElement
   if vals.length
     return cb new Error "Primitive type can't have multiple values." if vals.length > 1
     return coerceLiteral vals[0].literal, resolvedType.name, cb
   cb null, null  # empty representation is null
 
 
-# Generates JSON representation for given type node.
-handleTypeNode = (typeNode, inherited, cb) ->
-  resolveType typeNode, inherited.typeName, (err, resolvedType) ->
+# Generates JSON representation for given element.
+handleElement = (element, inherited, cb) ->
+  resolveType element, inherited.typeName, (err, resolvedType) ->
     return cb err if err
 
     switch resolvedType.name
       when 'object'
-        handleObjectNode typeNode, resolvedType, inherited, cb
+        handleObjectElement element, resolvedType, inherited, cb
       when 'array'
-        handleArrayNode typeNode, resolvedType, inherited, cb
+        handleArrayElement element, resolvedType, inherited, cb
       when 'enum'
-        handleEnumNode typeNode, resolvedType, inherited, cb
+        handleEnumElement element, resolvedType, inherited, cb
       else
-        handlePrimitiveNode typeNode, resolvedType, inherited, cb
+        handlePrimitiveElement element, resolvedType, inherited, cb
 
 
 # Transforms given MSON AST into JSON.
 transform = (ast, cb) ->
-  handleTypeNode ast, {}, cb
+  handleElement inspect.getAsElement(ast), {}, cb
 
 
 module.exports = {
