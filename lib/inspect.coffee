@@ -1,16 +1,19 @@
-
+# Utility functions for inspecting the MSON AST tree
 # TODO this module should be tested properly
 
 
-# Finds *typeSpecification* object for given *Named Type* or *Property Member*
-# or *Value Member*.
-findTypeSpecification = (typeNode) ->
-  if typeNode.typeDefinition?.typeSpecification?
-    # Top-level *Named Type* node.
-    typeNode.typeDefinition.typeSpecification
-  else
-    # *Property Member* or *Value Member* node
-    typeNode.valueDefinition?.typeDefinition?.typeSpecification
+# Turns top-level *Named Type* into an *Element* carrying a *Value Member*.
+getAsElement = (namedTypeNode) ->
+  class: 'value'
+  content:
+    valueDefinition:
+      typeDefinition: namedTypeNode.typeDefinition
+    sections: namedTypeNode.sections
+
+
+# Finds *typeSpecification* object for given *Element*.
+findTypeSpecification = (element) ->
+  element.content?.valueDefinition?.typeDefinition?.typeSpecification
 
 
 # Finds type name within *typeSpecification* object.
@@ -18,69 +21,101 @@ findTypeName = (typeSpec) ->
   typeSpec?.name
 
 
+# Finds type name within *Element* node of *property* class.
+findPropertyName = (propNode, variable = true) ->
+  propNode.content.name.literal or (propNode.content.name.variable?.values?[0].literal if variable)
+
+
 # Lists all defined values.
-listValues = (typeNode, excludeVariables = false) ->
+listValues = (element, excludeVariables = false) ->
   if excludeVariables
     filter = (val) -> not val.variable
   else
     filter = (val) -> true
+  (element.content.valueDefinition?.values or []).filter filter
 
-  (typeNode.valueDefinition?.values or []).filter filter
 
-
-# Takes type node and lists its attributes, such as `required`, `fixed`, etc.
-listAttributes = (typeNode) ->
-  # the first one is for top-level 'named types', the other is for 'member types'
-  (typeNode.typeDefinition or typeNode.valueDefinition?.typeDefinition)?.attributes or []
+# Takes *Element* node and lists its attributes, such as `required`, `fixed`, etc.
+listAttributes = (element) ->
+  element.content.valueDefinition?.typeDefinition?.attributes or []
 
 
 # Convenience function.
-isRequired = (typeNode) ->
-  'required' in listAttributes typeNode
+isRequired = (element) ->
+  'required' in listAttributes element
 
 
 # Convenience function.
-isFixed = (typeNode) ->
-  'fixed' in listAttributes typeNode
+isFixed = (element) ->
+  'fixed' in listAttributes element
 
 
-# Takes object type node and lists its property nodes.
-listPropertyNodes = (objectTypeNode) ->
-  props = []
-  for section in (objectTypeNode.sections or []) when section.class is 'memberType'
-    props.push element for element in section.content when element.class is 'property' or 'oneof'
-  props
+# Convenience function.
+isOrInheritsFixed = (element, inherited) ->
+  inherited.fixed or isFixed element
 
 
-# Takes array type node and lists its item nodes.
-listItemNodes = (arrayTypeNode) ->
-  items = []
-  for section in (arrayTypeNode.sections or []) when section.class is 'memberType'
-    items.push element for element in section.content when element.class is 'value'
-  items
+# Helper function.
+listNestedElements = (element, classes) ->
+  elements = []
+  for section in (element.content?.sections or []) when section.class is 'memberType'
+    elements.push el for el in section.content when el.class in classes
+  elements
+
+
+# Takes *Element* carrying an object and lists its property nodes.
+listProperties = (objectElement) ->
+  listNestedElements objectElement, ['property', 'oneOf']
+
+
+# Takes *Element* carrying an array and lists its item nodes.
+listItems = (arrayElement) ->
+  listNestedElements arrayElement, ['value']
 
 
 # Takes type node and finds out whether it has more than one value
 # in value definition.
-hasMultipleValues = (typeNode) ->
-  (typeNode.valueDefinition?.values?.length or 0) > 1
+hasMultipleValues = (element) ->
+  (element.content?.valueDefinition?.values?.length or 0) > 1
 
 
-# Takes type node and finds out whether it has any sections containing member
+# Takes element and finds out whether it has any sections containing member
 # types.
-hasAnyMemberSections = (typeNode) ->
-  (section for section in (typeNode.sections or []) when section.class is 'memberType').length
+hasAnyMemberSections = (element) ->
+  (section for section in (element.content?.sections or []) when section.class is 'memberType').length
+
+
+# Lists possible heritage objects {fixed, typeName} which can be applied to
+# sub-members of given parent node. In most cases, the resulting array
+# will contain just one item, but for some MSON constructs, such as
+# `array[number,string]`, multiple options will be returned.
+#
+# The *resolvedType* argument is optional as nested types are relevant only
+# for arrays and enums.
+listPossibleHeritages = (fixed, resolvedType) ->
+  return [{fixed}] unless resolvedType?.nested?.length
+  ({fixed, typeName} for typeName in resolvedType.nested)
+
+
+# Convenience function.
+getHeritage = (fixed, resolvedType) ->
+  listPossibleHeritages(fixed, resolvedType)?[0]
 
 
 module.exports = {
+  getAsElement
   findTypeSpecification
   findTypeName
+  findPropertyName
   listAttributes
-  listPropertyNodes
-  listItemNodes
+  listProperties
+  listItems
   listValues
   isRequired
   isFixed
+  isOrInheritsFixed
   hasMultipleValues
   hasAnyMemberSections
+  listPossibleHeritages
+  getHeritage
 }
