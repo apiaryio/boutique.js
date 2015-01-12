@@ -53,28 +53,48 @@ coerceNestedLiteral = (literal, typeNames, cb) ->
   , cb
 
 
-# Turns multiple member nodes into 'resolved members', i.e. objects
-# carrying both representations of those members in JSON
-# and also additional info, such as property names, attributes, etc.
-resolveMembers = (members, resolveMember, inherited, cb) ->
-  async.map members, (member, next) ->
-    resolveMember member, inherited, next
-  , cb
-
-
 # Turns property node into a 'resolved property' object with both
 # representation in JSON and also additional info, such as property
 # name, attributes, etc.
 resolveProperty = (prop, inherited, cb) ->
-  prop = prop[0].content if Array.isArray prop
   async.waterfall [
-    (next) -> handleTypeNode prop, inherited, next
+    (next) -> handleTypeNode prop.content, inherited, next
     (repr, next) ->
       next null,
-        name: prop.name.literal or prop.name.variable?.values?[0].literal
+        name: prop.content.name.literal or prop.content.name.variable?.values?[0].literal
         repr: repr
-        fixed: inspect.isFixed prop
+        fixed: inspect.isFixed prop.content
   ], cb
+
+
+resolveOneOf = (oneof, inherited, cb) ->
+  element = oneof.content[0]
+  if element.class is 'group'
+    resolveOneOfGroup element, inherited, cb
+  else
+    resolveProperty element, inherited, (err, resolvedProp) ->
+      cb err, ([resolvedProp] unless err)
+
+
+resolveOneOfGroup = (group, inherited, cb) ->
+  async.mapSeries group.content, (prop, next) ->
+    resolveProperty prop, inherited, next
+  , cb
+
+
+resolveProperties = (props, inherited, cb) ->
+  results = []
+  async.eachSeries props, (prop, next) ->
+    if prop.class is 'oneOf'
+      resolveOneOf prop, inherited, (err, resolvedProps) ->
+        Array::push.apply results, resolvedProps
+        next err
+    else
+      resolveProperty prop, inherited, (err, resolvedProp) ->
+        results.push resolvedProp
+        next err
+  , (err) ->
+    cb err, results
 
 
 buildObjectRepr = ({resolvedProps}, cb) ->
@@ -90,7 +110,7 @@ handleObjectNode = (objectNode, resolvedType, inherited, cb) ->
   props = inspect.listPropertyNodes objectNode
 
   async.waterfall [
-    (next) -> resolveMembers props, resolveProperty, {fixed}, next
+    (next) -> resolveProperties props, {fixed}, next
     (resolvedProps, next) ->
       buildObjectRepr {
         objectNode
@@ -104,13 +124,13 @@ handleObjectNode = (objectNode, resolvedType, inherited, cb) ->
 
 # Turns value node into a 'resolved item' object with both
 # representation in JSON and also possible additional info.
-resolveItem = (val, inherited, cb) ->
+resolveItem = (item, inherited, cb) ->
   async.waterfall [
-    (next) -> handleTypeNode val, inherited, next
+    (next) -> handleTypeNode item.content, inherited, next
     (repr, next) ->
       next null,
         repr: repr
-        fixed: inspect.isFixed val
+        fixed: inspect.isFixed item.content
   ], cb
 
 
@@ -135,7 +155,7 @@ buildArrayRepr = (context, cb) ->
   # inline arrays
   return cb new Error "Multiple nested types for fixed array." if fixed and resolvedType.nested.length > 1
   vals = inspect.listValues arrayNode
-  async.map vals, (val, next) ->
+  async.mapSeries vals, (val, next) ->
     coerceNestedLiteral val.literal, resolvedType.nested, next
   , cb
 
@@ -147,7 +167,7 @@ handleArrayNode = (arrayNode, resolvedType, inherited, cb) ->
 
   async.waterfall [
     (next) ->
-      async.map items, (item, n) ->
+      async.mapSeries items, (item, n) ->
         if resolvedType.nested.length > 1
           detectSuccessful resolvedType.nested, (typeName, done) ->
             resolveItem item, {fixed, typeName}, done

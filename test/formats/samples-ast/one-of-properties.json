@@ -1,0 +1,69 @@
+{
+  "name": {
+    "literal": "one-of-properties.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "class": "memberType",
+      "content": [
+        {
+          "class": "property",
+          "content": {
+            "name": {
+              "literal": "person"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": "object"
+                }
+              }
+            },
+            "sections": [
+              {
+                "class": "memberType",
+                "content": [
+                  {
+                    "class": "oneOf",
+                    "content": [
+                      {
+                        "class": "group",
+                        "content": [
+                          {
+                            "class": "property",
+                            "content": {
+                              "name": {
+                                "literal": "first_name"
+                              }
+                            }
+                          },
+                          {
+                            "class": "property",
+                            "content": {
+                              "name": {
+                                "literal": "last_name"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "class": "property",
+                        "content": {
+                          "name": {
+                            "literal": "full_name"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

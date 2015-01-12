@@ -48,7 +48,7 @@ isFixed = (typeNode) ->
 listPropertyNodes = (objectTypeNode) ->
   props = []
   for section in (objectTypeNode.sections or []) when section.class is 'memberType'
-    props.push element.content for element in section.content when element.class is 'property' or 'oneof'
+    props.push element for element in section.content when element.class is 'property' or 'oneof'
   props
 
 
@@ -56,7 +56,7 @@ listPropertyNodes = (objectTypeNode) ->
 listItemNodes = (arrayTypeNode) ->
   items = []
   for section in (arrayTypeNode.sections or []) when section.class is 'memberType'
-    items.push element.content for element in section.content when element.class is 'value'
+    items.push element for element in section.content when element.class is 'value'
   items
 
 

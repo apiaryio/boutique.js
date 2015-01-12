@@ -33,13 +33,13 @@ resolveMembers = (members, resolveMember, inherited, cb) ->
 # name, attributes, etc.
 resolveProperty = (prop, inherited, cb) ->
   async.waterfall [
-    (next) -> handleTypeNode prop, inherited, next
+    (next) -> handleTypeNode prop.content, inherited, next
     (schema, next) ->
       next null,
-        name: prop.name.literal
+        name: prop.content.name.literal
         schema: schema
-        required: inspect.isRequired prop
-        fixed: inspect.isFixed prop
+        required: inspect.isRequired prop.content
+        fixed: inspect.isFixed prop.content
   ], cb
 
 
@@ -94,13 +94,13 @@ handleObjectNode = (objectNode, resolvedType, inherited, cb) ->
 
 # Turns value node into a 'resolved item' object with both
 # representation in JSON Schema and also possible additional info.
-resolveItem = (val, inherited, cb) ->
+resolveItem = (item, inherited, cb) ->
   async.waterfall [
-    (next) -> handleTypeNode val, inherited, next
+    (next) -> handleTypeNode item.content, inherited, next
     (schema, next) ->
       next null,
         schema: schema
-        fixed: inspect.isFixed val
+        fixed: inspect.isFixed item.content
   ], cb
 
 
