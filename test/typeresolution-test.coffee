@@ -30,80 +30,18 @@ testTypeResolution = (description, {astTreeNode, typeName, nestedTypes, errConta
 
 
 describe "Type resolution", ->
-  describe "on Named Type node", ->
-    testTypeResolution "if given with explicit type",
-      astTreeNode:
-        typeDefinition:
-          typeSpecification:
-            name: 'object'
-      typeName: 'object'
-
-    testTypeResolution "if given with ‘array’ type and some nested types",
-      astTreeNode:
-        typeDefinition:
-          typeSpecification:
-            name: 'array'
-            nestedTypes: [
-              'string'
-              'number'
-            ]
-      typeName: 'array'
-      nestedTypes: ['string', 'number']
-
-    testTypeResolution "if given with ‘enum’ type and some nested types",
-      astTreeNode:
-        typeDefinition:
-          typeSpecification:
-            name: 'enum'
-            nestedTypes: [
-              'string'
-              'number'
-            ]
-      typeName: 'enum'
-      nestedTypes: ['string', 'number']
-
-    testTypeResolution "if given with nested types for type other than ‘array’ or ‘enum’",
-      astTreeNode:
-        typeDefinition:
-          typeSpecification:
-            name: 'string'
-            nestedTypes: [
-              'string'
-              'number'
-            ]
-      errContains: 'array and enum'
-
-    testTypeResolution "if given with member sections and with no explicit type",
-      astTreeNode:
-        sections: [
-            class: 'memberType'
-          ,
-            class: 'memberType'
-        ]
-      typeName: 'object'
-
-    testTypeResolution "if given with no explicit type",
-      astTreeNode: {}
-      typeName: 'string'
-
-    testTypeResolution "if given with type, which is not base type",
-      astTreeNode:
-        typeDefinition:
-          typeSpecification:
-            name: 'Human'
-      errContains: 'Human'
-
-  describe "on Value Member (or Property Member) node", ->
-    testTypeResolution "if given with explicit type",
-      astTreeNode:
+  testTypeResolution "if given with explicit type",
+    astTreeNode:
+      content:
         valueDefinition:
           typeDefinition:
             typeSpecification:
               name: 'number'
-      typeName: 'number'
+    typeName: 'number'
 
-    testTypeResolution "if given with ‘array’ type and some nested types",
-      astTreeNode:
+  testTypeResolution "if given with ‘array’ type and some nested types",
+    astTreeNode:
+      content:
         valueDefinition:
           typeDefinition:
             typeSpecification:
@@ -112,11 +50,12 @@ describe "Type resolution", ->
                 'string'
                 'boolean'
               ]
-      typeName: 'array'
-      nestedTypes: ['string', 'boolean']
+    typeName: 'array'
+    nestedTypes: ['string', 'boolean']
 
-    testTypeResolution "if given with ‘enum’ type and some nested types",
-      astTreeNode:
+  testTypeResolution "if given with ‘enum’ type and some nested types",
+    astTreeNode:
+      content:
         valueDefinition:
           typeDefinition:
             typeSpecification:
@@ -125,11 +64,12 @@ describe "Type resolution", ->
                 'string'
                 'boolean'
               ]
-      typeName: 'enum'
-      nestedTypes: ['string', 'boolean']
+    typeName: 'enum'
+    nestedTypes: ['string', 'boolean']
 
-    testTypeResolution "if given with nested types for type other than ‘array’ or ‘enum’",
-      astTreeNode:
+  testTypeResolution "if given with nested types for type other than ‘array’ or ‘enum’",
+    astTreeNode:
+      content:
         valueDefinition:
           typeDefinition:
             typeSpecification:
@@ -138,33 +78,37 @@ describe "Type resolution", ->
                 'string'
                 'boolean'
               ]
-      errContains: 'array and enum'
+    errContains: 'array and enum'
 
-    testTypeResolution "if given with member sections and with no explicit type",
-      astTreeNode:
+  testTypeResolution "if given with member sections and with no explicit type",
+    astTreeNode:
+      content:
         sections: [
             class: 'memberType'
           ,
             class: 'memberType'
         ]
-      typeName: 'object'
+    typeName: 'object'
 
-    testTypeResolution "if given with no explicit type",
-      astTreeNode: {}
-      typeName: 'string'
+  testTypeResolution "if given with no explicit type",
+    astTreeNode:
+      content: {}
+    typeName: 'string'
 
-    testTypeResolution "if given with multiple values and with no explicit type",
-      astTreeNode:
+  testTypeResolution "if given with multiple values and with no explicit type",
+    astTreeNode:
+      content:
         valueDefinition:
           values: [
               literal: 'home'
             ,
               literal: 'green'
           ]
-      typeName: 'array'
+    typeName: 'array'
 
-    testTypeResolution "if given with member sections and multiple values and with no explicit type",
-      astTreeNode:
+  testTypeResolution "if given with member sections and multiple values and with no explicit type",
+    astTreeNode:
+      content:
         valueDefinition:
           values: [
               literal: 'home'
@@ -174,12 +118,13 @@ describe "Type resolution", ->
         sections: [
           class: 'memberType'
         ]
-      errContains: 'ambiguous'
+    errContains: 'ambiguous'
 
-    testTypeResolution "if given with type, which is not base type",
-      astTreeNode:
+  testTypeResolution "if given with type, which is not base type",
+    astTreeNode:
+      content:
         valueDefinition:
           typeDefinition:
             typeSpecification:
               name: 'Person'
-      errContains: 'Person'
+    errContains: 'Person'

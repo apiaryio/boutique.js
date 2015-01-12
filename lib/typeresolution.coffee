@@ -1,3 +1,5 @@
+# Resolves type name of given MSON AST type node object
+
 
 async = require 'async'
 inspect = require './inspect'
