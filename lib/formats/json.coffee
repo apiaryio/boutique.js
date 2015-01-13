@@ -67,8 +67,7 @@ resolveProperties = (props, inherited, cb) ->
 
 buildObjectRepr = ({resolvedProps}, cb) ->
   repr = {}
-  for resolvedProp in resolvedProps
-    repr[resolvedProp.name] = resolvedProp.repr
+  repr[rp.name] = rp.repr for rp in resolvedProps
   cb null, repr
 
 
