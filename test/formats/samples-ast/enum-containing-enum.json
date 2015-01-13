@@ -10,6 +10,9 @@
         {
           "class": "property",
           "content": {
+            "name": {
+              "literal": "enum"
+            },
             "valueDefinition": {
               "typeDefinition": {
                 "typeSpecification": {
@@ -92,10 +95,7 @@
                   }
                 ]
               }
-            ],
-            "name": {
-              "variable": {}
-            }
+            ]
           }
         }
       ]

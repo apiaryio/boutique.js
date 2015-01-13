@@ -9,10 +9,15 @@ jsonSchemaV4 =
   lib: require './lib/formats/jsonschema-v4'
   serialize: serializers.json
 
+json =
+  lib: require './lib/formats/json'
+  serialize: serializers.json
+
 formats =
   'application/schema+json': jsonSchemaV4
   'application/schema+json; profile="http://json-schema.org/schema"': jsonSchemaV4
   'application/schema+json; profile="http://json-schema.org/draft-04/schema"': jsonSchemaV4
+  'application/json': json
 
 
 represent = ({ast, contentType}, cb) ->
