@@ -8,7 +8,7 @@ coerceLiteral = (literal, typeName, cb) ->
       return cb null, literal
     when 'number'
       return cb new Error "Literal '#{literal}' is not a number." if isNaN literal
-      return cb null, parseFloat literal
+      return cb null, parseFloat literal, 10
     when 'boolean'
       return cb new Error "Literal '#{literal}' is not 'true' or 'false'." if literal not in ['true', 'false']
       return cb null, literal is 'true'
