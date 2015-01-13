@@ -11,8 +11,8 @@ getAsElement = (namedTypeNode) ->
 
 
 # Finds *typeSpecification* object for given *Element*.
-findTypeSpecification = (element) ->
-  element.content?.valueDefinition?.typeDefinition?.typeSpecification
+findTypeSpecification = (elementNode) ->
+  elementNode.content?.valueDefinition?.typeDefinition?.typeSpecification
 
 
 # Finds type name within *typeSpecification* object.
@@ -27,62 +27,62 @@ findPropertyName = (propNode, variable = true) ->
 
 
 # Lists all defined values.
-listValues = (element, excludeVariables = false) ->
+listValues = (elementNode, excludeVariables = false) ->
   if excludeVariables
     filter = (val) -> not val.variable
   else
     filter = (val) -> true
-  (element.content.valueDefinition?.values or []).filter filter
+  (elementNode.content.valueDefinition?.values or []).filter filter
 
 
 # Takes *Element* node and lists its attributes, such as `required`, `fixed`, etc.
-listAttributes = (element) ->
-  element.content.valueDefinition?.typeDefinition?.attributes or []
+listAttributes = (elementNode) ->
+  elementNode.content.valueDefinition?.typeDefinition?.attributes or []
 
 
 # Convenience function.
-isRequired = (element) ->
-  'required' in listAttributes element
+isRequired = (elementNode) ->
+  'required' in listAttributes elementNode
 
 
 # Convenience function.
-isFixed = (element) ->
-  'fixed' in listAttributes element
+isFixed = (elementNode) ->
+  'fixed' in listAttributes elementNode
 
 
 # Convenience function.
-isOrInheritsFixed = (element, inherited) ->
-  inherited.fixed or isFixed element
+isOrInheritsFixed = (elementNode, inherited) ->
+  inherited.fixed or isFixed elementNode
 
 
 # Helper function.
-listNestedElements = (element, classes) ->
+listNestedElements = (elementNode, classes) ->
   elements = []
-  for section in (element.content?.sections or []) when section.class is 'memberType'
+  for section in (elementNode.content?.sections or []) when section.class is 'memberType'
     elements.push el for el in section.content when el.class in classes
   elements
 
 
 # Takes *Element* carrying an object and lists its property nodes.
-listProperties = (objectElement) ->
-  listNestedElements objectElement, ['property', 'oneOf']
+listProperties = (objectElementNode) ->
+  listNestedElements objectElementNode, ['property', 'oneOf']
 
 
 # Takes *Element* carrying an array and lists its item nodes.
-listItems = (arrayElement) ->
-  listNestedElements arrayElement, ['value']
+listItems = (arrayElementNode) ->
+  listNestedElements arrayElementNode, ['value']
 
 
 # Takes type node and finds out whether it has more than one value
 # in value definition.
-hasMultipleValues = (element) ->
-  (element.content?.valueDefinition?.values?.length or 0) > 1
+hasMultipleValues = (elementNode) ->
+  (elementNode.content?.valueDefinition?.values?.length or 0) > 1
 
 
 # Takes element and finds out whether it has any sections containing member
 # types.
-hasAnyMemberSections = (element) ->
-  (section for section in (element.content?.sections or []) when section.class is 'memberType').length
+hasAnyMemberSections = (elementNode) ->
+  (section for section in (elementNode.content?.sections or []) when section.class is 'memberType').length
 
 
 # Lists possible heritage objects {fixed, typeName} which can be applied to

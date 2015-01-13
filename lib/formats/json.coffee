@@ -21,9 +21,9 @@ coerceNestedLiteral = (literal, typeNames, cb) ->
   , cb
 
 
-# Turns property node into a 'resolved property' object with both
-# representation in JSON and also additional info, such as property
-# name, attributes, etc.
+# Turns *Element* node containing object property into a 'resolved property'
+# object with both representation in JSON and optionally also
+# some additional info.
 resolveProperty = (prop, inherited, cb) ->
   async.waterfall [
     (next) -> handleElement prop, inherited, next
@@ -34,8 +34,11 @@ resolveProperty = (prop, inherited, cb) ->
   ], cb
 
 
-resolveOneOf = (oneof, inherited, cb) ->
-  element = oneof.content[0]
+# Turns *Element* node containing oneOf into an array
+# of 'resolved property' objects with both representation in JSON and
+# optionally also some additional info.
+resolveOneOf = (oneofElement, inherited, cb) ->
+  element = oneofElement.content[0]
   if element.class is 'group'
     resolveOneOfGroup element, inherited, cb
   else
@@ -43,12 +46,18 @@ resolveOneOf = (oneof, inherited, cb) ->
       cb err, ([resolvedProp] unless err)
 
 
-resolveOneOfGroup = (group, inherited, cb) ->
-  async.mapSeries group.content, (prop, next) ->
+# Turns *Element* node containing a group of properties into an array
+# of 'resolved property' objects with both representation in JSON and
+# optionally also some additional info.
+resolveOneOfGroup = (groupElement, inherited, cb) ->
+  async.mapSeries groupElement.content, (prop, next) ->
     resolveProperty prop, inherited, next
   , cb
 
 
+# Turns a list of *Element* nodes containing object properties into an array
+# of 'resolved property' objects with both representation in JSON and
+# optionally also some additional info.
 resolveProperties = (props, inherited, cb) ->
   results = []
   async.eachSeries props, (prop, next) ->
@@ -65,13 +74,16 @@ resolveProperties = (props, inherited, cb) ->
     cb err, results
 
 
+# Takes 'resolved properties' and generates JSON for their wrapper
+# object *Element* node.
 buildObjectRepr = ({resolvedProps}, cb) ->
   repr = {}
   repr[rp.name] = rp.repr for rp in resolvedProps
   cb null, repr
 
 
-# Generates JSON representation for given object element.
+# Generates JSON representation for given *Element* node containing
+# an object type.
 handleObjectElement = (objectElement, resolvedType, inherited, cb) ->
   fixed = inspect.isOrInheritsFixed objectElement, inherited
   heritage = inspect.getHeritage fixed, resolvedType
@@ -83,8 +95,9 @@ handleObjectElement = (objectElement, resolvedType, inherited, cb) ->
   ], cb
 
 
-# Turns value node into a 'resolved item' object with both
-# representation in JSON and also possible additional info.
+# Turns *Element* node containing array or enum item into a 'resolved item'
+# object with both representation in JSON and optionally also
+# some additional info.
 resolveItem = (item, inherited, cb) ->
   async.waterfall [
     (next) -> handleElement item, inherited, next
@@ -92,8 +105,9 @@ resolveItem = (item, inherited, cb) ->
   ], cb
 
 
-# Turns a list of array value nodes into an array of 'resolved item' objects
-# with both representation in JSON and also possible additional info.
+# Turns a list of *Element* nodes containing array items into an array
+# of 'resolved item' objects with both representation in JSON and
+# optionally also some additional info.
 resolveArrayItems = (items, multipleInherited, cb) ->
   if multipleInherited.length is 1
     # single nested type definition, e.g. array[number]
@@ -114,8 +128,8 @@ resolveArrayItems = (items, multipleInherited, cb) ->
     , cb
 
 
-# Takes 'resolved values' and generates JSON
-# for their wrapper array element.
+# Takes 'resolved items' and generates JSON for their wrapper
+# array *Element* node.
 buildArrayRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
   # ordinary arrays
   if resolvedItems.length
@@ -133,7 +147,8 @@ buildArrayRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
   , cb
 
 
-# Generates JSON representation for given array element.
+# Generates JSON representation for given *Element* node containing
+# an array type.
 handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
   fixed = inspect.isOrInheritsFixed arrayElement, inherited
   heritages = inspect.listPossibleHeritages fixed, resolvedType
@@ -145,14 +160,16 @@ handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
   ], cb
 
 
+# Resolves items as enum values. Produces only one 'resolved item' object or
+# 'falsy' value, which indicates that there are no items to be resolved.
 resolveEnumItems = (items, inherited, cb) ->
   item = items?[0]
-  return cb null, null unless item  # "falsy" resolvedItem
+  return cb null, null unless item  # 'falsy' resolvedItem
   resolveItem item, inherited, cb
 
 
-# Takes 'resolved values' and generates JSON
-# for their wrapper enum element.
+# Takes 'resolved items' and generates JSON for their wrapper
+# enum *Element* node.
 buildEnumRepr = ({enumElement, resolvedItem, resolvedType}, cb) ->
   # ordinary enums
   return cb null, resolvedItem.repr if resolvedItem
@@ -166,7 +183,8 @@ buildEnumRepr = ({enumElement, resolvedItem, resolvedType}, cb) ->
     cb null, null  # empty representation is null
 
 
-# Generates JSON representation for given enum element.
+# Generates JSON representation for given *Element* node containing
+# an enum type.
 handleEnumElement = (enumElement, resolvedType, inherited, cb) ->
   fixed = inspect.isOrInheritsFixed enumElement, inherited
   heritage = inspect.getHeritage fixed, resolvedType
@@ -178,8 +196,8 @@ handleEnumElement = (enumElement, resolvedType, inherited, cb) ->
   ], cb
 
 
-# Generates JSON representation for given primitive
-# element (string, number, etc.).
+# Generates JSON representation for given *Element* node containing a primitive
+# type (string, number, etc.).
 handlePrimitiveElement = (primitiveElement, resolvedType, inherited, cb) ->
   vals = inspect.listValues primitiveElement
   if vals.length
@@ -188,7 +206,7 @@ handlePrimitiveElement = (primitiveElement, resolvedType, inherited, cb) ->
   cb null, null  # empty representation is null
 
 
-# Generates JSON representation for given element.
+# Generates JSON representation for given *Element* node.
 handleElement = (element, inherited, cb) ->
   resolveType element, inherited.typeName, (err, resolvedType) ->
     return cb err if err
