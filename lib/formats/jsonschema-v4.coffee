@@ -41,12 +41,7 @@ buildRequiredRepr = (resolvedProps, cb) ->
   cb null, (rp.name for rp in resolvedProps when rp.required)
 
 
-buildObjectRepr = (context, cb) ->
-  {
-    resolvedProps
-    fixed
-  } = context
-
+buildObjectRepr = ({resolvedProps, fixed}, cb) ->
   repr = type: 'object'
   repr.additionalProperties = false if fixed
 
@@ -122,14 +117,7 @@ buildFixedItemsRepr = (resolvedItems, cb) ->
   cb null, anyOf: reprs
 
 
-buildItemsRepr = (context, cb) ->
-  {
-    arrayElement
-    resolvedItems
-    resolvedType
-    fixed
-  } = context
-
+buildItemsRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
   # choosing strategy
   if fixed
     buildTupleItemsRepr arrayElement, resolvedItems, resolvedType, cb
@@ -147,7 +135,6 @@ buildArrayRepr = (context, cb) ->
 
     repr = type: 'array'
     repr.items = itemsRepr if itemsRepr
-
     cb null, repr
 
 
@@ -159,13 +146,7 @@ handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
 
   async.waterfall [
     (next) -> resolveElements items, resolveItem, heritage, next
-    (resolvedItems, next) ->
-      buildArrayRepr {
-        arrayElement
-        resolvedItems
-        resolvedType
-        fixed
-      }, next
+    (resolvedItems, next) -> buildArrayRepr {arrayElement, resolvedItems, resolvedType, fixed}, next
   ], cb
 
 
@@ -173,13 +154,11 @@ handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
 # element (string, number, etc.).
 handlePrimitiveElement = (primitiveElement, resolvedType, inherited, cb) ->
   fixed = inspect.isOrInheritsFixed primitiveElement, inherited
-
   if fixed
     vals = inspect.listValues primitiveElement, true
     if vals.length
       return cb new Error "Primitive type can't have multiple values." if vals.length > 1
       return buildValueRepr vals[0], resolvedType.name, cb
-
   cb null, type: resolvedType.name  # returning repr right away
 
 

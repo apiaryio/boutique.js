@@ -116,14 +116,7 @@ resolveArrayItems = (items, multipleInherited, cb) ->
 
 # Takes 'resolved values' and generates JSON
 # for their wrapper array element.
-buildArrayRepr = (context, cb) ->
-  {
-    arrayElement
-    resolvedItems
-    resolvedType
-    fixed
-  } = context
-
+buildArrayRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
   # ordinary arrays
   if resolvedItems.length
     if fixed
@@ -148,13 +141,7 @@ handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
 
   async.waterfall [
     (next) -> resolveArrayItems items, heritages, next
-    (resolvedItems, next) ->
-      buildArrayRepr {
-        arrayElement
-        resolvedItems
-        resolvedType
-        fixed
-      }, next
+    (resolvedItems, next) -> buildArrayRepr {arrayElement, resolvedItems, resolvedType, fixed}, next
   ], cb
 
 
@@ -166,13 +153,7 @@ resolveEnumItems = (items, inherited, cb) ->
 
 # Takes 'resolved values' and generates JSON
 # for their wrapper enum element.
-buildEnumRepr = (context, cb) ->
-  {
-    enumElement
-    resolvedItem
-    resolvedType
-  } = context
-
+buildEnumRepr = ({enumElement, resolvedItem, resolvedType}, cb) ->
   # ordinary enums
   return cb null, resolvedItem.repr if resolvedItem
 
@@ -193,12 +174,7 @@ handleEnumElement = (enumElement, resolvedType, inherited, cb) ->
 
   async.waterfall [
     (next) -> resolveEnumItems items, heritage, next
-    (resolvedItem, next) ->
-      buildEnumRepr {
-        enumElement
-        resolvedItem
-        resolvedType
-      }, next
+    (resolvedItem, next) -> buildEnumRepr {enumElement, resolvedItem, resolvedType}, next
   ], cb
 
 
