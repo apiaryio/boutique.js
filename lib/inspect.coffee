@@ -1,5 +1,4 @@
 # Utility functions for inspecting the MSON AST tree
-# TODO this module should be tested properly
 
 
 # Turns top-level *Named Type* into an *Element* carrying a *Value Member*.
