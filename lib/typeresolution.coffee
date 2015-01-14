@@ -1,3 +1,5 @@
+# Resolves type name of given MSON AST type node object
+
 
 async = require 'async'
 inspect = require './inspect'
@@ -52,12 +54,12 @@ simplifyTypeSpecification = (typeSpec, cb) ->
     cb err, ({name, nested} unless err)
 
 
-# Helps to identify whether given node is an implicit array.
-isArray = (node) ->
-  inspect.hasMultipleValues node
+# Helps to identify whether given *Element* node contains an implicit array.
+isArray = (elementNode) ->
+  inspect.hasMultipleValues elementNode
 
 
-# Helps to identify whether given node is an implicit object.
+# Helps to identify whether given *Element* node contains an implicit object.
 #
 # There are two ways how to say whether there are "nested member types".
 # First way is to count individual member types one by one, second way is
@@ -69,16 +71,14 @@ isArray = (node) ->
 #
 # However, this 'race condition' probably can't happen anyway, so these
 # approaches shouldn't(tm) make a difference.
-isObject = (node) ->
-  inspect.hasAnyMemberSections node
+isObject = (elementNode) ->
+  inspect.hasAnyMemberSections elementNode
 
 
-# TODO: should be tested
-#
-# Resolves array of implicit nested types for given *Named Type*
-# or *Property Member* or *Value Member* tree node.
-resolveImplicitNestedTypes = (typeName, node, cb) ->
-  if typeName is 'array' and (inspect.listValues node).length
+# Resolves array of implicit nested types for given *Element* node containing
+# *Property Member* or *Value Member*.
+resolveImplicitNestedTypes = (typeName, elementNode, cb) ->
+  if typeName is 'array' and (inspect.listValues elementNode).length
     cb null, ['string']
   else
     cb null, []
@@ -89,10 +89,10 @@ resolveImplicitNestedTypes = (typeName, node, cb) ->
 #     name: ...
 #     nested: [...]
 #
-# for given *Named Type* or *Property Member* or *Value Member* tree node.
-resolveImplicitType = (node, cb) ->
-  isArr = isArray node
-  isObj = isObject node
+# for given *Element* node containing *Property Member* or *Value Member*.
+resolveImplicitType = (elementNode, cb) ->
+  isArr = isArray elementNode
+  isObj = isObject elementNode
 
   if isObj and isArr
     # just playing safe, this should be already ensured by MSON parser
@@ -100,23 +100,24 @@ resolveImplicitType = (node, cb) ->
   else
     name = ('array' if isArr) or ('object' if isObj) or 'string'
 
-    resolveImplicitNestedTypes name, node, (err, nested) ->
+    resolveImplicitNestedTypes name, elementNode, (err, nested) ->
       cb err, ({name, nested} unless err)
 
 
-# TODO: should be tested
-resolveInheritedType = (node, inheritedTypeName, cb) ->
-  # This can happen only to primitive types, so we don't care about 'nested'
-  # and also, in this particular case we're not 'playing safe' by raising
-  # errors in case there's type mismatch or in case we've got some nonsense
-  # instead of 'typeName'. For simplicity of code here we just take what's
-  # inherited (with higher priority).
+# Resolves inherited type.
+#
+# This can happen only to primitive types, so we don't care about 'nested'
+# and also, in this particular case we're not 'playing safe' by raising
+# errors in case there's type mismatch or in case we've got some nonsense
+# instead of 'typeName'. For simplicity of code here we just take what's
+# inherited (with higher priority).
+resolveInheritedType = (elementNode, inheritedTypeName, cb) ->
   cb null, {name: inheritedTypeName, nested: []}
 
 
 # Ensures implicit nested types are added to given
 # 'simple type specification object' in case such option is applicable.
-ensureImplicitNestedTypes = (node, simpleTypeSpec, cb) ->
+ensureImplicitNestedTypes = (elementNode, simpleTypeSpec, cb) ->
   if simpleTypeSpec.nested?.length
     # we already got some nested types
     cb null, simpleTypeSpec
@@ -125,11 +126,11 @@ ensureImplicitNestedTypes = (node, simpleTypeSpec, cb) ->
     # resolve implicit nested types - in that case we add them to the
     # *simpleTypeSpec* object
     name = simpleTypeSpec.name
-    resolveImplicitNestedTypes name, node, (err, nested) ->
+    resolveImplicitNestedTypes name, elementNode, (err, nested) ->
       cb err, ({name, nested} unless err)
 
 
-# Takes top-level *Named Type* or *Property Member* or *Value Member* tree node.
+# Takes *Element* tree node containing *Property Member* or *Value Member*.
 # The *inheritedTypeName* argument is optional.
 #
 # Provides a sort of 'simple type specification object':
@@ -140,21 +141,21 @@ ensureImplicitNestedTypes = (node, simpleTypeSpec, cb) ->
 # In case it isn't able to resolve this *typeSpecification* object with
 # base types only, ends with an error (Boutique builds no symbol table,
 # so it can't resolve any possible inheritance).
-resolveType = (node, inheritedTypeName, cb) ->
+resolveType = (elementNode, inheritedTypeName, cb) ->
   # process arguments
   if inheritedTypeName
     if typeof inheritedTypeName is 'function'
       cb = inheritedTypeName
     else
       # we've got inherited type
-      return resolveInheritedType node, inheritedTypeName, cb
+      return resolveInheritedType elementNode, inheritedTypeName, cb
 
   # no inherited type, let's start regular type resolution
-  typeSpec = inspect.findTypeSpecification node
+  typeSpec = inspect.findTypeSpecification elementNode
   simplifyTypeSpecification typeSpec, (err, simpleTypeSpec) ->
     return cb err if err
-    return resolveImplicitType node, cb unless simpleTypeSpec
-    ensureImplicitNestedTypes node, simpleTypeSpec, cb
+    return resolveImplicitType elementNode, cb unless simpleTypeSpec
+    ensureImplicitNestedTypes elementNode, simpleTypeSpec, cb
 
 
 module.exports = {

@@ -1,3 +1,5 @@
+# Functions for final serialization of respresentation into string
+
 
 json = (obj, cb) ->
   try
