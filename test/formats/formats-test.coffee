@@ -84,6 +84,7 @@ testFormat
     # 'object-very-complex'
     # 'one-of'
     # 'one-of-complex'
+    # 'one-of-properties'
     'optional'
     'required'
     # 'required-array'
