@@ -4,23 +4,7 @@
 async = require 'async'
 inspect = require '../inspect'
 {coerceLiteral} = require '../jsonutils'
-{resolveType} = require '../typeresolution'
-
-
-# Turns multiple *Element* nodes into 'resolved elements', i.e. objects
-# carrying both representation in JSON Schema and optionally also
-# some additional info.
-#
-# The implementation of such resolution is to be provided in the
-# *resolveElement* argument in form of an asynchronous function with
-# following signature:
-#
-#     (element, inherited, cb) -> ...
-#
-resolveElements = (elements, resolveElement, inherited, cb) ->
-  async.map elements, (element, next) ->
-    resolveElement element, inherited, next
-  , cb
+{resolveType, resolveTypes} = require '../typeresolution'
 
 
 # Turns *Element* node containing object property into a 'resolved property'
@@ -34,8 +18,14 @@ resolveProperty = (prop, inherited, cb) ->
         name: inspect.findPropertyName prop, false
         repr: repr
         required: inspect.isRequired prop
-        fixed: inspect.isFixed prop
   ], cb
+
+
+resolveProperties = (objectElement, inherited, cb) ->
+  props = inspect.listProperties objectElement
+  async.mapSeries props, (prop, next) ->
+    resolveProperty prop, inherited, next
+  , cb
 
 
 # Takes 'resolved properties' and generates JSON Schema
@@ -75,15 +65,14 @@ buildObjectRepr = ({resolvedProps, fixed}, cb) ->
 handleObjectElement = (objectElement, resolvedType, inherited, cb) ->
   fixed = inspect.isOrInheritsFixed objectElement, inherited
   heritage = inspect.getHeritage fixed
-  props = inspect.listProperties objectElement
 
   async.waterfall [
-    (next) -> resolveElements props, resolveProperty, heritage, next
+    (next) -> resolveProperties objectElement, heritage, next
     (resolvedProps, next) -> buildObjectRepr {resolvedProps, fixed}, next
   ], cb
 
 
-# Turns *Element* node containing array item into a 'resolved item'
+# Turns *Element* node containing array or enum item into a 'resolved item'
 # object with both representation in JSON and optionally also
 # some additional info.
 resolveItem = (item, inherited, cb) ->
@@ -94,6 +83,13 @@ resolveItem = (item, inherited, cb) ->
         repr: repr
         fixed: inspect.isFixed item
   ], cb
+
+
+resolveItems = (element, inherited, cb) ->
+  items = inspect.listItems element
+  async.mapSeries items, (item, next) ->
+    resolveItem item, inherited, next
+  , cb
 
 
 # Takes *Symbol* node for value and generates JSON Schema requiring the value
@@ -121,7 +117,7 @@ buildTupleItemsRepr = (arrayElement, resolvedItems, resolvedType, cb) ->
   nestedTypeName = resolvedType.nested[0]
 
   vals = inspect.listValues arrayElement
-  async.map vals, (val, next) ->
+  async.mapSeries vals, (val, next) ->
     buildValueRepr val, nestedTypeName, next
   , cb
 
@@ -143,7 +139,7 @@ buildFixedItemsRepr = (resolvedItems, cb) ->
 # Takes 'resolved items' and generates JSON Schema for their wrapper array
 # *Element* node. This function chooses strategy and delegates to other
 # helper functions.
-buildItemsRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
+buildArrayItemsRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
   if fixed
     buildTupleItemsRepr arrayElement, resolvedItems, resolvedType, cb
   else if (ri for ri in resolvedItems when ri.fixed).length  # if contains fixed
@@ -155,7 +151,7 @@ buildItemsRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
 # Takes 'resolved items' and generates JSON Schema for their wrapper array
 # *Element* node.
 buildArrayRepr = (context, cb) ->
-  buildItemsRepr context, (err, itemsRepr) ->
+  buildArrayItemsRepr context, (err, itemsRepr) ->
     return cb err if err
 
     repr = type: 'array'
@@ -168,18 +164,84 @@ buildArrayRepr = (context, cb) ->
 handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
   fixed = inspect.isOrInheritsFixed arrayElement, inherited
   heritage = inspect.getHeritage fixed, resolvedType
-  items = inspect.listItems arrayElement
 
   async.waterfall [
-    (next) -> resolveElements items, resolveItem, heritage, next
+    (next) -> resolveItems arrayElement, heritage, next
     (resolvedItems, next) -> buildArrayRepr {arrayElement, resolvedItems, resolvedType, fixed}, next
   ], cb
+
+
+inspectEnum = (enumElement, resolvedType, cb) ->
+  return cb new Error "Multiple nested types for enum." if resolvedType.nested.length > 1
+  nestedTypeName = resolvedType.nested?[0]
+
+  items = inspect.listItems enumElement
+  if items.length
+    hasSamples = inspect.haveVariableValues items
+    resolveTypes items, nestedTypeName, (err, resolvedTypes) ->
+      return cb err if err
+
+      if inspect.areIdenticalAndPrimitive (rt.name for rt in resolvedTypes)
+        strategy = if hasSamples then 'singleType' else 'values'
+      else
+        strategy = 'types'
+      nestedTypeName ?= resolvedTypes[0].name
+
+      cb null, {inline: false, strategy, nestedTypeName}
+  else
+    hasSamples = inspect.hasVariableValues enumElement
+    strategy = if hasSamples then 'singleType' else 'values'
+    cb null, {inline: true, strategy, nestedTypeName}
+
+
+# Generates JSON Schema representation for given *Element* node containing
+# an enum type.
+handleEnumElement = (enumElement, resolvedType, inherited, cb) ->
+  fixed = inspect.isOrInheritsFixed enumElement, inherited
+  heritage = inspect.getHeritage fixed, resolvedType
+
+  inspectEnum enumElement, resolvedType, (err, {strategy, inline, nestedTypeName}) ->
+    return cb err if err
+
+    switch strategy
+      when 'types'  # cannot be inline
+        async.waterfall [
+          (next) -> resolveItems enumElement, heritage, next
+          (resolvedItems, next) -> next null, anyOf: (ri.repr for ri in resolvedItems)
+        ], cb
+
+      when 'singleType'
+        cb null, type: nestedTypeName
+
+      else  # strategy 'values'
+        if inline
+          vals = inspect.listValues enumElement
+          async.waterfall [
+            (next) ->
+              async.mapSeries vals, (val, done) ->
+                coerceLiteral val.literal, nestedTypeName, done
+              , next
+            (reprs, next) -> next null, type: nestedTypeName, enum: reprs
+          ], cb
+        else
+          async.waterfall [
+            (next) ->
+              items = inspect.listItems enumElement
+              async.mapSeries items, (item, done) ->
+                val = inspect.listValues(item)[0]
+                coerceLiteral val.literal, nestedTypeName, done
+              , next
+            (reprs, next) -> next null, type: nestedTypeName, enum: reprs
+          ], cb
 
 
 # Generates JSON Schema representation for given *Element* node containing
 # a primitive type (string, number, etc.).
 handlePrimitiveElement = (primitiveElement, resolvedType, inherited, cb) ->
-  fixed = inspect.isOrInheritsFixed primitiveElement, inherited
+  # special case: inside enum, primitive elements are treated as fixed
+  insideEnum = inherited.parentTypeName is 'enum'
+  fixed = insideEnum or inspect.isOrInheritsFixed primitiveElement, inherited
+
   if fixed
     vals = inspect.listValues primitiveElement, true
     if vals.length
@@ -188,18 +250,27 @@ handlePrimitiveElement = (primitiveElement, resolvedType, inherited, cb) ->
   cb null, type: resolvedType.name  # returning repr right away
 
 
+# *Element* handler factory.
+createElementHandler = (resolvedType) ->
+  switch resolvedType.name
+    when 'object'
+      handleObjectElement
+    when 'array'
+      handleArrayElement
+    when 'enum'
+      handleEnumElement
+    else
+      handlePrimitiveElement
+
+
 # Generates JSON Schema representation for given *Element* node.
 handleElement = (element, inherited, cb) ->
-  resolveType element, inherited.typeName, (err, resolvedType) ->
-    return cb err if err
-
-    switch resolvedType.name
-      when 'object'
-        handleObjectElement element, resolvedType, inherited, cb
-      when 'array'
-        handleArrayElement element, resolvedType, inherited, cb
-      else
-        handlePrimitiveElement element, resolvedType, inherited, cb
+  async.waterfall [
+    (next) -> resolveType element, inherited.typeName, next
+    (resolvedType, next) ->
+      handle = createElementHandler resolvedType
+      handle element, resolvedType, inherited, next
+  ], cb
 
 
 # Adds JSON Schema declaration to given representation object.
