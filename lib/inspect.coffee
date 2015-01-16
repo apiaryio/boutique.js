@@ -1,6 +1,10 @@
 # Utility functions for inspecting the MSON AST tree
 
 
+# Listing of all primitive types as defined in MSON AST spec.
+primitiveTypes = ['boolean', 'string', 'number']
+
+
 # Turns top-level *Named Type* into an *Element* carrying a *Value Member*.
 getAsElement = (namedTypeNode) ->
   class: 'value'
@@ -33,6 +37,11 @@ listValues = (elementNode, excludeVariables = false) ->
   else
     filter = (val) -> true
   (elementNode.content.valueDefinition?.values or []).filter filter
+
+
+# Lists all defined variable values.
+listVariableValues = (elementNode) ->
+  (val for val in (elementNode.content.valueDefinition?.values or []) when val.variable)
 
 
 # Takes *Element* node and lists its attributes, such as `required`, `fixed`, etc.
@@ -73,6 +82,19 @@ listItems = (arrayElementNode) ->
   listNestedElements arrayElementNode, ['value']
 
 
+# Convenience function.
+hasVariableValues = (elementNode) ->
+  !!listVariableValues(elementNode).length
+
+
+# Convenience function.
+haveVariableValues = (elementNodes) ->
+  for elementNode in elementNodes
+    if hasVariableValues elementNode
+      return true
+  false
+
+
 # Takes type node and finds out whether it has more than one value
 # in value definition.
 hasMultipleValues = (elementNode) ->
@@ -85,16 +107,33 @@ hasAnyMemberSections = (elementNode) ->
   (section for section in (elementNode.content?.sections or []) when section.class is 'memberType').length
 
 
-# Lists possible heritage objects {fixed, typeName} which can be applied to
+# Returns true in case all given type names are the same and at the same time
+# they're also primitive.
+areIdenticalAndPrimitive = (typeNames) ->
+  first = typeNames[0]
+  return false unless first in primitiveTypes
+  for typeName in typeNames
+    return false if typeName isnt first
+  true
+
+
+# Lists possible 'heritage objects' which can be applied to
 # sub-members of given parent node. In most cases, the resulting array
 # will contain just one item, but for some MSON constructs, such as
 # `array[number,string]`, multiple options will be returned.
 #
 # The *resolvedType* argument is optional as nested types are relevant only
 # for arrays and enums.
+#
+# Heritage object explanation:
+#
+# - fixed (boolean) - whether `fixed` flag is inherited
+# - parentTypeName (string) - type name of the parent container
+# - typeName (string) - inherited nested type name (for arrays and enums only)
 listPossibleHeritages = (fixed, resolvedType) ->
-  return [{fixed}] unless resolvedType?.nested?.length
-  ({fixed, typeName} for typeName in resolvedType.nested)
+  parentTypeName = resolvedType?.name or null  # intentionally not using `undefined` as "valid value"
+  nested = if resolvedType?.nested?.length then resolvedType.nested else [null]
+  {fixed, typeName, parentTypeName} for typeName in nested
 
 
 # Convenience function.
@@ -111,11 +150,15 @@ module.exports = {
   listProperties
   listItems
   listValues
+  listVariableValues
   isRequired
   isFixed
   isOrInheritsFixed
+  hasVariableValues
+  haveVariableValues
   hasMultipleValues
   hasAnyMemberSections
+  areIdenticalAndPrimitive
   listPossibleHeritages
   getHeritage
 }
