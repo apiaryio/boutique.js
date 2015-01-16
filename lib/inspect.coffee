@@ -64,6 +64,11 @@ isOrInheritsFixed = (elementNode, inherited) ->
   inherited.fixed or isFixed elementNode
 
 
+# Convenience function.
+isPrimitive = (typeName) ->
+  typeName in primitiveTypes
+
+
 # Helper function.
 listNestedElements = (elementNode, classes) ->
   elements = []
@@ -107,16 +112,6 @@ hasAnyMemberSections = (elementNode) ->
   (section for section in (elementNode.content?.sections or []) when section.class is 'memberType').length
 
 
-# Returns true in case all given type names are the same and at the same time
-# they're also primitive.
-areIdenticalAndPrimitive = (typeNames) ->
-  first = typeNames[0]
-  return false unless first in primitiveTypes
-  for typeName in typeNames
-    return false if typeName isnt first
-  true
-
-
 # Lists possible 'heritage objects' which can be applied to
 # sub-members of given parent node. In most cases, the resulting array
 # will contain just one item, but for some MSON constructs, such as
@@ -154,11 +149,11 @@ module.exports = {
   isRequired
   isFixed
   isOrInheritsFixed
+  isPrimitive
   hasVariableValues
   haveVariableValues
   hasMultipleValues
   hasAnyMemberSections
-  areIdenticalAndPrimitive
   listPossibleHeritages
   getHeritage
 }

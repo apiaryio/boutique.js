@@ -10,11 +10,7 @@
         },
         {
           "type": "string",
-          "enum": ["something"]
-        },
-        {
-          "type": "string",
-          "enum": ["anything"]
+          "enum": ["something", "anything"]
         }
       ]
     }

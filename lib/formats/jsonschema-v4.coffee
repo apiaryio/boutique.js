@@ -7,6 +7,12 @@ inspect = require '../inspect'
 {resolveType, resolveTypes} = require '../typeresolution'
 
 
+coerceLiterals = (literals, typeName, cb) ->
+  async.mapSeries literals, (literal, next) ->
+    coerceLiteral literal, typeName, next
+  , cb
+
+
 # Turns *Element* node containing object property into a 'resolved property'
 # object with both representation in JSON Schema and optionally also
 # some additional info.
@@ -21,8 +27,7 @@ resolveProperty = (prop, inherited, cb) ->
   ], cb
 
 
-resolveProperties = (objectElement, inherited, cb) ->
-  props = inspect.listProperties objectElement
+resolveProperties = (props, inherited, cb) ->
   async.mapSeries props, (prop, next) ->
     resolveProperty prop, inherited, next
   , cb
@@ -65,9 +70,10 @@ buildObjectRepr = ({resolvedProps, fixed}, cb) ->
 handleObjectElement = (objectElement, resolvedType, inherited, cb) ->
   fixed = inspect.isOrInheritsFixed objectElement, inherited
   heritage = inspect.getHeritage fixed
+  props = inspect.listProperties objectElement
 
   async.waterfall [
-    (next) -> resolveProperties objectElement, heritage, next
+    (next) -> resolveProperties props, heritage, next
     (resolvedProps, next) -> buildObjectRepr {resolvedProps, fixed}, next
   ], cb
 
@@ -85,8 +91,7 @@ resolveItem = (item, inherited, cb) ->
   ], cb
 
 
-resolveItems = (element, inherited, cb) ->
-  items = inspect.listItems element
+resolveItems = (items, inherited, cb) ->
   async.mapSeries items, (item, next) ->
     resolveItem item, inherited, next
   , cb
@@ -164,10 +169,81 @@ buildArrayRepr = (context, cb) ->
 handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
   fixed = inspect.isOrInheritsFixed arrayElement, inherited
   heritage = inspect.getHeritage fixed, resolvedType
+  items = inspect.listItems arrayElement
 
   async.waterfall [
-    (next) -> resolveItems arrayElement, heritage, next
+    (next) -> resolveItems items, heritage, next
     (resolvedItems, next) -> buildArrayRepr {arrayElement, resolvedItems, resolvedType, fixed}, next
+  ], cb
+
+
+buildEnumTypeRepr = (item, inherited, cb) ->
+  async.waterfall [
+    (next) ->
+    (resolvedItem, next) -> next null, resolvedItem.repr
+  ], cb
+
+
+buildEnumValuesRepr = (group, inline, cb) ->
+  typeName = group.typeName
+  if inline
+    literals = (val.literal for val in group.values)
+  else
+    literals = (inspect.listValues(item)[0].literal for item in group.items)
+
+  coerceLiterals literals, typeName, (err, reprs) ->
+    cb err, (type: typeName, enum: reprs unless err)
+
+
+buildEnumAsSingleTypeRepr = (group, cb) ->
+  cb null, type: group.typeName
+
+
+buildEnumGroupRepr = (group, inherited, inline, cb) ->
+  switch group.strategy
+    when 'types'
+      buildEnumTypesRepr group, inherited, cb
+    when 'singleType'
+      buildEnumAsSingleTypeRepr group, cb
+    else
+      buildEnumValuesRepr group, inline, cb
+
+
+buildEnumRepr = ({groups, inherited, inline, nonPrimitiveItems}, cb) ->
+  async.parallel
+    groupsReprs: (next) ->
+      async.map groups, (group, done) ->
+        buildEnumGroupRepr group, inherited, inline, done
+      , next
+    reprs: (next) ->
+      resolveItems nonPrimitiveItems, inherited, (err, resolvedItems) ->
+        next err, ((ri.repr for ri in resolvedItems) unless err)
+  , (err, {groupsReprs, reprs}) ->
+    return cb err if err
+
+    Array::push.apply reprs, groupsReprs
+    repr = if reprs.length > 1 then anyOf: reprs else reprs?[0] or {}
+    cb null, repr
+
+
+groupItemsByPrimitiveTypes = (items, nestedTypeName, cb) ->
+  async.waterfall [
+    (next) -> resolveTypes items, nestedTypeName, next
+    (resolvedTypes, next) ->
+      primitiveItems = {}
+      nonPrimitiveItems = []
+
+      for item, i in items
+        typeName = resolvedTypes[i].name
+
+        if inspect.isPrimitive typeName
+          primitiveItems[typeName] ?= []
+          primitiveItems[typeName].push item
+        else
+          nonPrimitiveItems.push item
+
+      groups = ({typeName, items} for own typeName, items of primitiveItems)
+      next null, groups, nonPrimitiveItems
   ], cb
 
 
@@ -177,21 +253,26 @@ inspectEnum = (enumElement, resolvedType, cb) ->
 
   items = inspect.listItems enumElement
   if items.length
-    hasSamples = inspect.haveVariableValues items
-    resolveTypes items, nestedTypeName, (err, resolvedTypes) ->
+    groupItemsByPrimitiveTypes items, nestedTypeName, (err, groups, nonPrimitiveItems) ->
       return cb err if err
 
-      if inspect.areIdenticalAndPrimitive (rt.name for rt in resolvedTypes)
-        strategy = if hasSamples then 'singleType' else 'values'
-      else
-        strategy = 'types'
-      nestedTypeName ?= resolvedTypes[0].name
+      for group in groups
+        hasSamples = inspect.haveVariableValues group.items
+        group.strategy = if hasSamples then 'singleType' else 'values'
+        group.values = []
 
-      cb null, {inline: false, strategy, nestedTypeName}
+      cb null, {inline: false, groups, nonPrimitiveItems}
   else
     hasSamples = inspect.hasVariableValues enumElement
-    strategy = if hasSamples then 'singleType' else 'values'
-    cb null, {inline: true, strategy, nestedTypeName}
+    cb null,
+      inline: true
+      nonPrimitiveItems: []
+      groups: [
+        typeName: nestedTypeName
+        items: []
+        values: inspect.listValues enumElement
+        strategy: if hasSamples then 'singleType' else 'values'
+      ]
 
 
 # Generates JSON Schema representation for given *Element* node containing
@@ -200,39 +281,12 @@ handleEnumElement = (enumElement, resolvedType, inherited, cb) ->
   fixed = inspect.isOrInheritsFixed enumElement, inherited
   heritage = inspect.getHeritage fixed, resolvedType
 
-  inspectEnum enumElement, resolvedType, (err, {strategy, inline, nestedTypeName}) ->
-    return cb err if err
-
-    switch strategy
-      when 'types'  # cannot be inline
-        async.waterfall [
-          (next) -> resolveItems enumElement, heritage, next
-          (resolvedItems, next) -> next null, anyOf: (ri.repr for ri in resolvedItems)
-        ], cb
-
-      when 'singleType'
-        cb null, type: nestedTypeName
-
-      else  # strategy 'values'
-        if inline
-          vals = inspect.listValues enumElement
-          async.waterfall [
-            (next) ->
-              async.mapSeries vals, (val, done) ->
-                coerceLiteral val.literal, nestedTypeName, done
-              , next
-            (reprs, next) -> next null, type: nestedTypeName, enum: reprs
-          ], cb
-        else
-          async.waterfall [
-            (next) ->
-              items = inspect.listItems enumElement
-              async.mapSeries items, (item, done) ->
-                val = inspect.listValues(item)[0]
-                coerceLiteral val.literal, nestedTypeName, done
-              , next
-            (reprs, next) -> next null, type: nestedTypeName, enum: reprs
-          ], cb
+  async.waterfall [
+    (next) -> inspectEnum enumElement, resolvedType, next
+    (context, next) ->
+      context.inherited = heritage
+      buildEnumRepr context, next
+  ], cb
 
 
 # Generates JSON Schema representation for given *Element* node containing
