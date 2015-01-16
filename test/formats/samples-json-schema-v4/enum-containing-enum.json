@@ -5,16 +5,16 @@
     "enum": {
       "anyOf": [
         {
-          "anyOf": [
-            {
-              "type": "number",
-              "enum": [1, 2, 3, 4]
-            }
-          ]
+          "type": "number",
+          "enum": [1, 2, 3, 4]
         },
         {
           "type": "string",
-          "enum": ["something", "anything"]
+          "enum": ["something"]
+        },
+        {
+          "type": "string",
+          "enum": ["anything"]
         }
       ]
     }
