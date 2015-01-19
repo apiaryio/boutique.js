@@ -7,6 +7,7 @@ inspect = require '../inspect'
 {resolveType, resolveTypes} = require '../typeresolution'
 
 
+# Coerces multiple literals to JSON Schema values in given type.
 coerceLiterals = (literals, typeName, cb) ->
   async.mapSeries literals, (literal, next) ->
     coerceLiteral literal, typeName, next
@@ -27,6 +28,9 @@ resolveProperty = (prop, inherited, cb) ->
   ], cb
 
 
+# Turns multiple *Element* nodes containing object properties into
+# 'resolved property' objects with both representation in JSON Schema
+# and optionally also some additional info.
 resolveProperties = (props, inherited, cb) ->
   async.mapSeries props, (prop, next) ->
     resolveProperty prop, inherited, next
@@ -79,7 +83,7 @@ handleObjectElement = (objectElement, resolvedType, inherited, cb) ->
 
 
 # Turns *Element* node containing array or enum item into a 'resolved item'
-# object with both representation in JSON and optionally also
+# object with both representation in JSON Schema and optionally also
 # some additional info.
 resolveItem = (item, inherited, cb) ->
   async.waterfall [
@@ -91,6 +95,9 @@ resolveItem = (item, inherited, cb) ->
   ], cb
 
 
+# Turns multiple *Element* nodes containing array or enum item into
+# 'resolved item' objects with both representation in JSON Schema and
+# optionally also some additional info.
 resolveItems = (items, inherited, cb) ->
   async.mapSeries items, (item, next) ->
     resolveItem item, inherited, next
@@ -177,13 +184,8 @@ handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
   ], cb
 
 
-buildEnumTypeRepr = (item, inherited, cb) ->
-  async.waterfall [
-    (next) ->
-    (resolvedItem, next) -> next null, resolvedItem.repr
-  ], cb
-
-
+# Builds JSON Schema representation for a group of items with primitive types
+# within enum *Element* node. Implements 'values' rendering strategy.
 buildEnumValuesRepr = (group, inline, cb) ->
   typeName = group.typeName
   if inline
@@ -195,10 +197,14 @@ buildEnumValuesRepr = (group, inline, cb) ->
     cb err, (type: typeName, enum: reprs unless err)
 
 
+# Builds JSON Schema representation for a group of items with primitive types
+# within enum *Element* node. Implements 'singleType' rendering strategy.
 buildEnumAsSingleTypeRepr = (group, cb) ->
   cb null, type: group.typeName
 
 
+# Builds JSON Schema representation for a group of items with primitive types
+# within enum *Element* node.
 buildEnumGroupRepr = (group, inherited, inline, cb) ->
   switch group.strategy
     when 'types'
@@ -209,6 +215,7 @@ buildEnumGroupRepr = (group, inherited, inline, cb) ->
       buildEnumValuesRepr group, inline, cb
 
 
+# Builds JSON Schema representation for *Element* node containing an enum.
 buildEnumRepr = ({groups, inherited, inline, nonPrimitiveItems}, cb) ->
   async.parallel
     groupsReprs: (next) ->
@@ -226,6 +233,8 @@ buildEnumRepr = ({groups, inherited, inline, nonPrimitiveItems}, cb) ->
     cb null, repr
 
 
+# Helper function to group item *Element* nodes by their primitive types.
+# Provides also a separate array of items with non-primitive types.
 groupItemsByPrimitiveTypes = (items, nestedTypeName, cb) ->
   async.waterfall [
     (next) -> resolveTypes items, nestedTypeName, next
@@ -247,6 +256,8 @@ groupItemsByPrimitiveTypes = (items, nestedTypeName, cb) ->
   ], cb
 
 
+# Helper function to inspect inline enum *Element* nodes. Groups items by their
+# primitive type and gets information about how to render these groups.
 inspectEnumItems = (items, nestedTypeName, cb) ->
   async.waterfall [
     (next) -> groupItemsByPrimitiveTypes items, nestedTypeName, next
@@ -259,6 +270,8 @@ inspectEnumItems = (items, nestedTypeName, cb) ->
   ], cb
 
 
+# Helper function to inspect inline enum *Element* nodes. Creates one mostly
+# artificial group object with almost only the values field populated.
 inspectEnumInline = (enumElement, nestedTypeName, cb) ->
   if inspect.hasVariableValues enumElement
     values = []
@@ -271,6 +284,20 @@ inspectEnumInline = (enumElement, nestedTypeName, cb) ->
   cb null, {inline: true, nonPrimitiveItems: [], groups: [group]}
 
 
+# Inspects given *Element* node containing an enum type. Provides a following
+# object of various findings:
+#
+# - inline (boolean) - whether given enum is 'inline' or not
+# - groups (array[Group]) - item elements containing primitive types only, grouped by those types
+# - nonPrimitiveItems (array) - item elements containing non-primitive types only
+#
+# Group object looks like this:
+#
+# - typeName (string) - type name of item elements in the group
+# - items (array) - item elements in the group
+# - values (array) - value objects of the (inline) parent enum element
+# - strategy: singleType, values (enum) - a strategy to follow when rendering representation of the group
+#
 inspectEnum = (enumElement, resolvedType, cb) ->
   return cb new Error "Multiple nested types for enum." if resolvedType.nested.length > 1
   nestedTypeName = resolvedType.nested?[0]
