@@ -247,32 +247,39 @@ groupItemsByPrimitiveTypes = (items, nestedTypeName, cb) ->
   ], cb
 
 
+inspectEnumItems = (items, nestedTypeName, cb) ->
+  async.waterfall [
+    (next) -> groupItemsByPrimitiveTypes items, nestedTypeName, next
+    (groups, nonPrimitiveItems, next) ->
+      for group in groups
+        hasSamples = inspect.haveVariableValues group.items
+        group.strategy = if hasSamples then 'singleType' else 'values'
+        group.values = []
+      next null, {inline: false, groups, nonPrimitiveItems}
+  ], cb
+
+
+inspectEnumInline = (enumElement, nestedTypeName, cb) ->
+  if inspect.hasVariableValues enumElement
+    values = []
+    strategy = 'singleType'
+  else
+    values = inspect.listValues enumElement
+    strategy = 'values'
+
+  group = {typeName: nestedTypeName, items: [], values, strategy}
+  cb null, {inline: true, nonPrimitiveItems: [], groups: [group]}
+
+
 inspectEnum = (enumElement, resolvedType, cb) ->
   return cb new Error "Multiple nested types for enum." if resolvedType.nested.length > 1
   nestedTypeName = resolvedType.nested?[0]
 
   items = inspect.listItems enumElement
   if items.length
-    groupItemsByPrimitiveTypes items, nestedTypeName, (err, groups, nonPrimitiveItems) ->
-      return cb err if err
-
-      for group in groups
-        hasSamples = inspect.haveVariableValues group.items
-        group.strategy = if hasSamples then 'singleType' else 'values'
-        group.values = []
-
-      cb null, {inline: false, groups, nonPrimitiveItems}
+    inspectEnumItems items, nestedTypeName, cb
   else
-    hasSamples = inspect.hasVariableValues enumElement
-    cb null,
-      inline: true
-      nonPrimitiveItems: []
-      groups: [
-        typeName: nestedTypeName
-        items: []
-        values: inspect.listValues enumElement
-        strategy: if hasSamples then 'singleType' else 'values'
-      ]
+    inspectEnumInline enumElement, nestedTypeName, cb
 
 
 # Generates JSON Schema representation for given *Element* node containing
