@@ -81,7 +81,7 @@ testFormat
     'number-literal'
     'object-complex'
     'object-simple'
-    # 'object-very-complex'
+    'object-very-complex'
     # 'one-of'
     # 'one-of-complex'
     # 'one-of-properties'
