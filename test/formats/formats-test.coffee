@@ -76,7 +76,7 @@ testFormat
     'enum-containing-sample'
     'enum-of-strings'
     'enum-with-type'
-    # 'escaping'
+    'escaping'
     'number'
     'number-literal'
     'object-complex'
