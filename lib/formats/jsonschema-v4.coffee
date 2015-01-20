@@ -14,6 +14,13 @@ coerceLiterals = (literals, typeName, cb) ->
   , cb
 
 
+# Adds description to given representation.
+addDescription = (element, repr, cb) ->
+  desc = inspect.findDescription element
+  repr.description = desc if desc
+  cb null, repr
+
+
 # Turns *Element* node containing object property into a 'resolved property'
 # object with both representation in JSON Schema and optionally also
 # some additional info.
@@ -354,6 +361,7 @@ handleElement = (element, inherited, cb) ->
     (resolvedType, next) ->
       handle = createElementHandler resolvedType
       handle element, resolvedType, inherited, next
+    (repr, next) -> addDescription element, repr, next
   ], cb
 
 

@@ -70,7 +70,7 @@ testFormat
     'array-restricted-to-types-complex'
     'boolean'
     'boolean-literal'
-    # 'description'
+    'description'
     'enum-containing-enum'
     'enum-containing-object'
     'enum-containing-sample'

@@ -30,6 +30,11 @@ findPropertyName = (propNode, variable = true) ->
   nameNode.literal or (nameNode.variable?.values?[0].literal if variable)
 
 
+# Finds inline description for given *Element* node.
+findDescription = (elementNode) ->
+  elementNode.content?.description
+
+
 # Lists all defined values.
 listValues = (elementNode, excludeVariables = false) ->
   if excludeVariables
@@ -139,6 +144,7 @@ module.exports = {
   findTypeSpecification
   findTypeName
   findPropertyName
+  findDescription
   listAttributes
   listProperties
   listItems
