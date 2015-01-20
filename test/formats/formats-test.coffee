@@ -92,6 +92,9 @@ testFormat
     'string'
     'string-literal'
     # 'variable-property'
+    'default-attribute'
+    'default-section'
+    'default-sample'
   ]
 
 
