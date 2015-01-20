@@ -94,9 +94,7 @@ hasVariableValues = (elementNode) ->
 
 # Convenience function.
 haveVariableValues = (elementNodes) ->
-  for elementNode in elementNodes
-    if hasVariableValues elementNode
-      return true
+  return true for elementNode in elementNodes when hasVariableValues elementNode
   false
 
 

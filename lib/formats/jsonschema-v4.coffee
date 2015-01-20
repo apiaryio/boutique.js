@@ -194,7 +194,7 @@ buildEnumValuesRepr = (group, inline, cb) ->
     literals = (inspect.listValues(item)[0].literal for item in group.items)
 
   coerceLiterals literals, typeName, (err, reprs) ->
-    cb err, (type: typeName, enum: reprs unless err)
+    cb err, ({type: typeName, enum: reprs} unless err)
 
 
 # Builds JSON Schema representation for a group of items with primitive types
@@ -235,37 +235,33 @@ buildEnumRepr = ({groups, inherited, inline, nonPrimitiveItems}, cb) ->
 
 # Helper function to group item *Element* nodes by their primitive types.
 # Provides also a separate array of items with non-primitive types.
-groupItemsByPrimitiveTypes = (items, nestedTypeName, cb) ->
-  async.waterfall [
-    (next) -> resolveTypes items, nestedTypeName, next
-    (resolvedTypes, next) ->
-      primitiveItems = {}
-      nonPrimitiveItems = []
+groupItemsByPrimitiveTypes = (items, resolvedTypes, cb) ->
+  primitiveItems = {}
+  nonPrimitiveItems = []
 
-      for item, i in items
-        typeName = resolvedTypes[i].name
+  for item, i in items
+    typeName = resolvedTypes[i].name
 
-        if inspect.isPrimitive typeName
-          primitiveItems[typeName] ?= []
-          primitiveItems[typeName].push item
-        else
-          nonPrimitiveItems.push item
+    if inspect.isPrimitive typeName
+      primitiveItems[typeName] ?= []
+      primitiveItems[typeName].push item
+    else
+      nonPrimitiveItems.push item
 
-      groups = ({typeName, items} for own typeName, items of primitiveItems)
-      next null, groups, nonPrimitiveItems
-  ], cb
+  groups = ({typeName, items, values: [], strategy: null} for own typeName, items of primitiveItems)
+  cb null, groups, nonPrimitiveItems
 
 
 # Helper function to inspect inline enum *Element* nodes. Groups items by their
 # primitive type and gets information about how to render these groups.
 inspectEnumItems = (items, nestedTypeName, cb) ->
   async.waterfall [
-    (next) -> groupItemsByPrimitiveTypes items, nestedTypeName, next
+    (next) -> resolveTypes items, nestedTypeName, next
+    (resolvedTypes, next) -> groupItemsByPrimitiveTypes items, resolvedTypes, next
     (groups, nonPrimitiveItems, next) ->
       for group in groups
         hasSamples = inspect.haveVariableValues group.items
         group.strategy = if hasSamples then 'singleType' else 'values'
-        group.values = []
       next null, {inline: false, groups, nonPrimitiveItems}
   ], cb
 
