@@ -78,7 +78,7 @@ isObject = (elementNode) ->
 # Resolves array of implicit nested types for given *Element* node containing
 # *Property Member* or *Value Member*.
 resolveImplicitNestedTypes = (typeName, elementNode, cb) ->
-  if typeName is 'array' and (inspect.listValues elementNode).length
+  if typeName in ['array', 'enum'] and (inspect.listValues elementNode).length
     cb null, ['string']
   else
     cb null, []
