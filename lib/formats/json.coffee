@@ -206,20 +206,27 @@ handlePrimitiveElement = (primitiveElement, resolvedType, inherited, cb) ->
   cb null, null  # empty representation is null
 
 
+# *Element* handler factory.
+createElementHandler = (resolvedType) ->
+  switch resolvedType.name
+    when 'object'
+      handleObjectElement
+    when 'array'
+      handleArrayElement
+    when 'enum'
+      handleEnumElement
+    else
+      handlePrimitiveElement
+
+
 # Generates JSON representation for given *Element* node.
 handleElement = (element, inherited, cb) ->
-  resolveType element, inherited.typeName, (err, resolvedType) ->
-    return cb err if err
-
-    switch resolvedType.name
-      when 'object'
-        handleObjectElement element, resolvedType, inherited, cb
-      when 'array'
-        handleArrayElement element, resolvedType, inherited, cb
-      when 'enum'
-        handleEnumElement element, resolvedType, inherited, cb
-      else
-        handlePrimitiveElement element, resolvedType, inherited, cb
+  async.waterfall [
+    (next) -> resolveType element, inherited.typeName, next
+    (resolvedType, next) ->
+      handle = createElementHandler resolvedType
+      handle element, resolvedType, inherited, next
+  ], cb
 
 
 # Transforms given MSON AST into JSON.

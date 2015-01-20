@@ -4,22 +4,13 @@
 async = require 'async'
 inspect = require '../inspect'
 {coerceLiteral} = require '../jsonutils'
-{resolveType} = require '../typeresolution'
+{resolveType, resolveTypes} = require '../typeresolution'
 
 
-# Turns multiple *Element* nodes into 'resolved elements', i.e. objects
-# carrying both representation in JSON Schema and optionally also
-# some additional info.
-#
-# The implementation of such resolution is to be provided in the
-# *resolveElement* argument in form of an asynchronous function with
-# following signature:
-#
-#     (element, inherited, cb) -> ...
-#
-resolveElements = (elements, resolveElement, inherited, cb) ->
-  async.map elements, (element, next) ->
-    resolveElement element, inherited, next
+# Coerces multiple literals to JSON Schema values in given type.
+coerceLiterals = (literals, typeName, cb) ->
+  async.mapSeries literals, (literal, next) ->
+    coerceLiteral literal, typeName, next
   , cb
 
 
@@ -34,8 +25,16 @@ resolveProperty = (prop, inherited, cb) ->
         name: inspect.findPropertyName prop, false
         repr: repr
         required: inspect.isRequired prop
-        fixed: inspect.isFixed prop
   ], cb
+
+
+# Turns multiple *Element* nodes containing object properties into
+# 'resolved property' objects with both representation in JSON Schema
+# and optionally also some additional info.
+resolveProperties = (props, inherited, cb) ->
+  async.mapSeries props, (prop, next) ->
+    resolveProperty prop, inherited, next
+  , cb
 
 
 # Takes 'resolved properties' and generates JSON Schema
@@ -78,13 +77,13 @@ handleObjectElement = (objectElement, resolvedType, inherited, cb) ->
   props = inspect.listProperties objectElement
 
   async.waterfall [
-    (next) -> resolveElements props, resolveProperty, heritage, next
+    (next) -> resolveProperties props, heritage, next
     (resolvedProps, next) -> buildObjectRepr {resolvedProps, fixed}, next
   ], cb
 
 
-# Turns *Element* node containing array item into a 'resolved item'
-# object with both representation in JSON and optionally also
+# Turns *Element* node containing array or enum item into a 'resolved item'
+# object with both representation in JSON Schema and optionally also
 # some additional info.
 resolveItem = (item, inherited, cb) ->
   async.waterfall [
@@ -94,6 +93,15 @@ resolveItem = (item, inherited, cb) ->
         repr: repr
         fixed: inspect.isFixed item
   ], cb
+
+
+# Turns multiple *Element* nodes containing array or enum item into
+# 'resolved item' objects with both representation in JSON Schema and
+# optionally also some additional info.
+resolveItems = (items, inherited, cb) ->
+  async.mapSeries items, (item, next) ->
+    resolveItem item, inherited, next
+  , cb
 
 
 # Takes *Symbol* node for value and generates JSON Schema requiring the value
@@ -121,7 +129,7 @@ buildTupleItemsRepr = (arrayElement, resolvedItems, resolvedType, cb) ->
   nestedTypeName = resolvedType.nested[0]
 
   vals = inspect.listValues arrayElement
-  async.map vals, (val, next) ->
+  async.mapSeries vals, (val, next) ->
     buildValueRepr val, nestedTypeName, next
   , cb
 
@@ -143,7 +151,7 @@ buildFixedItemsRepr = (resolvedItems, cb) ->
 # Takes 'resolved items' and generates JSON Schema for their wrapper array
 # *Element* node. This function chooses strategy and delegates to other
 # helper functions.
-buildItemsRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
+buildArrayItemsRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
   if fixed
     buildTupleItemsRepr arrayElement, resolvedItems, resolvedType, cb
   else if (ri for ri in resolvedItems when ri.fixed).length  # if contains fixed
@@ -155,7 +163,7 @@ buildItemsRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
 # Takes 'resolved items' and generates JSON Schema for their wrapper array
 # *Element* node.
 buildArrayRepr = (context, cb) ->
-  buildItemsRepr context, (err, itemsRepr) ->
+  buildArrayItemsRepr context, (err, itemsRepr) ->
     return cb err if err
 
     repr = type: 'array'
@@ -171,15 +179,153 @@ handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
   items = inspect.listItems arrayElement
 
   async.waterfall [
-    (next) -> resolveElements items, resolveItem, heritage, next
+    (next) -> resolveItems items, heritage, next
     (resolvedItems, next) -> buildArrayRepr {arrayElement, resolvedItems, resolvedType, fixed}, next
+  ], cb
+
+
+# Builds JSON Schema representation for a group of items with primitive types
+# within enum *Element* node. Implements 'values' rendering strategy.
+buildEnumValuesRepr = (group, inline, cb) ->
+  typeName = group.typeName
+  if inline
+    literals = (val.literal for val in group.values)
+  else
+    literals = (inspect.listValues(item)[0].literal for item in group.items)
+
+  coerceLiterals literals, typeName, (err, reprs) ->
+    cb err, ({type: typeName, enum: reprs} unless err)
+
+
+# Builds JSON Schema representation for a group of items with primitive types
+# within enum *Element* node. Implements 'singleType' rendering strategy.
+buildEnumAsSingleTypeRepr = (group, cb) ->
+  cb null, type: group.typeName
+
+
+# Builds JSON Schema representation for a group of items with primitive types
+# within enum *Element* node.
+buildEnumGroupRepr = (group, inherited, inline, cb) ->
+  switch group.strategy
+    when 'types'
+      buildEnumTypesRepr group, inherited, cb
+    when 'singleType'
+      buildEnumAsSingleTypeRepr group, cb
+    else
+      buildEnumValuesRepr group, inline, cb
+
+
+# Builds JSON Schema representation for *Element* node containing an enum.
+buildEnumRepr = ({groups, inherited, inline, nonPrimitiveItems}, cb) ->
+  async.parallel
+    groupsReprs: (next) ->
+      async.map groups, (group, done) ->
+        buildEnumGroupRepr group, inherited, inline, done
+      , next
+    reprs: (next) ->
+      resolveItems nonPrimitiveItems, inherited, (err, resolvedItems) ->
+        next err, ((ri.repr for ri in resolvedItems) unless err)
+  , (err, {groupsReprs, reprs}) ->
+    return cb err if err
+
+    Array::push.apply reprs, groupsReprs
+    repr = if reprs.length > 1 then anyOf: reprs else reprs?[0] or {}
+    cb null, repr
+
+
+# Helper function to group item *Element* nodes by their primitive types.
+# Provides also a separate array of items with non-primitive types.
+groupItemsByPrimitiveTypes = (items, resolvedTypes, cb) ->
+  primitiveItems = {}
+  nonPrimitiveItems = []
+
+  for item, i in items
+    typeName = resolvedTypes[i].name
+
+    if inspect.isPrimitive typeName
+      primitiveItems[typeName] ?= []
+      primitiveItems[typeName].push item
+    else
+      nonPrimitiveItems.push item
+
+  groups = ({typeName, items, values: [], strategy: null} for own typeName, items of primitiveItems)
+  cb null, groups, nonPrimitiveItems
+
+
+# Helper function to inspect inline enum *Element* nodes. Groups items by their
+# primitive type and gets information about how to render these groups.
+inspectEnumItems = (items, nestedTypeName, cb) ->
+  async.waterfall [
+    (next) -> resolveTypes items, nestedTypeName, next
+    (resolvedTypes, next) -> groupItemsByPrimitiveTypes items, resolvedTypes, next
+    (groups, nonPrimitiveItems, next) ->
+      for group in groups
+        hasSamples = inspect.haveVariableValues group.items
+        group.strategy = if hasSamples then 'singleType' else 'values'
+      next null, {inline: false, groups, nonPrimitiveItems}
+  ], cb
+
+
+# Helper function to inspect inline enum *Element* nodes. Creates one mostly
+# artificial group object with almost only the values field populated.
+inspectEnumInline = (enumElement, nestedTypeName, cb) ->
+  if inspect.hasVariableValues enumElement
+    values = []
+    strategy = 'singleType'
+  else
+    values = inspect.listValues enumElement
+    strategy = 'values'
+
+  group = {typeName: nestedTypeName, items: [], values, strategy}
+  cb null, {inline: true, nonPrimitiveItems: [], groups: [group]}
+
+
+# Inspects given *Element* node containing an enum type. Provides a following
+# object of various findings:
+#
+# - inline (boolean) - whether given enum is 'inline' or not
+# - groups (array[Group]) - item elements containing primitive types only, grouped by those types
+# - nonPrimitiveItems (array) - item elements containing non-primitive types only
+#
+# Group object looks like this:
+#
+# - typeName (string) - type name of item elements in the group
+# - items (array) - item elements in the group
+# - values (array) - value objects of the (inline) parent enum element
+# - strategy: singleType, values (enum) - a strategy to follow when rendering representation of the group
+#
+inspectEnum = (enumElement, resolvedType, cb) ->
+  return cb new Error "Multiple nested types for enum." if resolvedType.nested.length > 1
+  nestedTypeName = resolvedType.nested?[0]
+
+  items = inspect.listItems enumElement
+  if items.length
+    inspectEnumItems items, nestedTypeName, cb
+  else
+    inspectEnumInline enumElement, nestedTypeName, cb
+
+
+# Generates JSON Schema representation for given *Element* node containing
+# an enum type.
+handleEnumElement = (enumElement, resolvedType, inherited, cb) ->
+  fixed = inspect.isOrInheritsFixed enumElement, inherited
+  heritage = inspect.getHeritage fixed, resolvedType
+
+  async.waterfall [
+    (next) -> inspectEnum enumElement, resolvedType, next
+    (context, next) ->
+      context.inherited = heritage
+      buildEnumRepr context, next
   ], cb
 
 
 # Generates JSON Schema representation for given *Element* node containing
 # a primitive type (string, number, etc.).
 handlePrimitiveElement = (primitiveElement, resolvedType, inherited, cb) ->
-  fixed = inspect.isOrInheritsFixed primitiveElement, inherited
+  # special case: inside enum, primitive elements are treated as fixed
+  insideEnum = inherited.parentTypeName is 'enum'
+  fixed = insideEnum or inspect.isOrInheritsFixed primitiveElement, inherited
+
   if fixed
     vals = inspect.listValues primitiveElement, true
     if vals.length
@@ -188,18 +334,27 @@ handlePrimitiveElement = (primitiveElement, resolvedType, inherited, cb) ->
   cb null, type: resolvedType.name  # returning repr right away
 
 
+# *Element* handler factory.
+createElementHandler = (resolvedType) ->
+  switch resolvedType.name
+    when 'object'
+      handleObjectElement
+    when 'array'
+      handleArrayElement
+    when 'enum'
+      handleEnumElement
+    else
+      handlePrimitiveElement
+
+
 # Generates JSON Schema representation for given *Element* node.
 handleElement = (element, inherited, cb) ->
-  resolveType element, inherited.typeName, (err, resolvedType) ->
-    return cb err if err
-
-    switch resolvedType.name
-      when 'object'
-        handleObjectElement element, resolvedType, inherited, cb
-      when 'array'
-        handleArrayElement element, resolvedType, inherited, cb
-      else
-        handlePrimitiveElement element, resolvedType, inherited, cb
+  async.waterfall [
+    (next) -> resolveType element, inherited.typeName, next
+    (resolvedType, next) ->
+      handle = createElementHandler resolvedType
+      handle element, resolvedType, inherited, next
+  ], cb
 
 
 # Adds JSON Schema declaration to given representation object.

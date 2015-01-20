@@ -158,6 +158,13 @@ resolveType = (elementNode, inheritedTypeName, cb) ->
     ensureImplicitNestedTypes elementNode, simpleTypeSpec, cb
 
 
+resolveTypes = (elementNodes, inheritedTypeName, cb) ->
+  async.map elementNodes, (elementNode, next) ->
+    resolveType elementNode, inheritedTypeName, next
+  , cb
+
+
 module.exports = {
   resolveType
+  resolveTypes
 }
