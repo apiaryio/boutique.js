@@ -1,0 +1,70 @@
+{
+  "name": {
+    "literal": "default-attribute.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "class": "memberType",
+      "content": [
+        {
+          "class": "property",
+          "content": {
+            "name": {
+              "literal": "list"
+            },
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "4",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": "enum"
+                },
+                "attributes": [
+                  "default"
+                ]
+              }
+            },
+            "sections": [
+              {
+                "class": "memberType",
+                "content": [
+                  {
+                    "class": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "3",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "class": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "4",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

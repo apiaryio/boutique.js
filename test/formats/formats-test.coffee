@@ -87,11 +87,14 @@ testFormat
     # 'one-of-properties'
     'optional'
     'required'
-    # 'required-array'
-    # 'required-object'
+    'required-array'
+    'required-object'
     'string'
     'string-literal'
     # 'variable-property'
+    'default-attribute'
+    'default-section'
+    'default-sample'
   ]
 
 

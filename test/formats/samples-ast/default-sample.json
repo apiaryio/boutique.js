@@ -1,0 +1,62 @@
+{
+  "name": {
+    "literal": "default-sample.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "class": "memberType",
+      "content": [
+        {
+          "class": "property",
+          "content": {
+            "name": {
+              "literal": "list"
+            },
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "3",
+                  "variable": false
+                },
+                {
+                  "literal": "2",
+                  "variable": false
+                },
+                {
+                  "literal": "1",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": "array"
+                }
+              }
+            },
+            "sections": [
+              {
+                "class": "default",
+                "content": [
+                  {
+                    "class": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "4",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -105,6 +105,22 @@ describe "Type resolution", ->
               literal: 'green'
           ]
     typeName: 'array'
+    nestedTypes: ['string']
+
+  testTypeResolution "if given ‘enum’ with multiple values and with no explicit nested type",
+    astTreeNode:
+      content:
+        valueDefinition:
+          values: [
+              literal: 'home'
+            ,
+              literal: 'green'
+          ]
+          typeDefinition:
+            typeSpecification:
+              name: 'enum'
+    typeName: 'enum'
+    nestedTypes: ['string']
 
   testTypeResolution "if given with member sections and multiple values and with no explicit type",
     astTreeNode:

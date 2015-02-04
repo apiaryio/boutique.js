@@ -3,8 +3,8 @@
 
 async = require 'async'
 inspect = require '../inspect'
-{coerceLiteral} = require '../jsonutils'
 {resolveType, resolveTypes} = require '../typeresolution'
+{coerceLiteral, coerceNestedLiteral} = require '../jsonutils'
 
 
 # Coerces multiple literals to JSON Schema values in given type.
@@ -19,6 +19,16 @@ addDescription = (element, repr, cb) ->
   desc = inspect.findDescription element
   repr.description = desc if desc
   cb null, repr
+
+
+# Adds default to given representation.
+addDefault = (element, resolvedType, repr, cb) ->
+  val = inspect.findDefault element
+  return cb null, repr unless val
+
+  coerceNestedLiteral val.literal, resolvedType.nested, (err, defaultValue) ->
+    repr.default = defaultValue unless err
+    cb err, repr
 
 
 # Turns *Element* node containing object property into a 'resolved property'
@@ -360,8 +370,11 @@ handleElement = (element, inherited, cb) ->
     (next) -> resolveType element, inherited.typeName, next
     (resolvedType, next) ->
       handle = createElementHandler resolvedType
-      handle element, resolvedType, inherited, next
-    (repr, next) -> addDescription element, repr, next
+      async.waterfall [
+        (done) -> handle element, resolvedType, inherited, done
+        (repr, done) -> addDescription element, repr, done
+        (repr, done) -> addDefault element, resolvedType, repr, done
+      ], next
   ], cb
 
 
