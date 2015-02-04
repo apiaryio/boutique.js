@@ -26,7 +26,8 @@
               "type": "string"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "required": ["name", "color", "description"]
         },
         {
           "type": "string",
@@ -34,5 +35,6 @@
         }
       ]
     }
-  }
+  },
+  "required": ["tags"]
 }

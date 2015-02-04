@@ -86,9 +86,17 @@ listAttributes = (elementNode) ->
   elementNode.content.valueDefinition?.typeDefinition?.attributes or []
 
 
+# Provides information whether given *Element* node is required or not.
+# For property nodes it's possible to pass also heritage object - in that
+# case the function respects also `fixed`, etc.
+isRequired = (elementNode, heritage={}) ->
+  return true if 'required' in listAttributes elementNode
+  isOrInheritsFixed(elementNode, heritage) and not isOptional(elementNode)
+
+
 # Convenience function.
-isRequired = (elementNode) ->
-  'required' in listAttributes elementNode
+isOptional = (elementNode) ->
+  'optional' in listAttributes elementNode
 
 
 # Convenience function.
@@ -198,6 +206,7 @@ module.exports = {
   listSamples
   listValuesOrSamples
   isRequired
+  isOptional
   isFixed
   isSample
   isOrInheritsFixed

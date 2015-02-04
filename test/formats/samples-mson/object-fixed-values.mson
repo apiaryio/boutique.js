@@ -1,0 +1,3 @@
+- person (object, fixed)
+    - first_name: Andrew
+    - last_name: Smith

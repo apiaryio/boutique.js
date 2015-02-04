@@ -42,7 +42,7 @@ resolveProperty = (prop, inherited, cb) ->
         name: inspect.findPropertyName prop
         variableName: inspect.hasVariablePropertyName prop
         repr: repr
-        required: inspect.isRequired prop
+        required: inspect.isRequired prop, inherited
   ], cb
 
 
