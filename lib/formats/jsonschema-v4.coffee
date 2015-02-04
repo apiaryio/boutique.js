@@ -21,6 +21,15 @@ addDescription = (element, repr, cb) ->
   cb null, repr
 
 
+addDefault = (element, resolvedType, repr, cb) ->
+  val = inspect.findDefault element
+  return cb null, repr unless val
+
+  coerceNestedLiteral val.literal, resolvedType.nested, (err, defaultValue) ->
+    repr.default = defaultValue unless err
+    cb err, repr
+
+
 # Turns *Element* node containing object property into a 'resolved property'
 # object with both representation in JSON Schema and optionally also
 # some additional info.
@@ -356,21 +365,15 @@ createElementHandler = (resolvedType) ->
 
 # Generates JSON Schema representation for given *Element* node.
 handleElement = (element, inherited, cb) ->
-  t = null
   async.waterfall [
     (next) -> resolveType element, inherited.typeName, next
     (resolvedType, next) ->
-      t = resolvedType
       handle = createElementHandler resolvedType
-      handle element, resolvedType, inherited, next
-    (repr, next) -> addDescription element, repr, next
-    (repr, next) ->
-      val = inspect.findDefault element
-      return next null, repr unless val
-      coerceNestedLiteral val.literal, t.nested, (err, value) ->
-        return next err if err
-        repr.default = value
-        next null, repr
+      async.waterfall [
+        (done) -> handle element, resolvedType, inherited, done
+        (repr, done) -> addDescription element, repr, done
+        (repr, done) -> addDefault element, resolvedType, repr, done
+      ], next
   ], cb
 
 
