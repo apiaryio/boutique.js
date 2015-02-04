@@ -21,6 +21,7 @@ addDescription = (element, repr, cb) ->
   cb null, repr
 
 
+# Adds default to given representation.
 addDefault = (element, resolvedType, repr, cb) ->
   val = inspect.findDefault element
   return cb null, repr unless val
