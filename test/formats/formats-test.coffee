@@ -89,6 +89,10 @@ testFormat
     'required'
     'required-array'
     'required-object'
+    'sample'
+    'sample-complex'
+    'sample-inline-attribute'
+    # 'sample-inline-variable' bug: https://github.com/apiaryio/snowcrash/issues/286
     'string'
     'string-literal'
     # 'variable-property'
@@ -144,6 +148,10 @@ testFormat
     'required'
     'required-array'
     'required-object'
+    'sample'
+    'sample-complex'
+    'sample-inline-attribute'
+    # 'sample-inline-variable' bug: https://github.com/apiaryio/snowcrash/issues/286
     'string'
     'string-literal'
     'variable-property'

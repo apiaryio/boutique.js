@@ -1,0 +1,41 @@
+{
+  "name": {
+    "literal": "sample-inline-attribute.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "class": "memberType",
+      "content": [
+        {
+          "class": "property",
+          "content": {
+            "name": {
+              "literal": "list"
+            },
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "3",
+                  "variable": false
+                },
+                {
+                  "literal": "4",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": "enum"
+                },
+                "attributes": [
+                  "sample"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

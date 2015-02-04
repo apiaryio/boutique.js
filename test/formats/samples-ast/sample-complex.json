@@ -1,0 +1,79 @@
+{
+  "name": {
+    "literal": "sample-complex.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "class": "memberType",
+      "content": [
+        {
+          "class": "property",
+          "content": {
+            "name": {
+              "literal": "colors"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": "array"
+                }
+              }
+            },
+            "sections": [
+              {
+                "class": "sample",
+                "content": [
+                  {
+                    "class": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "red",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "class": "sample",
+                "content": [
+                  {
+                    "class": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "blue",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "class": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "green",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

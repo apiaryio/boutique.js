@@ -7,8 +7,6 @@
 # Takes literal and MSON type and provides JSON value in corresponding type.
 coerceLiteral = (literal, typeName, cb) ->
   switch typeName
-    when 'string'
-      cb null, literal
     when 'number'
       return cb new Error "Literal '#{literal}' is not a number." if isNaN literal
       cb null, parseFloat literal, 10
@@ -16,6 +14,7 @@ coerceLiteral = (literal, typeName, cb) ->
       return cb new Error "Literal '#{literal}' is not 'true' or 'false'." if literal not in ['true', 'false']
       cb null, literal is 'true'
     else
+      return cb null, literal if typeName is 'string' or not typeName
       cb new Error "Literal '#{literal}' can't have type '#{typeName}'."
 
 
@@ -27,6 +26,7 @@ coerceLiteral = (literal, typeName, cb) ->
 # with items `hello, 1, 2, world`, where coercion to `number` throws errors,
 # but coercion to `string` is perfectly valid result.
 coerceNestedLiteral = (literal, typeNames, cb) ->
+  typeNames = [undefined] unless typeNames?.length
   detectSuccessful typeNames, (typeName, next) ->
     coerceLiteral literal, typeName, next
   , cb
