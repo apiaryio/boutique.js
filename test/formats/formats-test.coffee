@@ -95,7 +95,7 @@ testFormat
     # 'sample-inline-variable' bug: https://github.com/apiaryio/snowcrash/issues/286
     'string'
     'string-literal'
-    # 'variable-property'
+    'variable-property'
     'default-attribute'
     'default-section'
     'default-sample'

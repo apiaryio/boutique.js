@@ -152,6 +152,13 @@ hasAnyMemberSections = (elementNode) ->
   (section for section in (elementNode.content?.sections or []) when section.class is 'memberType').length
 
 
+# Detects whether given *Element* node of *property* class has
+# variable property name.
+hasVariablePropertyName = (propNode) ->
+  nameNode = propNode.content.name
+  not nameNode.literal and nameNode.variable?.values?.length
+
+
 # Lists possible 'heritage objects' which can be applied to
 # sub-members of given parent node. In most cases, the resulting array
 # will contain just one item, but for some MSON constructs, such as
@@ -199,6 +206,7 @@ module.exports = {
   haveVariableValues
   hasMultipleValues
   hasAnyMemberSections
+  hasVariablePropertyName
   listPossibleHeritages
   getHeritage
 }
