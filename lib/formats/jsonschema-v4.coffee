@@ -3,8 +3,8 @@
 
 async = require 'async'
 inspect = require '../inspect'
-{coerceLiteral} = require '../jsonutils'
 {resolveType, resolveTypes} = require '../typeresolution'
+{coerceLiteral, coerceNestedLiteral} = require '../jsonutils'
 
 
 # Coerces multiple literals to JSON Schema values in given type.
@@ -356,12 +356,21 @@ createElementHandler = (resolvedType) ->
 
 # Generates JSON Schema representation for given *Element* node.
 handleElement = (element, inherited, cb) ->
+  t = null
   async.waterfall [
     (next) -> resolveType element, inherited.typeName, next
     (resolvedType, next) ->
+      t = resolvedType
       handle = createElementHandler resolvedType
       handle element, resolvedType, inherited, next
     (repr, next) -> addDescription element, repr, next
+    (repr, next) ->
+      val = inspect.findDefault element
+      return next null, repr unless val
+      coerceNestedLiteral val.literal, t.nested, (err, value) ->
+        return next err if err
+        repr.default = value
+        next null, repr
   ], cb
 
 

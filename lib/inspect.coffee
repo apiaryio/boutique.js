@@ -35,6 +35,18 @@ findDescription = (elementNode) ->
   elementNode.content?.description
 
 
+# Finds default for given *Element* node.
+findDefault = (elementNode) ->
+  items = listNestedElements elementNode, ['default'], ['value']
+  if items.length
+    vals = listValues items[0]
+  else if 'default' in listAttributes elementNode
+    vals = listValues elementNode
+  else
+    return null
+  vals?[0]
+
+
 # Lists all defined values.
 listValues = (elementNode, excludeVariables = false) ->
   if excludeVariables
@@ -75,21 +87,21 @@ isPrimitive = (typeName) ->
 
 
 # Helper function.
-listNestedElements = (elementNode, classes) ->
+listNestedElements = (elementNode, sectionClasses, elementClasses) ->
   elements = []
-  for section in (elementNode.content?.sections or []) when section.class is 'memberType'
-    elements.push el for el in section.content when el.class in classes
+  for section in (elementNode.content?.sections or []) when section.class in sectionClasses
+    elements.push el for el in section.content when el.class in elementClasses
   elements
 
 
 # Takes *Element* carrying an object and lists its property nodes.
 listProperties = (objectElementNode) ->
-  listNestedElements objectElementNode, ['property', 'oneOf']
+  listNestedElements objectElementNode, ['memberType'], ['property', 'oneOf']
 
 
 # Takes *Element* carrying an array and lists its item nodes.
 listItems = (arrayElementNode) ->
-  listNestedElements arrayElementNode, ['value']
+  listNestedElements arrayElementNode, ['memberType'], ['value']
 
 
 # Convenience function.
@@ -145,6 +157,7 @@ module.exports = {
   findTypeName
   findPropertyName
   findDescription
+  findDefault
   listAttributes
   listProperties
   listItems

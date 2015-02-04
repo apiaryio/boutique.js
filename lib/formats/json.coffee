@@ -4,21 +4,8 @@
 async = require 'async'
 inspect = require '../inspect'
 {detectSuccessful} = require '../utils'
-{coerceLiteral} = require '../jsonutils'
 {resolveType} = require '../typeresolution'
-
-
-# Takes literal and MSON types and provides JSON value in
-# the corresponding type, which is the first to be able to successfully
-# perfom the coercion.
-#
-# This allows us to correctly coerce in situations like `array[number, string]`
-# with items `hello, 1, 2, world`, where coercion to `number` throws errors,
-# but coercion to `string` is perfectly valid result.
-coerceNestedLiteral = (literal, typeNames, cb) ->
-  detectSuccessful typeNames, (typeName, next) ->
-    coerceLiteral literal, typeName, next
-  , cb
+{coerceLiteral, coerceNestedLiteral} = require '../jsonutils'
 
 
 # Turns *Element* node containing object property into a 'resolved property'
