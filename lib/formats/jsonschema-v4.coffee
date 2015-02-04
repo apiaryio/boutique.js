@@ -250,7 +250,7 @@ buildEnumRepr = ({groups, inherited, inline, nonPrimitiveItems}, cb) ->
   , (err, {groupsReprs, reprs}) ->
     return cb err if err
 
-    Array::push.apply reprs, groupsReprs
+    reprs = reprs.concat groupsReprs
     repr = if reprs.length > 1 then anyOf: reprs else reprs?[0] or {}
     cb null, repr
 

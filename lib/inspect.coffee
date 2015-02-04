@@ -66,7 +66,7 @@ listSamples = (elementNode) ->
   vals = []
   items = listNestedElements elementNode, ['sample'], ['value']
   if items.length
-    Array::push.apply(vals, listValues(item)) for item in items
+    vals = vals.concat listValues(item) for item in items
   else if 'sample' in listAttributes elementNode
     vals = listValues elementNode
   else

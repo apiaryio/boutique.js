@@ -51,7 +51,7 @@ resolveProperties = (props, inherited, cb) ->
     if prop.class is 'oneOf'
       # oneOf can result in multiple properties
       resolveOneOf prop, inherited, (err, resolvedProps) ->
-        Array::push.apply results, resolvedProps
+        results = results.concat resolvedProps
         next err
     else
       resolveProperty prop, inherited, (err, resolvedProp) ->
