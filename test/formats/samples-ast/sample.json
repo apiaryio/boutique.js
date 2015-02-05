@@ -1,0 +1,61 @@
+{
+  "name": {
+    "literal": "sample.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "class": "memberType",
+      "content": [
+        {
+          "class": "property",
+          "content": {
+            "name": {
+              "literal": "list"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": "enum"
+                }
+              }
+            },
+            "sections": [
+              {
+                "class": "sample",
+                "content": [
+                  {
+                    "class": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "3",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "class": "value",
+                    "content": {
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "4",
+                            "variable": false
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

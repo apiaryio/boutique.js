@@ -191,6 +191,8 @@ buildArrayRepr = (context, cb) ->
 # Generates JSON Schema representation for given *Element* node containing
 # an array type.
 handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
+  return cb null, type: resolvedType.name if inspect.isSample arrayElement
+
   fixed = inspect.isOrInheritsFixed arrayElement, inherited
   heritage = inspect.getHeritage fixed, resolvedType
   items = inspect.listItems arrayElement
@@ -211,7 +213,10 @@ buildEnumValuesRepr = (group, inline, cb) ->
     literals = (inspect.listValues(item)[0].literal for item in group.items)
 
   coerceLiterals literals, typeName, (err, reprs) ->
-    cb err, ({type: typeName, enum: reprs} unless err)
+    return cb err if err
+    repr = type: typeName
+    repr.enum = reprs if reprs.length
+    cb null, repr
 
 
 # Builds JSON Schema representation for a group of items with primitive types
@@ -245,7 +250,7 @@ buildEnumRepr = ({groups, inherited, inline, nonPrimitiveItems}, cb) ->
   , (err, {groupsReprs, reprs}) ->
     return cb err if err
 
-    Array::push.apply reprs, groupsReprs
+    reprs = reprs.concat groupsReprs
     repr = if reprs.length > 1 then anyOf: reprs else reprs?[0] or {}
     cb null, repr
 
@@ -325,6 +330,8 @@ inspectEnum = (enumElement, resolvedType, cb) ->
 # Generates JSON Schema representation for given *Element* node containing
 # an enum type.
 handleEnumElement = (enumElement, resolvedType, inherited, cb) ->
+  return cb null, {} if inspect.isSample enumElement
+
   fixed = inspect.isOrInheritsFixed enumElement, inherited
   heritage = inspect.getHeritage fixed, resolvedType
 

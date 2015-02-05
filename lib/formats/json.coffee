@@ -51,7 +51,7 @@ resolveProperties = (props, inherited, cb) ->
     if prop.class is 'oneOf'
       # oneOf can result in multiple properties
       resolveOneOf prop, inherited, (err, resolvedProps) ->
-        Array::push.apply results, resolvedProps
+        results = results.concat resolvedProps
         next err
     else
       resolveProperty prop, inherited, (err, resolvedProp) ->
@@ -127,8 +127,11 @@ buildArrayRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
     return cb null, repr
 
   # inline arrays
-  return cb new Error "Multiple nested types for fixed array." if fixed and resolvedType.nested.length > 1
-  vals = inspect.listValues arrayElement
+  if fixed
+    return cb new Error "Multiple nested types for fixed array." if resolvedType.nested.length > 1
+    vals = inspect.listValues arrayElement
+  else
+    vals = inspect.listValuesOrSamples arrayElement
   async.mapSeries vals, (val, next) ->
     coerceNestedLiteral val.literal, resolvedType.nested, next
   , cb
@@ -163,7 +166,7 @@ buildEnumRepr = ({enumElement, resolvedItem, resolvedType}, cb) ->
 
   # inline enums
   return cb new Error "Multiple nested types for enum." if resolvedType.nested.length > 1
-  vals = inspect.listValues enumElement
+  vals = inspect.listValuesOrSamples enumElement
   if vals.length
     coerceLiteral vals[0].literal, resolvedType.nested[0], cb
   else

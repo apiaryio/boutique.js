@@ -61,6 +61,26 @@ listVariableValues = (elementNode) ->
   (val for val in (elementNode.content.valueDefinition?.values or []) when val.variable)
 
 
+# Lists all samples for given *Element* node.
+listSamples = (elementNode) ->
+  vals = []
+  items = listNestedElements elementNode, ['sample'], ['value']
+  if items.length
+    vals = vals.concat listValues(item) for item in items
+  else if 'sample' in listAttributes elementNode
+    vals = listValues elementNode
+  else
+    vals = listVariableValues elementNode
+  return vals
+
+
+# Lists all values and if no values are present, lists all samples.
+listValuesOrSamples = (elementNode) ->
+  vals = listValues elementNode
+  vals = listSamples elementNode unless vals.length
+  vals
+
+
 # Takes *Element* node and lists its attributes, such as `required`, `fixed`, etc.
 listAttributes = (elementNode) ->
   elementNode.content.valueDefinition?.typeDefinition?.attributes or []
@@ -74,6 +94,11 @@ isRequired = (elementNode) ->
 # Convenience function.
 isFixed = (elementNode) ->
   'fixed' in listAttributes elementNode
+
+
+# Convenience function.
+isSample = (elementNode) ->
+  'sample' in listAttributes elementNode
 
 
 # Convenience function.
@@ -163,8 +188,11 @@ module.exports = {
   listItems
   listValues
   listVariableValues
+  listSamples
+  listValuesOrSamples
   isRequired
   isFixed
+  isSample
   isOrInheritsFixed
   isPrimitive
   hasVariableValues
