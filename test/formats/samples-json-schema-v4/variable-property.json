@@ -9,8 +9,7 @@
             "type": "object",
             "properties": {
               "href": {
-                "type": "string",
-                "description": "a URI"
+                "type": "string"
               }
             }
           }

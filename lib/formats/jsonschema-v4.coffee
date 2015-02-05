@@ -39,7 +39,8 @@ resolveProperty = (prop, inherited, cb) ->
     (next) -> handleElement prop, inherited, next
     (repr, next) ->
       next null,
-        name: inspect.findPropertyName prop, false
+        name: inspect.findPropertyName prop
+        variableName: inspect.hasVariablePropertyName prop
         repr: repr
         required: inspect.isRequired prop
   ], cb
@@ -54,18 +55,23 @@ resolveProperties = (props, inherited, cb) ->
   , cb
 
 
-# Takes 'resolved properties' and generates JSON Schema
-# for `properties` keyword.
-buildPropertiesRepr = (resolvedProps, cb) ->
-  repr = {}
-  repr[rp.name] = rp.repr for rp in resolvedProps
-  cb null, repr
+# Groups resolved properties, e.g. according to the fact
+# whether their name is variable or not.
+groupResolvedProperties = (resolvedProps, cb) ->
+  groups =
+    regularProps: []
+    variableProps: []
+    requiredProps: []
 
+  for resolvedProp in resolvedProps
+    if resolvedProp.required
+      groups.requiredProps.push resolvedProp
+    if resolvedProp.variableName
+      groups.variableProps.push resolvedProp
+    else
+      groups.regularProps.push resolvedProp
 
-# Takes 'resolved properties' and generates JSON Schema
-# for `required` keyword.
-buildRequiredRepr = (resolvedProps, cb) ->
-  cb null, (rp.name for rp in resolvedProps when rp.required)
+  cb null, groups
 
 
 # Takes 'resolved properties' and generates JSON Schema for their wrapper
@@ -75,13 +81,25 @@ buildObjectRepr = ({resolvedProps, fixed}, cb) ->
   repr.additionalProperties = false if fixed
 
   if resolvedProps.length
-    async.parallel
-      propsRepr: (next) -> buildPropertiesRepr resolvedProps, next
-      reqRepr: (next) -> buildRequiredRepr resolvedProps, next
-    , (err, {propsRepr, reqRepr}) ->
-      repr.properties = propsRepr
-      repr.required = reqRepr if reqRepr?.length
-      cb null, repr
+    async.waterfall [
+      (next) -> groupResolvedProperties resolvedProps, next
+      ({regularProps, variableProps, requiredProps}, next) ->
+        if regularProps.length
+          propsRepr = {}
+          propsRepr[rp.name] = rp.repr for rp in regularProps
+          repr.properties = propsRepr
+
+        if variableProps.length is 1
+          repr.patternProperties = {'': variableProps[0].repr}
+
+        else if variableProps.length > 1
+          repr.patternProperties = {'': {}}
+
+        if requiredProps.length
+          repr.required = (rp.name for rp in requiredProps)
+
+        cb null, repr
+    ]
   else
     cb null, repr
 
