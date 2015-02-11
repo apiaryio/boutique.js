@@ -1,0 +1,64 @@
+{
+  "name": {
+    "literal": "object-fixed-optional.mson",
+    "variable": false
+  },
+  "sections": [
+    {
+      "class": "memberType",
+      "content": [
+        {
+          "class": "property",
+          "content": {
+            "name": {
+              "literal": "person"
+            },
+            "valueDefinition": {
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": "object"
+                },
+                "attributes": [
+                  "fixed"
+                ]
+              }
+            },
+            "sections": [
+              {
+                "class": "memberType",
+                "content": [
+                  {
+                    "class": "property",
+                    "content": {
+                      "name": {
+                        "literal": "first_name"
+                      }
+                    }
+                  },
+                  {
+                    "class": "property",
+                    "content": {
+                      "name": {
+                        "literal": "last_name"
+                      },
+                      "valueDefinition": {
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": null
+                          },
+                          "attributes": [
+                            "optional"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
