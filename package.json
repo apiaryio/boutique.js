@@ -10,15 +10,17 @@
   "engines": {
     "node": ">= 0.10.x"
   },
+  "main": "lib/index",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script/register ./test ./test/formats"
+    "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script/register ./test ./test/formats",
+    "install": "./node_modules/.bin/coffee -o lib src"
   },
   "dependencies": {
-    "coffee-script": "~1.7.1",
     "media-typer": "~0.3.0",
     "async": "~0.9.0"
   },
   "devDependencies": {
+    "coffee-script": "~1.7.1",
     "mocha": "~1.21.3",
     "chai": "~1.9.1"
   },

@@ -1,16 +1,16 @@
 
 async = require 'async'
 
-serializers = require './lib/serializers'
-{selectFormat} = require './lib/formatselection'
+serializers = require './serializers'
+{selectFormat} = require './formatselection'
 
 
 jsonSchemaV4 =
-  lib: require './lib/formats/jsonschema-v4'
+  lib: require './formats/jsonschema-v4'
   serialize: serializers.json
 
 json =
-  lib: require './lib/formats/json'
+  lib: require './formats/json'
   serialize: serializers.json
 
 formats =

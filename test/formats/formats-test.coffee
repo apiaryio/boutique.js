@@ -3,7 +3,7 @@ fs = require 'fs'
 path = require 'path'
 {assert} = require 'chai'
 
-boutique = require '../../index'
+boutique = require '../../src/index'
 
 
 readAstSample = (sampleName, cb) ->

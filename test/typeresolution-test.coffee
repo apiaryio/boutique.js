@@ -1,7 +1,7 @@
 require 'mocha'
 {assert} = require 'chai'
 
-{resolveType} = require '../lib/typeresolution'
+{resolveType} = require '../src/typeresolution'
 
 
 testTypeResolution = (description, {astTreeNode, typeName, nestedTypes, errContains}) ->
