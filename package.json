@@ -5,7 +5,7 @@
   "description": "The finest representations to emphasize natural beauty of your MSON AST",
   "repository" : {
     "type": "git",
-    "url": "https://github.com/apiaryio/boutique.git"
+    "url": "https://github.com/apiaryio/boutique.js.git"
   },
   "engines": {
     "node": ">= 0.10.x"

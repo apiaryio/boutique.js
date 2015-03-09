@@ -2,7 +2,7 @@
 
 Looking for the best fashion for your [MSON AST](https://github.com/apiaryio/mson-ast)? Boutique offers the finest quality, luxury representations to emphasize natural beauty of your AST.
 
-![illustration](https://github.com/apiaryio/boutique/blob/master/assets/boutique.png?raw=true)
+![illustration](https://github.com/apiaryio/boutique.js/blob/master/assets/boutique.png?raw=true)
 
 ## Introduction
 
@@ -10,7 +10,7 @@ Imagine you have some [MSON](https://github.com/apiaryio/mson) to describe body 
 
 Boutique takes an [MSON AST](https://github.com/apiaryio/mson-ast) and provides a representation of it in JSON, JSON Schema or other formats.
 
-![diagram](https://github.com/apiaryio/boutique/blob/master/assets/boutique-diagram.png?raw=true)
+![diagram](https://github.com/apiaryio/boutique.js/blob/master/assets/boutique-diagram.png?raw=true)
 
 > **NOTE:** Boutique knows nothing about hypermedia. For example, it understands that `application/hal+json` means it should generate JSON, but it generates *plain* JSON. To generate [HAL](http://stateless.co/hal_specification.html) document properly, the AST has to explicitly contain all HAL structures already on input to this tool.
 
@@ -65,7 +65,7 @@ boutique.represent({ast, contentType}, cb)
     -   `application/schema+json` → `application/schema+json`
     -   `application/hal+json` → `application/json`
 
-    > **NOTE:** Distinguishing JSON Schema draft versions by matching according to `profile` parameter is [not implemented yet](https://github.com/apiaryio/boutique/issues/14).
+    > **NOTE:** Distinguishing JSON Schema draft versions by matching according to `profile` parameter is [not implemented yet](https://github.com/apiaryio/boutique.js/issues/14).
 
 -   `cb` ([Represent Callback](#represent-callback-function), required) - callback function
 
