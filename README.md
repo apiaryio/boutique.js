@@ -84,3 +84,21 @@ callback(err, repr, contentType)
 -   `err`: `null` (object, default) - Exception object in case of error
 -   `repr` (string) - final string representation of given AST in given format
 -   `contentType` (string) - selected content type, which was actually used for rendering the representation
+
+## Testing
+
+Inside the Boutique repository you can execute the following to run the test suite:
+
+```bash
+$ npm install
+$ npm test
+```
+
+## Contribute
+
+Fork & Pull Request.
+
+## License
+
+Boutique is released under the BSD license. See [LICENSE](https://github.com/apiaryio/boutique.js/blob/master/LICENSE).
+

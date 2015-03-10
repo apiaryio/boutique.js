@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "author": "Apiary.io <support@apiary.io>",
   "description": "The finest representations to emphasize natural beauty of your MSON AST",
+  "license": "MIT",
   "repository" : {
     "type": "git",
     "url": "https://github.com/apiaryio/boutique.js.git"
