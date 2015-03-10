@@ -1,6 +1,6 @@
 {
   "name": "boutique",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "Apiary.io <support@apiary.io>",
   "description": "The finest representations to emphasize natural beauty of your MSON AST",
   "license": "MIT",
@@ -13,15 +13,15 @@
   },
   "main": "lib/index",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script/register ./test ./test/formats",
-    "install": "./node_modules/.bin/coffee -o lib src"
+    "test": "scripts/test",
+    "test": "scripts/build"
   },
   "dependencies": {
     "media-typer": "~0.3.0",
-    "async": "~0.9.0",
-    "coffee-script": "~1.7.1"
+    "async": "~0.9.0"
   },
   "devDependencies": {
+    "coffee-script": "~1.7.1",
     "mocha": "~1.21.3",
     "chai": "~1.9.1"
   },
