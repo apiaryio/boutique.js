@@ -8,7 +8,7 @@ Looking for the best fashion for your [MSON AST](https://github.com/apiaryio/mso
 
 ## Introduction
 
-Imagine you have some [MSON](https://github.com/apiaryio/mson) to describe body attributes in your [API Blueprint](https://github.com/apiaryio/api-blueprint/). Drafter should be able to not only to parse it, but also to provide representations of those body attributes in formats you specified, e.g. in `application/json`. Boutique is a simple tool to do exactly that.
+Imagine you have some [MSON](https://github.com/apiaryio/mson) to describe body attributes in your [API Blueprint](https://github.com/apiaryio/api-blueprint/). Drafter should be able not only to parse it, but also to provide representations of those body attributes in formats you specified, e.g. in `application/json`. Boutique is a simple tool to do exactly that.
 
 Boutique takes an [MSON AST](https://github.com/apiaryio/mson-ast) and provides a representation of it in JSON, JSON Schema or other formats.
 
