@@ -12,14 +12,12 @@ inspect = require '../inspect'
 # object with both representation in JSON and optionally also
 # some additional info.
 resolveProperty = (prop, inherited, cb) ->
-  async.waterfall [
-    (next) -> handleElement prop, inherited, next
-    (repr, next) ->
-      next null,
-        name: inspect.findPropertyName prop
-        repr: repr
-  ], cb
+  handleElement prop, inherited, (err, repr) ->
+    return cb err if err
 
+    cb null,
+      name: inspect.findPropertyName prop
+      repr: repr
 
 # Turns *Element* node containing oneOf into an array
 # of 'resolved property' objects with both representation in JSON and
@@ -76,21 +74,20 @@ handleObjectElement = (objectElement, resolvedType, inherited, cb) ->
   heritage = inspect.getHeritage fixed, resolvedType
   props = inspect.listProperties objectElement
 
-  async.waterfall [
-    (next) -> resolveProperties props, heritage, next
-    (resolvedProps, next) -> buildObjectRepr {resolvedProps}, next
-  ], cb
+  resolveProperties props, heritage, (err, resolvedProps) ->
+    return cb err if err
+
+    buildObjectRepr {resolvedProps}, cb
 
 
 # Turns *Element* node containing array or enum item into a 'resolved item'
 # object with both representation in JSON and optionally also
 # some additional info.
 resolveItem = (item, inherited, cb) ->
-  async.waterfall [
-    (next) -> handleElement item, inherited, next
-    (repr, next) -> next null, {repr}  # no additional info needed in this case
-  ], cb
+  handleElement item, inherited, (err, repr) ->
+    return cb err if err
 
+    cb null, {repr}
 
 # Turns a list of *Element* nodes containing array items into an array
 # of 'resolved item' objects with both representation in JSON and
@@ -132,6 +129,7 @@ buildArrayRepr = ({arrayElement, resolvedItems, resolvedType, fixed}, cb) ->
     vals = inspect.listValues arrayElement
   else
     vals = inspect.listValuesOrSamples arrayElement
+
   async.mapSeries vals, (val, next) ->
     coerceNestedLiteral val.literal, resolvedType.nested, next
   , cb
@@ -144,10 +142,10 @@ handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
   heritages = inspect.listPossibleHeritages fixed, resolvedType
   items = inspect.listItems arrayElement
 
-  async.waterfall [
-    (next) -> resolveArrayItems items, heritages, next
-    (resolvedItems, next) -> buildArrayRepr {arrayElement, resolvedItems, resolvedType, fixed}, next
-  ], cb
+  resolveArrayItems items, heritages, (err, resolvedItems) ->
+    return cb err if err
+
+    buildArrayRepr {arrayElement, resolvedItems, resolvedType, fixed}, cb
 
 
 # Resolves items as enum values. Produces only one 'resolved item' object or
@@ -180,10 +178,10 @@ handleEnumElement = (enumElement, resolvedType, inherited, cb) ->
   heritage = inspect.getHeritage fixed, resolvedType
   items = inspect.listItems enumElement
 
-  async.waterfall [
-    (next) -> resolveEnumItems items, heritage, next
-    (resolvedItem, next) -> buildEnumRepr {enumElement, resolvedItem, resolvedType}, next
-  ], cb
+  resolveEnumItems items, heritage, (err, resolvedItem) ->
+    return cb err if err
+
+    buildEnumRepr {enumElement, resolvedItem, resolvedType}, cb
 
 
 # Generates JSON representation for given *Element* node containing a primitive
@@ -211,12 +209,11 @@ createElementHandler = (resolvedType) ->
 
 # Generates JSON representation for given *Element* node.
 handleElement = (element, inherited, cb) ->
-  async.waterfall [
-    (next) -> resolveType element, inherited.typeName, next
-    (resolvedType, next) ->
-      handle = createElementHandler resolvedType
-      handle element, resolvedType, inherited, next
-  ], cb
+  resolveType element, inherited.typeName, (err, resolvedType) ->
+    return cb err if err
+
+    handle = createElementHandler resolvedType
+    handle element, resolvedType, inherited, cb
 
 
 # Transforms given MSON AST into JSON.
