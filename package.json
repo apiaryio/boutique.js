@@ -14,19 +14,19 @@
   "main": "lib/index",
   "scripts": {
     "test": "scripts/test",
-    "test": "scripts/build"
+    "prepublish": "scripts/build"
   },
   "dependencies": {
     "media-typer": "~0.3.0",
     "async": "~0.9.0"
   },
   "devDependencies": {
+    "protagonist-experimental": "0.18.2",
     "coffee-script": "~1.7.1",
     "mocha": "~1.21.3",
     "chai": "~1.9.1"
   },
   "optionalDependencies": {
-    "protagonist-experimental": "0.18.2",
     "tv4": "~1.1.5"
   }
 }
