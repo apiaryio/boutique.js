@@ -31,15 +31,11 @@ represent = ({ast, contentType}, cb) ->
 
     {lib, serialize} = formats[selectedContentType]
 
-    async.waterfall [
-        (next) ->
-          lib.transform ast, next
-      ,
-        (obj, next) ->
-          serialize obj, next
+    lib.transform ast, (err, obj) ->
+      return cb err if err
 
-    ], (err, repr) ->
-      cb err, repr, selectedContentType
+      serialize obj, (err, repr) ->
+        cb err, repr, selectedContentType
 
 
 module.exports = {

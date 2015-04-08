@@ -35,16 +35,14 @@ addDefault = (element, resolvedType, repr, cb) ->
 # object with both representation in JSON Schema and optionally also
 # some additional info.
 resolveProperty = (prop, inherited, cb) ->
-  async.waterfall [
-    (next) -> handleElement prop, inherited, next
-    (repr, next) ->
-      next null,
-        name: inspect.findPropertyName prop
-        variableName: inspect.hasVariablePropertyName prop
-        repr: repr
-        required: inspect.isRequired prop, inherited
-  ], cb
+  handleElement prop, inherited, (err, repr) ->
+    return cb err if err
 
+    cb null,
+      name: inspect.findPropertyName prop
+      variableName: inspect.hasVariablePropertyName prop
+      repr: repr
+      required: inspect.isRequired prop, inherited
 
 # Turns multiple *Element* nodes containing object properties into
 # 'resolved property' objects with both representation in JSON Schema
@@ -81,25 +79,26 @@ buildObjectRepr = ({resolvedProps, fixed}, cb) ->
   repr.additionalProperties = false if fixed
 
   if resolvedProps.length
-    async.waterfall [
-      (next) -> groupResolvedProperties resolvedProps, next
-      ({regularProps, variableProps, requiredProps}, next) ->
-        if regularProps.length
-          propsRepr = {}
-          propsRepr[rp.name] = rp.repr for rp in regularProps
-          repr.properties = propsRepr
+    groupResolvedProperties resolvedProps, (err, allProps) ->
+      return cb err if err
 
-        if variableProps.length is 1
-          repr.patternProperties = {'': variableProps[0].repr}
+      {regularProps, variableProps, requiredProps} = allProps
 
-        else if variableProps.length > 1
-          repr.patternProperties = {'': {}}
+      if regularProps.length
+        propsRepr = {}
+        propsRepr[rp.name] = rp.repr for rp in regularProps
+        repr.properties = propsRepr
 
-        if requiredProps.length
-          repr.required = (rp.name for rp in requiredProps)
+      if variableProps.length is 1
+        repr.patternProperties = {'': variableProps[0].repr}
 
-        cb null, repr
-    ]
+      else if variableProps.length > 1
+        repr.patternProperties = {'': {}}
+
+      if requiredProps.length
+        repr.required = (rp.name for rp in requiredProps)
+
+      cb null, repr
   else
     cb null, repr
 
@@ -111,23 +110,21 @@ handleObjectElement = (objectElement, resolvedType, inherited, cb) ->
   heritage = inspect.getHeritage fixed
   props = inspect.listProperties objectElement
 
-  async.waterfall [
-    (next) -> resolveProperties props, heritage, next
-    (resolvedProps, next) -> buildObjectRepr {resolvedProps, fixed}, next
-  ], cb
+  resolveProperties props, heritage, (err, resolvedProps) ->
+    return cb err if err
+
+    buildObjectRepr {resolvedProps, fixed}, cb
 
 
 # Turns *Element* node containing array or enum item into a 'resolved item'
 # object with both representation in JSON Schema and optionally also
 # some additional info.
 resolveItem = (item, inherited, cb) ->
-  async.waterfall [
-    (next) -> handleElement item, inherited, next
-    (repr, next) ->
-      next null,
-        repr: repr
-        fixed: inspect.isFixed item
-  ], cb
+  handleElement item, inherited, (err, repr) ->
+    return cb err if err
+    cb null,
+      repr: repr
+      fixed: inspect.isFixed item
 
 
 # Turns multiple *Element* nodes containing array or enum item into
@@ -215,10 +212,10 @@ handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
   heritage = inspect.getHeritage fixed, resolvedType
   items = inspect.listItems arrayElement
 
-  async.waterfall [
-    (next) -> resolveItems items, heritage, next
-    (resolvedItems, next) -> buildArrayRepr {arrayElement, resolvedItems, resolvedType, fixed}, next
-  ], cb
+  resolveItems items, heritage, (err, resolvedItems) ->
+    return cb err if err
+
+    buildArrayRepr {arrayElement, resolvedItems, resolvedType, fixed}, cb
 
 
 # Builds JSON Schema representation for a group of items with primitive types
@@ -295,15 +292,17 @@ groupItemsByPrimitiveTypes = (items, resolvedTypes, cb) ->
 # Helper function to inspect inline enum *Element* nodes. Groups items by their
 # primitive type and gets information about how to render these groups.
 inspectEnumItems = (items, nestedTypeName, cb) ->
-  async.waterfall [
-    (next) -> resolveTypes items, nestedTypeName, next
-    (resolvedTypes, next) -> groupItemsByPrimitiveTypes items, resolvedTypes, next
-    (groups, nonPrimitiveItems, next) ->
+  resolveTypes items, nestedTypeName, (err, resolvedTypes) ->
+    return cb err if err
+
+    groupItemsByPrimitiveTypes items, resolvedTypes, (err, groups, nonPrimitiveItems) ->
+      return cb err if err
+
       for group in groups
         hasSamples = inspect.haveVariableValues group.items
         group.strategy = if hasSamples then 'singleType' else 'values'
-      next null, {inline: false, groups, nonPrimitiveItems}
-  ], cb
+
+      cb null, {inline: false, groups, nonPrimitiveItems}
 
 
 # Helper function to inspect inline enum *Element* nodes. Creates one mostly
@@ -353,12 +352,11 @@ handleEnumElement = (enumElement, resolvedType, inherited, cb) ->
   fixed = inspect.isOrInheritsFixed enumElement, inherited
   heritage = inspect.getHeritage fixed, resolvedType
 
-  async.waterfall [
-    (next) -> inspectEnum enumElement, resolvedType, next
-    (context, next) ->
-      context.inherited = heritage
-      buildEnumRepr context, next
-  ], cb
+  inspectEnum enumElement, resolvedType, (err, context) ->
+    return cb err if err
+
+    context.inherited = heritage
+    buildEnumRepr context, cb
 
 
 # Generates JSON Schema representation for given *Element* node containing
@@ -391,16 +389,18 @@ createElementHandler = (resolvedType) ->
 
 # Generates JSON Schema representation for given *Element* node.
 handleElement = (element, inherited, cb) ->
-  async.waterfall [
-    (next) -> resolveType element, inherited.typeName, next
-    (resolvedType, next) ->
-      handle = createElementHandler resolvedType
-      async.waterfall [
-        (done) -> handle element, resolvedType, inherited, done
-        (repr, done) -> addDescription element, repr, done
-        (repr, done) -> addDefault element, resolvedType, repr, done
-      ], next
-  ], cb
+  resolveType element, inherited.typeName, (err, resolvedType) ->
+    return cb err if err
+
+    handle = createElementHandler resolvedType
+
+    handle element, resolvedType, inherited, (err, repr) ->
+      return cb err if err
+
+      addDescription element, repr, (err, repr) ->
+        return cb err if err
+
+        addDefault element, resolvedType, repr, cb
 
 
 # Adds JSON Schema declaration to given representation object.
@@ -411,10 +411,10 @@ addSchemaDeclaration = (repr, cb) ->
 
 # Transforms given MSON AST into JSON Schema.
 transform = (ast, cb) ->
-  async.waterfall [
-    (next) -> handleElement inspect.getAsElement(ast), {}, next
-    addSchemaDeclaration
-  ], cb
+  handleElement inspect.getAsElement(ast), {}, (err, repr) ->
+    return cb err if err
+
+    addSchemaDeclaration repr, cb
 
 
 module.exports = {

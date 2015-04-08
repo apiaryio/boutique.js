@@ -47,11 +47,11 @@ simplifyTypeSpecification = (typeSpec, cb) ->
   name = inspect.findTypeName typeSpec
   return cb null, null if not name  # no type name? return null...
 
-  async.waterfall [
-    (next) -> ensureBaseType name, next
-    (next) -> simplifyNestedTypes typeSpec, next
-  ], (err, nested) ->
-    cb err, ({name, nested} unless err)
+  ensureBaseType name, (err) ->
+    return cb err if err
+
+    simplifyNestedTypes typeSpec, (err, nested) ->
+      cb err, ({name, nested} unless err)
 
 
 # Helps to identify whether given *Element* node contains an implicit array.
