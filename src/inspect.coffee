@@ -123,7 +123,8 @@ isPrimitive = (typeName) ->
 listNestedElements = (elementNode, sectionClasses, elementClasses) ->
   elements = []
   for section in (elementNode.content?.sections or []) when section.class in sectionClasses
-    elements.push el for el in section.content when el.class in elementClasses
+    if section.content?
+      elements.push el for el in section.content when el.class in elementClasses
   elements
 
 
