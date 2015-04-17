@@ -222,10 +222,15 @@ handleArrayElement = (arrayElement, resolvedType, inherited, cb) ->
 # within enum *Element* node. Implements 'values' rendering strategy.
 buildEnumValuesRepr = (group, inline, cb) ->
   typeName = group.typeName
+
   if inline
     literals = (val.literal for val in group.values)
   else
-    literals = (inspect.listValues(item)[0].literal for item in group.items)
+    literals = []
+
+    for item in group.items
+      values = inspect.listValues(item)
+      literals.push values[0].literal if values.length
 
   coerceLiterals literals, typeName, (err, reprs) ->
     return cb err if err
