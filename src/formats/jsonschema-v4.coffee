@@ -35,6 +35,8 @@ addDefault = (element, resolvedType, repr, cb) ->
 # object with both representation in JSON Schema and optionally also
 # some additional info.
 resolveProperty = (prop, inherited, cb) ->
+  return cb(null, {}) if prop.class is 'oneOf'
+
   handleElement prop, inherited, (err, repr) ->
     return cb err if err
 
