@@ -163,4 +163,5 @@ testFormat
     'string'
     'string-literal'
     'variable-property'
+    'deep-nested'
   ]
