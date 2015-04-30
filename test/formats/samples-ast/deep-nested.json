@@ -1,0 +1,139 @@
+{
+  "element": "resolvedDataStructure",
+  "name": null,
+  "typeDefinition": {
+    "typeSpecification": {
+      "name": "object",
+      "nestedTypes": []
+    },
+    "attributes": []
+  },
+  "sections": [
+    {
+      "class": "memberType",
+      "content": [
+        {
+          "content": {
+            "name": {
+              "literal": "a"
+            },
+            "description": "",
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "b",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": null,
+                  "nestedTypes": []
+                },
+                "attributes": []
+              }
+            },
+            "sections": []
+          },
+          "class": "property"
+        },
+        {
+          "content": {
+            "name": {
+              "literal": "c"
+            },
+            "description": "",
+            "valueDefinition": {
+              "values": [],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": "array",
+                  "nestedTypes": []
+                },
+                "attributes": []
+              }
+            },
+            "sections": [
+              {
+                "class": "memberType",
+                "content": [
+                  {
+                    "content": {
+                      "description": "",
+                      "valueDefinition": {
+                        "values": [],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": "object",
+                            "nestedTypes": []
+                          },
+                          "attributes": []
+                        }
+                      },
+                      "sections": [
+                        {
+                          "class": "memberType",
+                          "content": [
+                            {
+                              "content": {
+                                "name": {
+                                  "literal": "id"
+                                },
+                                "description": "",
+                                "valueDefinition": {
+                                  "values": [
+                                    {
+                                      "literal": "pavan",
+                                      "variable": false
+                                    }
+                                  ],
+                                  "typeDefinition": {
+                                    "typeSpecification": {
+                                      "name": null,
+                                      "nestedTypes": []
+                                    },
+                                    "attributes": []
+                                  }
+                                },
+                                "sections": []
+                              },
+                              "class": "property"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "class": "value"
+                  },
+                  {
+                    "content": {
+                      "description": "",
+                      "valueDefinition": {
+                        "values": [
+                          {
+                            "literal": "pkumar",
+                            "variable": false
+                          }
+                        ],
+                        "typeDefinition": {
+                          "typeSpecification": {
+                            "name": null,
+                            "nestedTypes": []
+                          },
+                          "attributes": []
+                        }
+                      },
+                      "sections": []
+                    },
+                    "class": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          "class": "property"
+        }
+      ]
+    }
+  ]
+}

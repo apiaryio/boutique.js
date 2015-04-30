@@ -88,6 +88,7 @@ testFormat
     # 'one-of'
     # 'one-of-complex'
     # 'one-of-properties'
+    # 'one-of-empty'
     'optional'
     'required'
     'required-array'
@@ -150,6 +151,7 @@ testFormat
     'one-of'
     'one-of-complex'
     'one-of-properties'
+    'one-of-empty'
     'optional'
     'required'
     'required-array'
@@ -161,4 +163,5 @@ testFormat
     'string'
     'string-literal'
     'variable-property'
+    'deep-nested'
   ]

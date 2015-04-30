@@ -1,0 +1,47 @@
+{
+  "element": "resolvedDataStructure",
+  "name": null,
+  "typeDefinition": {
+    "typeSpecification": {
+      "name": "object",
+      "nestedTypes": []
+    },
+    "attributes": []
+  },
+  "sections": [
+    {
+      "class": "memberType",
+      "content": [
+        {
+          "class": "property",
+          "content": {
+            "name": {
+              "literal": "city"
+            },
+            "description": "",
+            "valueDefinition": {
+              "values": [
+                {
+                  "literal": "prague",
+                  "variable": false
+                }
+              ],
+              "typeDefinition": {
+                "typeSpecification": {
+                  "name": null,
+                  "nestedTypes": []
+                },
+                "attributes": []
+              }
+            },
+            "sections": []
+          }
+        },
+        {
+          "class": "oneOf",
+          "content": []
+        }
+      ]
+    }
+  ]
+}

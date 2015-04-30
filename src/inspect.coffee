@@ -27,7 +27,7 @@ findTypeName = (typeSpec) ->
 # Finds type name within *Element* node of *property* class.
 findPropertyName = (propNode, variable = true) ->
   nameNode = propNode.content.name
-  nameNode.literal or (nameNode.variable?.values?[0].literal if variable)
+  nameNode.literal or (nameNode.variable?.values?[0]?.literal if variable)
 
 
 # Finds inline description for given *Element* node.

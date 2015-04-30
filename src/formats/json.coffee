@@ -47,6 +47,8 @@ resolveProperties = (props, inherited, cb) ->
   results = []
   async.eachSeries props, (prop, next) ->
     if prop.class is 'oneOf'
+      return next() if !prop.content.length
+
       # oneOf can result in multiple properties
       resolveOneOf prop, inherited, (err, resolvedProps) ->
         results = results.concat resolvedProps
