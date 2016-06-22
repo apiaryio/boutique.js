@@ -2,6 +2,10 @@
 
 [![Circle CI Status](https://img.shields.io/circleci/project/apiaryio/boutique.js.svg)](https://circleci.com/gh/apiaryio/boutique.js/tree/master)
 
+## Deprecation Notice
+
+This project is superseded by [Drafter][https://github.com/apiaryio/drafter].
+
 Looking for the best fashion for your [MSON AST](https://github.com/apiaryio/mson-ast)? Boutique offers the finest quality, luxury representations to emphasize natural beauty of your AST.
 
 ![illustration](https://github.com/apiaryio/boutique.js/blob/master/assets/boutique.png?raw=true)
